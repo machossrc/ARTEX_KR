@@ -82,7 +82,7 @@ export function ChangePasswordDialog({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cp-new">新密码</Label>
+              <Label htmlFor="cp-new">새 비밀번호</Label>
               <Input
                 id="cp-new"
                 type="password"

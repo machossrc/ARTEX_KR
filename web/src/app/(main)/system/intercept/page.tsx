@@ -293,7 +293,7 @@ function JudgeCard() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="text-xs text-muted-foreground">{cfg.enabled ? "已启用" : "未启用"}</span>
+          <span className="text-xs text-muted-foreground">{cfg.enabled ? "已启用" : "활성화되지 않음"}</span>
           <Switch checked={cfg.enabled} disabled={loading} onCheckedChange={(v) => patch({ enabled: v })} />
         </div>
       </div>
@@ -317,7 +317,7 @@ function JudgeCard() {
               <JudgeStat label="审批调用" value={usage.calls.toLocaleString()} />
               <JudgeStat label="输入 Token" value={fmtTokens(usage.input_tokens)} />
               <JudgeStat label="输出 Token" value={fmtTokens(usage.output_tokens)} />
-              <JudgeStat label="缓存读" value={fmtTokens(usage.cache_read_tokens)} />
+              <JudgeStat label="캐시 읽기" value={fmtTokens(usage.cache_read_tokens)} />
               <JudgeStat label="缓存写" value={fmtTokens(usage.cache_write_tokens)} />
             </div>
             {usage.daily.length > 0 && (
@@ -633,7 +633,7 @@ export default function InterceptPage() {
             </span>
           ) : (
             <>
-              <Badge variant="secondary" className="shrink-0">{scopeTools.length} 个工具</Badge>
+              <Badge variant="secondary" className="shrink-0">{scopeTools.length} 개의 도구</Badge>
               <span className="truncate text-muted-foreground" title={scopeTools.join("、")}>
                 {scopeTools.join("、")}
               </span>
@@ -653,7 +653,7 @@ export default function InterceptPage() {
 
       <Tabs defaultValue="rules" className="flex-1">
         <TabsList>
-          <TabsTrigger value="rules">拦截规则</TabsTrigger>
+          <TabsTrigger value="rules">차단 규칙</TabsTrigger>
           <TabsTrigger value="judge">模型配置</TabsTrigger>
         </TabsList>
 
@@ -687,7 +687,7 @@ export default function InterceptPage() {
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[72px]">우선순위</TableHead>
-                  <TableHead>名称</TableHead>
+                  <TableHead>이름</TableHead>
                   <TableHead className="w-[90px]">목표</TableHead>
                   <TableHead className="w-[80px]">유형</TableHead>
                   <TableHead>模式</TableHead>
@@ -770,7 +770,7 @@ export default function InterceptPage() {
           </SheetHeader>
 
           <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
-            <Field label="名称">
+            <Field label="이름">
               <Input
                 placeholder="给规则起个名字"
                 value={form.name}

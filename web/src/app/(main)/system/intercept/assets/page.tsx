@@ -180,7 +180,7 @@ export default function AssetInterceptPage() {
       <div className="flex items-center gap-2.5">
         <BanIcon className="h-5 w-5 shrink-0" />
         <div>
-          <h1 className="text-lg font-semibold leading-tight">资产拦截</h1>
+          <h1 className="text-lg font-semibold leading-tight">자산 차단</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             全局资产黑名单：命中的域名 / IP / URL / 网段将被拦截，不对其执行任何操作
           </p>

@@ -11,6 +11,12 @@
 ] as const;
 
 export type MentionKind = (typeof mentionKinds)[number]["kind"];
+// Historical labels are protocol aliases for saved conversations; do not translate.
+const legacyMentionLabels: Record<MentionKind, string> = {
+  finding: "漏洞", asset: "资产", company: "企业", endpoint: "接口", ip: "IP",
+  app: "应用", root_domain: "域名", subdomain: "子域名", service: "服务",
+};
+
 export interface ChatMention {
   kind: MentionKind;
   id: number;
@@ -30,7 +36,7 @@ export function activeMention(value: string, caret: number) {
 export function mentionSearch(query: string) {
   const text = query.trimStart().toLowerCase();
   for (const item of mentionKinds) {
-    for (const alias of [item.label.toLowerCase(), item.alias]) {
+    for (const alias of [item.label.toLowerCase(), item.alias, legacyMentionLabels[item.kind].toLowerCase()]) {
       if (text === alias || text.startsWith(`${alias} `) || (/[^a-z]/.test(alias) && text.startsWith(alias))) {
         return { kind: item.kind, query: query.trimStart().slice(alias.length).trim(), categories: [] };
       }
@@ -52,7 +58,7 @@ export function mentionToken(item: ChatMention) {
 }
 
 export function selectedMentions(value: string) {
-  return [...value.matchAll(/@\[(漏洞|资产|企业|接口|IP|应用|域名|子域名|服务)#([0-9]+)(?: ([^\]\r\n]*))?\]/g)].map(
+  return [...value.matchAll(/@\[(취약점|자산|기업|인터페이스|IP|앱|도메인|하위 도메인|서비스|漏洞|资产|企业|接口|应用|域名|子域名|服务)#([0-9]+)(?: ([^\]\r\n]*))?\]/g)].map(
     (match) => ({
       token: match[0],
       label: `${match[1]} #${match[2]}${match[3] ? ` · ${match[3]}` : ""}`,

@@ -201,7 +201,7 @@ function ToolEditor({
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4">
         {trafficGated && (
           <div className="border-amber-500/40 bg-amber-500/10 text-muted-foreground rounded-md border px-3 py-2 text-xs">
-            该工具依赖<b>流量捕获</b>。请先在「系统配置」开启流量捕获，才能绑定给 Agent 并启用。
+            该工具依赖<b>트래픽 캡처</b>。请先在「系统配置」开启流量捕获，才能绑定给 Agent 并启用。
           </div>
         )}
         {/* binding + switch */}
@@ -321,7 +321,7 @@ function ToolGridCard({ tool, onClick }: { tool: Tool; onClick: () => void }) {
         <span className="font-mono text-sm font-medium">{tool.key}</span>
         {tool.system ? (
           <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-            系统
+            시스템
           </Badge>
         ) : (
           <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
@@ -429,7 +429,7 @@ export default function ToolsPage() {
               <CardDescription>
                 {query.trim()
                   ? `${systemTools.length} / ${allSystemCount} 个匹配，点击卡片编辑描述、参数默认值与 Agent 绑定`
-                  : `共 ${allSystemCount} 个，点击卡片编辑描述、参数默认值与 Agent 绑定`}
+                  : `총  ${allSystemCount} 个，点击卡片编辑描述、参数默认值与 Agent 绑定`}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -631,7 +631,7 @@ function CustomToolDialog({
     try {
       if (isNew) await api.createCustomTool({ key: key.trim(), ...payload });
       else await api.updateCustomTool(tool!.key, payload);
-      toast.success(isNew ? "已创建自定义工具" : "已保存");
+      toast.success(isNew ? "已创建自定义工具" : "저장했습니다");
       onSaved();
     } catch (e) {
       toast.error("저장 실패: " + (e as Error).message);

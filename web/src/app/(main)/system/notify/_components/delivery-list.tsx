@@ -95,7 +95,7 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
         <Button size="sm" variant="outline" onClick={load} disabled={loading}>
           <RefreshCwIcon className={loading ? "animate-spin" : ""} /> 새로고침
         </Button>
-        <span className="text-muted-foreground ml-auto text-xs">共 {total} 건</span>
+        <span className="text-muted-foreground ml-auto text-xs">총  {total} 건</span>
       </div>
 
       <Card className="py-0">

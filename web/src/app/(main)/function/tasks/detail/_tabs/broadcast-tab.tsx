@@ -399,7 +399,7 @@ function BroadcastRow({
           <div className="mt-2 ml-5 flex flex-col gap-3 rounded-md border bg-muted/30 p-3">
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>
-                节点 <code className="font-mono">#{node.id}</code>
+                노드 <code className="font-mono">#{node.id}</code>
               </span>
               <span>유형 {meta.label}</span>
               <span>출처 {node.origin || "system"}</span>
@@ -696,7 +696,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
             <SelectGroup>
               {PAGE_SIZES.map((n) => (
                 <SelectItem key={n} value={String(n)}>
-                  {n} / 页
+                  {n} / 페이지
                 </SelectItem>
               ))}
             </SelectGroup>

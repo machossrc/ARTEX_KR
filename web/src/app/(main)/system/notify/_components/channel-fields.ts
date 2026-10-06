@@ -101,7 +101,7 @@ export const CHANNEL_FIELDS: Record<string, FieldDef[]> = {
     { key: "host", label: "SMTP 服务器", kind: "text", placeholder: "smtp.example.com" },
     {
       key: "port",
-      label: "端口",
+      label: "포트",
       kind: "number",
       placeholder: "587",
       help: "587 走 STARTTLS；465 请把「隐式 TLS」打开",

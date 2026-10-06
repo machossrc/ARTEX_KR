@@ -162,7 +162,7 @@ export default function LogsPage() {
                 className="h-8"
                 onClick={() => setLevel(lv)}
               >
-                {lv === "all" ? "全部" : lv}
+                {lv === "all" ? "전체" : lv}
               </Button>
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function LogsPage() {
             className="h-8"
             onClick={() => setPaused((p) => !p)}
           >
-            {paused ? "일시 중지됨" : "暂停"}
+            {paused ? "일시 중지됨" : "일시 중지"}
           </Button>
           <Button size="sm" variant="outline" className="h-8" onClick={() => setLines([])}>
             清空

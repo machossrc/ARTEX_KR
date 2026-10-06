@@ -42,7 +42,7 @@ const toStore = (v: string) => (v === NONE ? "" : v);
 const THINKING_TYPES: { value: string; label: string }[] = [
   { value: NONE, label: "不发送（默认）" },
   { value: "disabled", label: "닫기" },
-  { value: "enabled", label: "开启" },
+  { value: "enabled", label: "활성화" },
 ];
 // 输出上限用哪个请求字段名（仅 openai 格式有意义）。NONE ↔ "" 走同一套哨兵转换。
 const MAX_TOKENS_FIELDS: { value: string; label: string }[] = [
@@ -447,7 +447,7 @@ function ProfileSheet({
         retry,
       });
       if (isNew) toast.success(`已新建：${name.trim()}（在卡片上「设为激活」以启用）`);
-      else toast.success(profile?.is_default ? "已保存，激活配置即时生效，无需重启" : "已保存");
+      else toast.success(profile?.is_default ? "已保存，激活配置即时生效，无需重启" : "저장했습니다");
       onSaved(String(id));
       onOpenChange(false);
     } catch (e) {
@@ -482,7 +482,7 @@ function ProfileSheet({
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="p-name">名称</Label>
+              <Label htmlFor="p-name">이름</Label>
               <Input
                 id="p-name"
                 placeholder="例如：OpenAI 生产"

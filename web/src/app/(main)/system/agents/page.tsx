@@ -139,7 +139,7 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
       setDescription("");
       onCreated(a.key);
     } catch (e) {
-      toast.error("创建失败：" + (e as Error).message);
+      toast.error("생성 실패: " + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -177,7 +177,7 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
             )}
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="agent-name">名称</Label>
+            <Label htmlFor="agent-name">이름</Label>
             <Input
               id="agent-name"
               placeholder="如 研究助手"
@@ -239,7 +239,7 @@ export default function AgentsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Agent 清单</CardTitle>
-          <CardDescription>共 {agents.length} 个</CardDescription>
+          <CardDescription>총  {agents.length} 개</CardDescription>
         </CardHeader>
         <CardContent>
           {agents.length === 0 ? (

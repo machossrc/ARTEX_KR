@@ -2,14 +2,14 @@
 import test from "node:test";
 import { activeMention, mentionSearch, mentionToken, selectedMentions } from "./chat-mentions.ts";
 
-test("mention trigger supports Chinese and cursor placement without hijacking email", () => {
+test("mention trigger supports Korean and cursor placement without hijacking email", () => {
   assert.equal(activeMention("user@example.com", 16), null);
   assert.equal(activeMention("선택됨 @[취약점#1 X]", 12), null);
-  assert.deepEqual(activeMention("@취약점 뒤의 텍스트 보기", 5), { start: 2, end: 5, query: "취약점" });
+  assert.deepEqual(activeMention("확인@취약점 뒤의 텍스트 보기", 6), { start: 2, end: 6, query: "취약점" });
   assert.equal(activeMention("@취약점\n다음 줄", 8), null);
 });
 
-test("categories, Chinese aliases, IP and keyword search", () => {
+test("categories, Korean aliases, IP and keyword search", () => {
   assert.equal(mentionSearch("").categories.length, 9);
   assert.equal(mentionSearch("취").categories[0].kind, "finding");
   assert.equal(mentionSearch("취약점").kind, "finding");
@@ -28,4 +28,20 @@ test("tokens roundtrip labels and removing one reference preserves its neighbors
   assert.equal(selected[0].label, "취약점 #12 · 제목（1） 설명");
   const next = value.slice(0, selected[0].start) + value.slice(selected[0].start + selected[0].token.length);
   assert.equal(selectedMentions(next)[0].token, second);
+});
+
+test("legacy Chinese references remain readable and searchable", () => {
+  assert.equal(mentionSearch("漏洞SQL").kind, "finding");
+  assert.equal(mentionSearch("漏洞SQL").query, "SQL");
+  assert.equal(selectedMentions("@[漏洞#12 old] @[취약점#13 새 항목]").length, 2);
+  assert.deepEqual(activeMention("查看@漏洞 后面的文字", 5), {start: 2, end: 5, query: "漏洞"});
+});
+
+test("every Korean category roundtrips a stable record ID", async () => {
+  const {mentionKinds} = await import("./chat-mentions.ts");
+  for (const entry of mentionKinds) {
+    const token = mentionToken({kind: entry.kind, id: 42, label: "한글 [라벨]", description: ""});
+    assert.equal(selectedMentions(token).length, 1, entry.kind);
+    assert.equal(mentionSearch(entry.label).kind, entry.kind);
+  }
 });

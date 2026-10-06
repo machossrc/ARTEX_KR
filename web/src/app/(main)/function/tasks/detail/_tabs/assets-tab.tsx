@@ -227,7 +227,7 @@ function AssetCard({
               <SelectGroup>
                 {PAGE_SIZES.map((value) => (
                   <SelectItem key={value} value={String(value)}>
-                    {value} / 页
+                    {value} / 페이지
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -438,7 +438,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
     setRemoving(true);
     try {
       await api.detachTaskAsset(taskId, removeTarget.id);
-      toast.success(`已将 ${assetLabel(removeTarget)} 移出当前任务`);
+      toast.success(`처리한 항목:  ${assetLabel(removeTarget)} 移出当前任务`);
       setRemoveTarget(null);
       refresh();
     } catch (reason) {
@@ -478,7 +478,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-medium text-sm">测试资产</h2>
-          <p className="text-muted-foreground text-xs">当前任务共关联 {totalAll} 项资产</p>
+          <p className="text-muted-foreground text-xs">当前任务共关联 {totalAll} 개의 자산</p>
         </div>
         <Button size="sm" onClick={() => setAddOpen(true)}>
           <PlusIcon data-icon="inline-start" />
@@ -506,7 +506,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         {searchBox}
 
         <TabsContent value="root_domain" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["도메인", "ICP 备案", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["도메인", "ICP 등록", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.domain}</TableCell>
@@ -521,7 +521,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="ip" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["IP", "C段", "绑定域名", "开放端口", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["IP", "C 클래스 대역", "연결된 도메인", "열린 포트", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.ip}</TableCell>
@@ -547,7 +547,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="subdomain" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["도메인", "루트 도메인", "解析类型", "解析值", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["도메인", "루트 도메인", "레코드 유형", "레코드 값", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.domain}</TableCell>
@@ -566,7 +566,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="app" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["앱", "地址", "分类", "标题", "指纹", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["앱", "地址", "분류", "제목", "지문", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="max-w-48 truncate font-medium text-xs">{asset.app_name || "—"}</TableCell>
@@ -589,7 +589,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
 
         <TabsContent value="service" className="mt-0 flex min-h-0 flex-1 flex-col">
           <AssetCard
-            cols={["地址 / 服务", "상태 코드", "标题", "响应长度", "指纹", "认证", "출처", "동작"]}
+            cols={["地址 / 服务", "상태 코드", "제목", "响应长度", "지문", "인증", "출처", "동작"]}
             {...commonCardProps}
           >
             {rows.map((asset) => {
@@ -630,7 +630,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
                             className="inline-flex items-center gap-1 text-[11px]"
                           >
                             <KeyRoundIcon className="size-3 text-muted-foreground" />
-                            <span className="font-mono">{item.type || item.username || "认证"}</span>
+                            <span className="font-mono">{item.type || item.username || "인증"}</span>
                           </span>
                         );
                       })
@@ -647,7 +647,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="endpoint" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["方法", "完整地址", "인수", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["메서드", "전체 주소", "인수", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="w-16">

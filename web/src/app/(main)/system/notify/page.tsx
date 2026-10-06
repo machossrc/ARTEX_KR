@@ -181,7 +181,7 @@ export default function NotifyPage() {
       };
       if (editing) {
         await api.notifyUpdateChannel(editing.id, payload);
-        toast.success("已保存");
+        toast.success("저장했습니다");
         setOpen(false);
       } else {
         await api.notifyCreateChannel(payload);
@@ -250,7 +250,7 @@ export default function NotifyPage() {
       const n = Number(digestMin);
       if (Number.isFinite(n) && n > 0) patch.notify_digest_interval_min = n;
       await api.setSettings(patch);
-      toast.success("已保存");
+      toast.success("저장했습니다");
       load();
     } catch (e) {
       toast.error("저장 실패: " + (e as Error).message);
@@ -267,7 +267,7 @@ export default function NotifyPage() {
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">通知推送</h1>
+          <h1 className="text-xl font-semibold tracking-tight">알림 전송</h1>
           <p className="text-muted-foreground text-sm">
             发现漏洞时推送到钉钉 / 飞书 / 企业微信等渠道 · 每个渠道可独立设推送时机与过滤规则
           </p>
@@ -396,7 +396,7 @@ export default function NotifyPage() {
                 <CardContent className="grid gap-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{KIND_LABEL[ch.kind] ?? ch.kind}</Badge>
-                    <Badge variant="outline">{ch.mode === "digest" ? "汇总" : "实时"}</Badge>
+                    <Badge variant="outline">{ch.mode === "digest" ? "汇总" : "실시간"}</Badge>
                     {!ch.enabled && <Badge variant="outline">비활성화됨</Badge>}
                   </div>
                   <FilterSummary filter={ch.filter} />

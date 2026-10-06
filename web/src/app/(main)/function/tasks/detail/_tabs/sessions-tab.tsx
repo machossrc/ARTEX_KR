@@ -202,7 +202,7 @@ const TokenMetrics = React.forwardRef<
     labels?: "short" | "long";
   }
 >(({ input, cache, output, labels = "short", className, ...props }, ref) => {
-  const names = labels === "short" ? ["入", "缓", "出"] : ["input", "cache", "output"];
+  const names = labels === "short" ? ["입력", "缓", "出"] : ["input", "cache", "output"];
   const values = [input, cache, output];
   return (
     <span
@@ -413,7 +413,7 @@ function SessionItem({
         {s.live && (
           <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
             <span className="size-1 animate-pulse rounded-full bg-blue-500" />
-            实时
+            실시간
           </span>
         )}
       </button>
@@ -553,7 +553,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       const r = await api.chatUpload("task", taskId, Array.from(files));
       setAttachments((prev) => [...prev, ...r.attachments]);
     } catch (e) {
-      toast.error(`上传失败：${(e as Error).message}`);
+      toast.error(`업로드 실패: ${(e as Error).message}`);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -1513,7 +1513,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       .catch((e) => {
         setInput(text); // restore so the user doesn't lose their text / attachments
         setAttachments(atts);
-        toast.error(`发送失败：${(e as Error).message || "请稍后重试"}`);
+        toast.error(`전송 실패: ${(e as Error).message || "请稍后重试"}`);
       })
       .finally(() => setSending(false));
   }
@@ -1541,7 +1541,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         toast.success(`消息已发送给 Worker #${intentId}，已立即继续执行`);
       })
       .catch((error) => {
-        toast.error(`发送失败：${(error as Error).message || "请稍后重试"}`);
+        toast.error(`전송 실패: ${(error as Error).message || "请稍后重试"}`);
       })
       .finally(() => setWorkerMessageSending(false));
   }
@@ -1612,7 +1612,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   {sseLive ? (
                     <>
                       <span className="size-1 animate-pulse rounded-full bg-emerald-500" />
-                      实时
+                      실시간
                     </>
                   ) : (
                     <>
@@ -1637,7 +1637,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  输入 {taskTokens.input_tokens.toLocaleString()} · 输出 {taskTokens.output_tokens.toLocaleString()} ·
+                  입력 {taskTokens.input_tokens.toLocaleString()} · 출력 {taskTokens.output_tokens.toLocaleString()} ·
                   缓存读取 {taskTokens.cache_read_tokens.toLocaleString()} · 缓存写入{" "}
                   {taskTokens.cache_write_tokens.toLocaleString()}
                 </TooltipContent>
@@ -1785,7 +1785,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               {active.live && (
                 <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                   <span className="size-1 animate-pulse rounded-full bg-blue-500" />
-                  实时
+                  실시간
                 </span>
               )}
               {activeState?.hasMore && (
@@ -1816,7 +1816,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      输入 {activeTokens.input_tokens.toLocaleString()} · 输出{" "}
+                      입력 {activeTokens.input_tokens.toLocaleString()} · 출력{" "}
                       {activeTokens.output_tokens.toLocaleString()} · 缓存读取{" "}
                       {activeTokens.cache_read_tokens.toLocaleString()} · 缓存写入{" "}
                       {activeTokens.cache_write_tokens.toLocaleString()}
@@ -1925,7 +1925,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           type="button"
                           className="ml-0.5 text-muted-foreground hover:text-foreground"
                           onClick={() => setAttachments((p) => p.filter((x) => x.path !== a.path))}
-                          title="移除"
+                          title="제거"
                         >
                           <XIcon className="size-3" />
                         </button>
@@ -1964,8 +1964,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       variant="ghost"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={mainBusy || uploading}
-                      title="上传文件"
-                      aria-label="上传文件"
+                      title="파일 업로드"
+                      aria-label="파일 업로드"
                     >
                       {uploading ? <Loader2Icon className="animate-spin" /> : <PaperclipIcon />}
                     </InputGroupButton>
@@ -1993,8 +1993,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         variant="default"
                         onClick={send}
                         disabled={(!input.trim() && attachments.length === 0) || sending}
-                        title="发送消息"
-                        aria-label="发送消息"
+                        title="메시지 전송"
+                        aria-label="메시지 전송"
                       >
                         {sending ? <Loader2Icon className="animate-spin" /> : <ArrowUpIcon />}
                       </InputGroupButton>
@@ -2082,8 +2082,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                             !workerMessage.trim() ||
                             workerMessageCharCount(workerMessage) > MAX_WORKER_MESSAGE_CHARS
                           }
-                          title="发送消息"
-                          aria-label="发送消息"
+                          title="메시지 전송"
+                          aria-label="메시지 전송"
                         >
                           {workerMessageSending ? <Spinner /> : <ArrowUpIcon />}
                         </InputGroupButton>
@@ -2177,7 +2177,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 onClick={() => cancelIntent && void controlWorker(cancelIntent, "cancel", cancelReason, deleteMode)}
               >
                 {controllingIntent ? <Loader2Icon className="animate-spin" /> : <Trash2Icon />}
-                {deleteMode === "hard" ? "彻底删除" : "确认删除"}
+                {deleteMode === "hard" ? "彻底删除" : "삭제 확인"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

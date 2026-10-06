@@ -97,7 +97,7 @@ export default function WorkspacePage() {
 
   const crumbs = React.useMemo(() => {
     const parts = path ? path.split("/") : [];
-    const acc: { name: string; path: string }[] = [{ name: "工作空间", path: "" }];
+    const acc: { name: string; path: string }[] = [{ name: "작업 공간", path: "" }];
     let cur = "";
     for (const part of parts) {
       cur = cur ? `${cur}/${part}` : part;
@@ -119,7 +119,7 @@ export default function WorkspacePage() {
     api
       .workspaceWrite(edit.file.path, edit.content)
       .then(() => {
-        toast.success("已保存");
+        toast.success("저장했습니다");
         setEdit((cur) => (cur ? { ...cur, dirty: false, saving: false } : cur));
         load(path);
       })
@@ -130,7 +130,7 @@ export default function WorkspacePage() {
   };
 
   const del = (e: WorkspaceEntry) => {
-    if (!window.confirm(`确认删除 ${e.dir ? "目录" : "文件"} “${e.name}”？${e.dir ? "（含其下所有内容）" : ""}`)) return;
+    if (!window.confirm(`삭제 확인 ${e.dir ? "目录" : "文件"} “${e.name}”？${e.dir ? "（含其下所有内容）" : ""}`)) return;
     api
       .workspaceDelete(e.path)
       .then(() => {
@@ -148,7 +148,7 @@ export default function WorkspacePage() {
         toast.success(`已上传 ${r.uploaded} 个文件`);
         load(path);
       })
-      .catch((err) => toast.error(`上传失败：${(err as Error).message}`))
+      .catch((err) => toast.error(`업로드 실패: ${(err as Error).message}`))
       .finally(() => {
         if (uploadRef.current) uploadRef.current.value = "";
       });
@@ -166,7 +166,7 @@ export default function WorkspacePage() {
         setMkdirName("");
         load(path);
       })
-      .catch((err) => toast.error(`创建失败：${(err as Error).message}`));
+      .catch((err) => toast.error(`생성 실패: ${(err as Error).message}`));
   };
 
   return (
@@ -216,7 +216,7 @@ export default function WorkspacePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>名称</TableHead>
+                <TableHead>이름</TableHead>
                 <TableHead className="w-28 text-right">大小</TableHead>
                 <TableHead className="w-40">修改时间</TableHead>
                 <TableHead className="w-24 text-right">동작</TableHead>

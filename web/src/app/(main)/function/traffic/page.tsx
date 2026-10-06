@@ -255,7 +255,7 @@ export default function TrafficPage() {
   const deleteTitle = deleteMode
     ? {
         all: "清空全部流量记录？",
-        selected: `删除选中的 ${selectedHosts.length} 个目标的全部流量？`,
+        selected: `선택한 대화 삭제:  ${selectedHosts.length} 个目标的全部流量？`,
         filter: "删除该目标的全部流量？",
       }[deleteMode]
     : "";
@@ -354,11 +354,11 @@ export default function TrafficPage() {
             )}
           >
             <RadioTowerIcon className="size-3.5" />
-            {traffic?.enabled ? "录制中" : "비활성화됨"}
+            {traffic?.enabled ? "기록 중" : "비활성화됨"}
           </span>
           {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
           <span className="text-xs text-muted-foreground">
-            共 <span className="tabular-nums">{traffic?.count ?? 0}</span> 건
+            총  <span className="tabular-nums">{traffic?.count ?? 0}</span> 건
           </span>
         </div>
       </div>
@@ -490,7 +490,7 @@ export default function TrafficPage() {
         </div>
         <Select value={method} onValueChange={setMethod}>
           <SelectTrigger size="sm" className="w-32">
-            <SelectValue placeholder="方法" />
+            <SelectValue placeholder="메서드" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">모든 메서드</SelectItem>
@@ -508,7 +508,7 @@ export default function TrafficPage() {
           <SelectContent>
             {PAGE_SIZES.map((n) => (
               <SelectItem key={n} value={String(n)}>
-                {n} / 页
+                {n} / 페이지
               </SelectItem>
             ))}
           </SelectContent>
@@ -645,7 +645,7 @@ export default function TrafficPage() {
                     className="w-36"
                   />
                   <TableHead className="w-44">host</TableHead>
-                  <TableHead className="w-20">方法</TableHead>
+                  <TableHead className="w-20">메서드</TableHead>
                   <TableHead>URL</TableHead>
                   <SortableHead
                     field="status"
@@ -794,7 +794,7 @@ export default function TrafficPage() {
               )}
               {deleteMode === "selected" && (
                 <>
-                  将永久删除 <span className="font-semibold tabular-nums">{selectedHosts.length}</span> 个目标（
+                  영구 삭제할 항목:  <span className="font-semibold tabular-nums">{selectedHosts.length}</span> 个目标（
                   <span className="font-mono">
                     {selectedHosts.slice(0, 3).join("、")}
                     {selectedHosts.length > 3 ? "…" : ""}

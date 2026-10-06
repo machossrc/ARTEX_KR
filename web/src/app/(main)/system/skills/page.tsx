@@ -373,7 +373,7 @@ export default function SkillsPage() {
           return;
         }
       } else {
-        toast.error("上传失败：" + msg);
+        toast.error("업로드 실패: " + msg);
       }
     } finally {
       setUploading(false);
@@ -479,7 +479,7 @@ export default function SkillsPage() {
       }
       load();
     } catch (e) {
-      toast.error("创建失败：" + (e as Error).message);
+      toast.error("생성 실패: " + (e as Error).message);
     }
   }
 
@@ -529,7 +529,7 @@ export default function SkillsPage() {
     setSaving(true);
     try {
       await api.writeSkillFile(selected.skill, selected.path, fileContent);
-      toast.success("已保存");
+      toast.success("저장했습니다");
       setDirty(false);
     } catch (e) {
       toast.error("저장 실패: " + (e as Error).message);
@@ -585,7 +585,7 @@ export default function SkillsPage() {
       setNewMcps([]); setNewVisibility([]);
       load();
     } catch (e) {
-      toast.error("创建失败：" + (e as Error).message);
+      toast.error("생성 실패: " + (e as Error).message);
     } finally { setCreatingSkill(false); }
   }
 
@@ -895,14 +895,14 @@ export default function SkillsPage() {
                     <p className="text-xs text-muted-foreground">加载调用明细…</p>
                   ) : usageCalls.length > 0 ? (
                     <div className="rounded-md border">
-                      <div className="border-b px-2 py-1 text-xs text-muted-foreground">최근  {usageCalls.length} 次调用</div>
+                      <div className="border-b px-2 py-1 text-xs text-muted-foreground">최근  {usageCalls.length} 회 호출</div>
                       <div className="max-h-56 overflow-y-auto">
                         {usageCalls.map((c, i) => (
                           <div key={`${c.ts}-${i}`} className="flex items-center gap-2 border-b px-2 py-1 text-xs last:border-b-0">
                             <span className="tabular-nums text-muted-foreground">{fmtTime(c.ts)}</span>
                             <Badge variant="outline" className="font-normal">{c.agent_key || "—"}</Badge>
                             <span className="ml-auto text-muted-foreground">
-                              {c.task_id > 0 ? `任务 #${c.task_id}` : c.session_id ? "对话会话" : "—"}
+                              {c.task_id > 0 ? `작업 #${c.task_id}` : c.session_id ? "对话会话" : "—"}
                             </span>
                           </div>
                         ))}
@@ -997,7 +997,7 @@ export default function SkillsPage() {
                 ? "将删除该 Skill 的全部文件、MCP 关联与可见性配置。此操作不可撤销。"
                 : pendingDelete?.kind === "dir"
                   ? "将一并删除该文件夹下的所有文件。此操作不可撤销。"
-                  : "此操作不可撤销。"}
+                  : "이 작업은 취소할 수 없습니다."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1006,7 +1006,7 @@ export default function SkillsPage() {
               disabled={deleting}
               onClick={(e) => { e.preventDefault(); void runPendingDelete(); }}
             >
-              {deleting ? "删除中…" : "삭제"}
+              {deleting ? "삭제 중…" : "삭제"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1042,7 +1042,7 @@ export default function SkillsPage() {
             {/* 基本信息 */}
             <TabsContent value="basic" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4 pt-4 data-[state=inactive]:hidden">
               <div className="grid gap-1.5">
-                <Label htmlFor="sk-name">名称 <span className="text-destructive">*</span></Label>
+                <Label htmlFor="sk-name">이름 <span className="text-destructive">*</span></Label>
                 <Input id="sk-name" placeholder="sqli-deepdive" value={newName} onChange={(e) => setNewName(e.target.value)} />
                 <p className="text-muted-foreground text-xs">小写字母 / 数字 / 连字符，1–64 字符</p>
               </div>

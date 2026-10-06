@@ -172,7 +172,7 @@ export default function MCPPage() {
         enabled: editing ? editing.enabled : true,
         ...base,
       });
-      toast.success(editing ? "已保存" : "已添加 MCP 服务器");
+      toast.success(editing ? "저장했습니다" : "已添加 MCP 服务器");
       if (!editing) setOpen(false);
       load();
     } catch (e) {
@@ -188,7 +188,7 @@ export default function MCPPage() {
     try {
       const t = await api.refreshMcpServer(editing.id);
       setTools(t);
-      toast.success(`发现 ${t.length} 个工具`);
+      toast.success(`발견 사항 ${t.length} 개의 도구`);
       load();
     } catch (e) {
       toast.error("刷新失败：" + (e as Error).message);
@@ -258,7 +258,7 @@ export default function MCPPage() {
           </div>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="m-name">名称</Label>
+          <Label htmlFor="m-name">이름</Label>
           <Input
             id="m-name"
             placeholder="filesystem"
@@ -332,7 +332,7 @@ export default function MCPPage() {
     return (
       <div className="flex flex-col gap-3 py-4">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground text-sm">{tools.length} 个工具</span>
+          <span className="text-muted-foreground text-sm">{tools.length} 개의 도구</span>
           <Button size="sm" variant="outline" disabled={refreshing} onClick={refreshTools}>
             <RefreshCwIcon className={refreshing ? "animate-spin" : ""} /> 새로고침
           </Button>
@@ -408,7 +408,7 @@ export default function MCPPage() {
             </CardHeader>
             <CardContent className="grid gap-3">
               <p className="text-muted-foreground text-sm">
-                {s.tools && s.tools.length > 0 ? `${s.tools.length} 个工具` : "尚未发现工具"}
+                {s.tools && s.tools.length > 0 ? `${s.tools.length} 개의 도구` : "尚未发现工具"}
               </p>
               <div className="grid gap-2" onClick={(e) => e.stopPropagation()}>
                 <span className="text-muted-foreground text-xs">可见性（按 Agent 授权）</span>

@@ -498,7 +498,7 @@ export default function SystemSettingsPage() {
             {webSearch && backend === "brave-free" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="brave-key" className="text-sm font-normal text-muted-foreground">
-                  Brave Search API Key
+                  Brave Search API 키
                   {braveKeySet && <span className="ml-2 text-xs text-emerald-500">설정됨</span>}
                 </Label>
                 <div className="flex items-center gap-2">
@@ -533,7 +533,7 @@ export default function SystemSettingsPage() {
             {webSearch && backend === "tavily" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="tavily-key" className="text-sm font-normal text-muted-foreground">
-                  Tavily Search API Key
+                  Tavily Search API 키
                   {tavilyKeySet && <span className="ml-2 text-xs text-emerald-500">설정됨</span>}
                 </Label>
                 <div className="flex items-center gap-2">

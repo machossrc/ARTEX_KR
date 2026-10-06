@@ -217,7 +217,7 @@ export function TrafficPickerDialog({
                       {alreadyBound.has(e.id) ? <Badge variant="secondary">연결했습니다</Badge> : null}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs">
-                      {new Date(e.ts).toLocaleString("zh-CN")}
+                      {new Date(e.ts).toLocaleString("ko-KR")}
                     </TableCell>
                     <TableCell>{e.status}</TableCell>
                     <TableCell>

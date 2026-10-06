@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Script: generate-theme-presets.ts
  *
  * This script scans the /styles/presets directory for CSS files containing theme definitions.
@@ -88,7 +88,7 @@ const defaultPrimary = {
   dark: defaultDarkPrimaryMatch?.[1]?.trim() ?? "",
 };
 
-presets.unshift({ label: "Default", value: "default", primary: defaultPrimary });
+presets.unshift({ label: "기본값", value: "default", primary: defaultPrimary });
 
 const generatedBlock = `// --- generated:themePresets:start ---
 

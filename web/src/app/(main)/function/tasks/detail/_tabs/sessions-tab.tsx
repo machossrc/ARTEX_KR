@@ -234,9 +234,9 @@ function fmtDuration(ms: number): string {
 }
 
 const roleMeta = {
-  mainagent: { label: "主 Agent", icon: UserIcon },
+  mainagent: { label: "주 에이전트", icon: UserIcon },
   planner: { label: "계획 Planner", icon: BrainIcon },
-  worker: { label: "Workers", icon: RadioIcon },
+  worker: { label: "워커", icon: RadioIcon },
   system: { label: "시스템 감사", icon: HistoryIcon },
 } as const;
 

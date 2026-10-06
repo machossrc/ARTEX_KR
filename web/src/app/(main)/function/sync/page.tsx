@@ -30,7 +30,7 @@ type Dimension = "project" | "task";
 const ASSET_TYPES: { key: string; label: string }[] = [
   { key: "subdomain", label: "하위 도메인" },
   { key: "service", label: "서비스" },
-  { key: "app", label: "App" },
+  { key: "app", label: "앱" },
 ];
 
 export default function AssetSyncPage() {

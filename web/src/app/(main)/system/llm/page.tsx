@@ -58,11 +58,11 @@ const MAX_TOKENS_FIELD_HINTS: Record<string, string> = {
 };
 const EFFORT_LEVELS: { value: string; label: string }[] = [
   { value: NONE, label: "전송하지 않음(기본값)" },
-  { value: "low", label: "low" },
-  { value: "medium", label: "medium" },
-  { value: "high", label: "high" },
-  { value: "xhigh", label: "xhigh" },
-  { value: "max", label: "max" },
+  { value: "low", label: "낮음" },
+  { value: "medium", label: "중간" },
+  { value: "high", label: "높음" },
+  { value: "xhigh", label: "매우 높음" },
+  { value: "max", label: "최대" },
 ];
 
 function cooldownText(secs: number) {
@@ -588,7 +588,7 @@ function ProfileSheet({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="p-api-key">API Key</Label>
+            <Label htmlFor="p-api-key">API 키</Label>
             <Input
               id="p-api-key"
               type="password"

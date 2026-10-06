@@ -87,8 +87,8 @@ export const CHANNEL_FIELDS: Record<string, FieldDef[]> = {
     },
   ],
   telegram: [
-    { key: "bot_token", label: "Bot Token", kind: "password", placeholder: "123456:ABC-DEF..." },
-    { key: "chat_id", label: "Chat ID", kind: "text", placeholder: "-1001234567890" },
+    { key: "bot_token", label: "봇 토큰", kind: "password", placeholder: "123456:ABC-DEF..." },
+    { key: "chat_id", label: "대화 ID", kind: "text", placeholder: "-1001234567890" },
     {
       key: "base_url",
       label: "API 주소",

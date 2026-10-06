@@ -783,8 +783,8 @@ function ChatView({
             </span>
           )}
           {tokenTotal.any && (
-            <span title="input / cache(read) / output tokens" className="min-w-0 truncate tabular-nums">
-              input {fmtTokens(tokenTotal.i)} · cache {fmtTokens(tokenTotal.cr)} · output {fmtTokens(tokenTotal.o)}
+            <span title="입력 / 캐시(읽기) / 출력 토큰" className="min-w-0 truncate tabular-nums">
+              입력 {fmtTokens(tokenTotal.i)} · 캐시 {fmtTokens(tokenTotal.cr)} · 출력 {fmtTokens(tokenTotal.o)}
             </span>
           )}
         </div>
@@ -946,7 +946,7 @@ const ConversationItem = React.memo(function ConversationItem({
               </>
             )}
             <span className="shrink-0">
-              {new Date(conv.created_at).toLocaleDateString("zh-CN", {
+              {new Date(conv.created_at).toLocaleDateString("ko-KR", {
                 month: "numeric",
                 day: "numeric",
                 hour: "2-digit",
@@ -1211,7 +1211,7 @@ export default function ChatPage() {
     if (agentFilter !== null) keys.add(agentFilter);
     return [...keys]
       .map((key) => ({ key, name: agentByKey.get(key)?.name || key, count: counts.get(key) ?? 0 }))
-      .sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
+      .sort((a, b) => a.name.localeCompare(b.name, "ko-KR"));
   }, [convs, chatAgents, agentByKey, agentFilter]);
   const conversationCountLabel =
     agentFilter === null ? `총  ${convs.length} 개` : `${filteredConversations.length} / ${convs.length} 개`;

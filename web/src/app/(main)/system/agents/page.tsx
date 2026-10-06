@@ -88,7 +88,7 @@ function AgentGridCard({
         </p>
         <div className="text-muted-foreground flex flex-wrap gap-1.5 text-[10px]">
           <span className="rounded border px-1.5 py-0.5">MCP {agent.mcp_count ?? 0}</span>
-          <span className="rounded border px-1.5 py-0.5">Skill {agent.skill_count ?? 0}</span>
+          <span className="rounded border px-1.5 py-0.5">스킬 {agent.skill_count ?? 0}</span>
           <span className="rounded border px-1.5 py-0.5">도구 {agent.tool_count ?? 0}</span>
         </div>
       </button>
@@ -164,7 +164,7 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
         </DialogHeader>
         <div className="grid gap-4 py-2">
           <div className="grid gap-1.5">
-            <Label htmlFor="agent-key">Key</Label>
+            <Label htmlFor="agent-key">키</Label>
             <Input
               id="agent-key"
               placeholder="예: research_helper"
@@ -223,7 +223,7 @@ export default function AgentsPage() {
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Agent</h1>
+          <h1 className="text-xl font-semibold tracking-tight">에이전트</h1>
           <p className="text-muted-foreground text-sm">
             내장 에이전트의 프롬프트/설정 및 사용자 지정 대화 에이전트 생성·관리
           </p>

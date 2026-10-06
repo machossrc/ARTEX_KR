@@ -17,7 +17,7 @@ import type { CommandRecord, ToolStat } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 function fmtTime(ts: string) {
-  return new Date(ts).toLocaleString("zh-CN", {
+  return new Date(ts).toLocaleString("ko-KR", {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -207,7 +207,7 @@ export default function CommandsPage() {
                 <TableRow>
                   <TableHead className="w-[130px]">시간</TableHead>
                   <TableHead className="w-[60px]">작업</TableHead>
-                  <TableHead className="w-[90px]">Worker</TableHead>
+                  <TableHead className="w-[90px]">워커</TableHead>
                   <TableHead className="w-[110px]">도구</TableHead>
                   <TableHead>입력</TableHead>
                   <TableHead className="w-[60px]">상태</TableHead>

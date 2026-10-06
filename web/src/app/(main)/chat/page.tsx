@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -250,7 +250,7 @@ function Composer({
           onKeyDown={onKeyDown}
         />
         {running && allowBtw && isBtwCommand(value) && (
-          <Button size="icon" onClick={onSend} aria-label="发送旁路问题" title="发送旁路问题">
+          <Button size="icon" onClick={onSend} aria-label="보조 질문 전송" title="보조 질문 전송">
             <ArrowUpIcon />
           </Button>
         )}
@@ -432,7 +432,7 @@ function DraftChat({
                 {a.name}
                 {!a.builtin && (
                   <Badge variant="outline" className="px-1 py-0 text-[9px]">
-                    自定义
+                    사용자 지정
                   </Badge>
                 )}
               </span>
@@ -768,7 +768,7 @@ function ChatView({
         <span className="text-muted-foreground hidden shrink-0 font-mono text-xs sm:inline">{conv.agent_key}</span>
         {agent && !agent.builtin && (
           <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
-            自定义
+            사용자 지정
           </Badge>
         )}
         {agent?.description && (
@@ -933,7 +933,7 @@ const ConversationItem = React.memo(function ConversationItem({
             {conv.running ? (
               <Badge variant="secondary" className="shrink-0 gap-1" title="Agent 正在运行">
                 <Spinner className="size-3" aria-hidden="true" />
-                运行中
+                실행 중
               </Badge>
             ) : null}
           </div>
@@ -983,7 +983,7 @@ const ConversationItem = React.memo(function ConversationItem({
           <DropdownMenuGroup>
             <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
               <Trash2Icon />
-              删除
+              삭제
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -995,8 +995,8 @@ const ConversationItem = React.memo(function ConversationItem({
             <AlertDialogDescription>此操作不可撤销。</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onDelete(conv.id)}>删除</AlertDialogAction>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onDelete(conv.id)}>삭제</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1265,7 +1265,7 @@ export default function ChatPage() {
         });
         void reloadConvs();
       } catch (e) {
-        toast.error("删除失败：" + (e as Error).message);
+        toast.error("삭제 실패: " + (e as Error).message);
       }
     },
     [reloadConvs],
@@ -1291,7 +1291,7 @@ export default function ChatPage() {
         for (const id of deleted) next.delete(id);
         return next;
       });
-      if (deleted.size > 0) toast.success(`已删除 ${deleted.size} 个对话`);
+      if (deleted.size > 0) toast.success(`삭제됨 ${deleted.size} 个对话`);
       if (failed.length > 0) {
         const details = failed
           .slice(0, 3)
@@ -1387,7 +1387,7 @@ export default function ChatPage() {
                     disabled={filteredConversations.length === 0 || bulkDeleting}
                   />
                   <span className="text-muted-foreground min-w-0 flex-1 text-xs tabular-nums">
-                    {selectedConversationCount > 0 ? `已选 ${selectedConversationCount} 个` : conversationCountLabel}
+                    {selectedConversationCount > 0 ? `선택됨 ${selectedConversationCount} 个` : conversationCountLabel}
                   </span>
                   {selectedConversationCount > 0 && (
                     <Button
@@ -1397,7 +1397,7 @@ export default function ChatPage() {
                       onClick={() => setBulkDeleteOpen(true)}
                     >
                       <Trash2Icon data-icon="inline-start" />
-                      删除
+                      삭제
                     </Button>
                   )}
                   <Button size="sm" variant="ghost" onClick={exitSelectionMode}>
@@ -1549,7 +1549,7 @@ export default function ChatPage() {
             <AlertDialogDescription>对话消息和执行记录将一并删除，此操作不可撤销。</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={bulkDeleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={bulkDeleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               disabled={bulkDeleting || selectedConversationCount === 0}
@@ -1559,7 +1559,7 @@ export default function ChatPage() {
               }}
             >
               {bulkDeleting && <Loader2Icon data-icon="inline-start" className="animate-spin" />}
-              {bulkDeleting ? "删除中" : "确认删除"}
+              {bulkDeleting ? "삭제 중" : "确认删除"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -81,10 +81,10 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
           }}
         >
           <SelectTrigger size="sm" className="w-32">
-            <SelectValue placeholder="全部状态" />
+            <SelectValue placeholder="모든 상태" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部状态</SelectItem>
+            <SelectItem value="all">모든 상태</SelectItem>
             {["pending", "sending", "sent", "failed", "skipped"].map((s) => (
               <SelectItem key={s} value={s}>
                 {statusMeta("delivery", s).label}
@@ -93,19 +93,19 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
           </SelectContent>
         </Select>
         <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-          <RefreshCwIcon className={loading ? "animate-spin" : ""} /> 刷新
+          <RefreshCwIcon className={loading ? "animate-spin" : ""} /> 새로고침
         </Button>
-        <span className="text-muted-foreground ml-auto text-xs">共 {total} 条</span>
+        <span className="text-muted-foreground ml-auto text-xs">共 {total} 건</span>
       </div>
 
       <Card className="py-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-40">时间</TableHead>
-              <TableHead>漏洞</TableHead>
+              <TableHead className="w-40">시간</TableHead>
+              <TableHead>취약점</TableHead>
               <TableHead className="w-40">渠道</TableHead>
-              <TableHead className="w-24">状态</TableHead>
+              <TableHead className="w-24">상태</TableHead>
               <TableHead className="w-16">尝试</TableHead>
               <TableHead>错误</TableHead>
               <TableHead className="w-20" />
@@ -115,7 +115,7 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-muted-foreground py-8 text-center">
-                  {loading ? "加载中…" : "暂无投递记录"}
+                  {loading ? "불러오는 중…" : "暂无投递记录"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -163,13 +163,13 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
       {maxPage > 1 && (
         <div className="flex items-center justify-end gap-2">
           <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            上一页
+            이전 페이지
           </Button>
           <span className="text-muted-foreground text-sm">
             {page} / {maxPage}
           </span>
           <Button size="sm" variant="outline" disabled={page >= maxPage} onClick={() => setPage((p) => p + 1)}>
-            下一页
+            다음 페이지
           </Button>
         </div>
       )}

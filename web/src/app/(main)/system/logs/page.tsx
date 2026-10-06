@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Input } from "@/components/ui/input";
@@ -172,7 +172,7 @@ export default function LogsPage() {
             className="h-8"
             onClick={() => setPaused((p) => !p)}
           >
-            {paused ? "已暂停" : "暂停"}
+            {paused ? "일시 중지됨" : "暂停"}
           </Button>
           <Button size="sm" variant="outline" className="h-8" onClick={() => setLines([])}>
             清空
@@ -200,7 +200,7 @@ export default function LogsPage() {
                 disabled={loadingHistory}
                 onClick={loadOlderHistory}
               >
-                {loadingHistory ? "加载中…" : "加载更早日志"}
+                {loadingHistory ? "불러오는 중…" : "加载更早日志"}
               </Button>
             </div>
           )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -58,7 +58,7 @@ function AgentGridCard({
       toast.success(`已删除 Agent「${agent.name}」`);
       onDeleted();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
   return (
@@ -74,12 +74,12 @@ function AgentGridCard({
             </Badge>
           ) : (
             <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-              自定义
+              사용자 지정
             </Badge>
           )}
           {!agent.enabled && (
             <Badge variant="outline" className="text-destructive px-1.5 py-0 text-[10px]">
-              已停用
+              비활성화됨
             </Badge>
           )}
         </div>
@@ -89,7 +89,7 @@ function AgentGridCard({
         <div className="text-muted-foreground flex flex-wrap gap-1.5 text-[10px]">
           <span className="rounded border px-1.5 py-0.5">MCP {agent.mcp_count ?? 0}</span>
           <span className="rounded border px-1.5 py-0.5">Skill {agent.skill_count ?? 0}</span>
-          <span className="rounded border px-1.5 py-0.5">工具 {agent.tool_count ?? 0}</span>
+          <span className="rounded border px-1.5 py-0.5">도구 {agent.tool_count ?? 0}</span>
         </div>
       </button>
       {!agent.builtin && (
@@ -111,8 +111,8 @@ function AgentGridCard({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>取消</AlertDialogCancel>
-              <AlertDialogAction onClick={del}>删除</AlertDialogAction>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction onClick={del}>삭제</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -186,7 +186,7 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="agent-desc">描述</Label>
+            <Label htmlFor="agent-desc">설명</Label>
             <Textarea
               id="agent-desc"
               placeholder="一句话说明这个 Agent 是干什么的"
@@ -267,7 +267,7 @@ export default function AgentsPage() {
                   <span className="text-muted-foreground font-mono text-xs">{editing.key}</span>
                   {!editing.builtin && (
                     <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-                      自定义
+                      사용자 지정
                     </Badge>
                   )}
                 </SheetTitle>

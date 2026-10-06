@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -43,49 +43,49 @@ type KindMeta = { label: string; icon: LucideIcon; dot: string; chip: string };
 // 播报是流水视角(时间轴行),两边的信息密度和配色需求不同,各自演进更省事。
 const KIND_META: Record<string, KindMeta> = {
   begin: {
-    label: "起点",
+    label: "시작점",
     icon: FlagIcon,
     dot: "bg-slate-500",
     chip: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
   },
   task: {
-    label: "根任务",
+    label: "루트 작업",
     icon: FlagIcon,
     dot: "bg-slate-500",
     chip: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
   },
   goal: {
-    label: "目标",
+    label: "목표",
     icon: TargetIcon,
     dot: "bg-emerald-500",
     chip: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
   },
   intent: {
-    label: "意图",
+    label: "의도",
     icon: CompassIcon,
     dot: "bg-blue-500",
     chip: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
   },
   fact: {
-    label: "事实",
+    label: "사실",
     icon: FlaskConicalIcon,
     dot: "bg-amber-500",
     chip: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
   },
   finding: {
-    label: "漏洞",
+    label: "취약점",
     icon: BugIcon,
     dot: "bg-rose-500",
     chip: "bg-rose-500/15 text-rose-600 dark:text-rose-400",
   },
   hint: {
-    label: "提示",
+    label: "힌트",
     icon: LightbulbIcon,
     dot: "bg-violet-500",
     chip: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
   },
   digest: {
-    label: "压缩",
+    label: "압축",
     icon: LayersIcon,
     dot: "bg-teal-500",
     chip: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
@@ -96,23 +96,23 @@ const KIND_META: Record<string, KindMeta> = {
 const FILTER_KINDS: ExploreKind[] = ["goal", "intent", "fact", "finding", "hint", "digest"];
 
 const REL_LABEL: Record<string, string> = {
-  spawns: "派生",
-  derived_from: "意图链",
-  yields: "产出",
-  proves: "证明",
-  covers: "压缩",
+  spawns: "파생",
+  derived_from: "의도 체인",
+  yields: "산출",
+  proves: "입증",
+  covers: "압축",
 };
 
 // goal / intent 的状态语义由全局 status 表提供(StatusBadge);其余类型的状态只在
 // 图和播报里出现,这里补一份。
 const STATE_META: Record<string, Record<string, { label: string; tone: Tone }>> = {
   fact: {
-    origin: { label: "起点", tone: "slate" },
-    confirmed: { label: "已确认", tone: "green" },
+    origin: { label: "시작점", tone: "slate" },
+    confirmed: { label: "확인됨", tone: "green" },
     dismissed: { label: "已否定", tone: "slate" },
   },
   finding: {
-    confirmed: { label: "已确认", tone: "red" },
+    confirmed: { label: "확인됨", tone: "red" },
     dismissed: { label: "已排除", tone: "slate" },
   },
   hint: {
@@ -258,8 +258,8 @@ function RelatedNodeCard({ node, assets }: { node: TaskNode; assets: FindingAsse
         )}
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-        <span>类型 {meta.label}</span>
-        <span>来源 {node.origin || "system"}</span>
+        <span>유형 {meta.label}</span>
+        <span>출처 {node.origin || "system"}</span>
         <span>{Number.isNaN(ts) ? node.ts : new Date(ts).toLocaleString("zh-CN")}</span>
       </div>
       <p className="line-clamp-4 text-xs break-words">{summary || "（无摘要）"}</p>
@@ -401,8 +401,8 @@ function BroadcastRow({
               <span>
                 节点 <code className="font-mono">#{node.id}</code>
               </span>
-              <span>类型 {meta.label}</span>
-              <span>来源 {node.origin || "system"}</span>
+              <span>유형 {meta.label}</span>
+              <span>출처 {node.origin || "system"}</span>
               <span>{Number.isNaN(ts) ? node.ts : new Date(ts).toLocaleString("zh-CN")}</span>
             </div>
             {node.state === "deleted" && node.delete_reason && (
@@ -633,7 +633,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
             aria-label={live ? "暂停自动刷新" : "恢复自动刷新"}
           >
             {live ? <PauseIcon /> : <PlayIcon />}
-            {live ? "自动刷新" : "已暂停"}
+            {live ? "自动刷新" : "일시 중지됨"}
           </Button>
         </div>
       </div>
@@ -711,7 +711,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
             size="icon-sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            aria-label="上一页"
+            aria-label="이전 페이지"
           >
             <ChevronLeftIcon />
           </Button>
@@ -723,7 +723,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
             size="icon-sm"
             disabled={page >= pageCount}
             onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-            aria-label="下一页"
+            aria-label="다음 페이지"
           >
             <ChevronRightIcon />
           </Button>

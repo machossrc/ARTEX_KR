@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -176,7 +176,7 @@ export default function MCPPage() {
       if (!editing) setOpen(false);
       load();
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -204,7 +204,7 @@ export default function MCPPage() {
       setOpen(false);
       load();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
 
@@ -221,7 +221,7 @@ export default function MCPPage() {
     const on = (visibility[serverId] ?? []).includes(agentId);
     try {
       await api.toggleVisibility(agentId, "mcp", serverId, !on);
-      toast.success(`${on ? "取消" : "授予"}「${agentName}」可见`);
+      toast.success(`${on ? "취소" : "授予"}「${agentName}」 표시`);
       load();
     } catch (e) {
       toast.error("操作失败：" + (e as Error).message);
@@ -269,7 +269,7 @@ export default function MCPPage() {
         {form.transport === "stdio" ? (
           <>
             <div className="grid gap-2">
-              <Label htmlFor="m-cmd">命令</Label>
+              <Label htmlFor="m-cmd">명령</Label>
               <Input
                 id="m-cmd"
                 className="font-mono"
@@ -334,11 +334,11 @@ export default function MCPPage() {
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm">{tools.length} 个工具</span>
           <Button size="sm" variant="outline" disabled={refreshing} onClick={refreshTools}>
-            <RefreshCwIcon className={refreshing ? "animate-spin" : ""} /> 刷新
+            <RefreshCwIcon className={refreshing ? "animate-spin" : ""} /> 새로고침
           </Button>
         </div>
         {toolsLoading ? (
-          <p className="text-muted-foreground text-sm">加载中…</p>
+          <p className="text-muted-foreground text-sm">불러오는 중…</p>
         ) : tools.length === 0 ? (
           <p className="text-muted-foreground text-sm">尚未发现工具，点击刷新重新获取。</p>
         ) : (
@@ -398,7 +398,7 @@ export default function MCPPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    aria-label="删除"
+                    aria-label="삭제"
                     onClick={() => removeServer(s)}
                   >
                     <Trash2Icon className="text-destructive" />
@@ -457,7 +457,7 @@ export default function MCPPage() {
                 {renderForm()}
                 <div className="flex gap-2 pt-2 pb-6">
                   <Button onClick={saveForm} disabled={saving}>
-                    保存
+                    저장
                   </Button>
                 </div>
               </TabsContent>

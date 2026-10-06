@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -34,13 +34,13 @@ const KIND_ICON: Record<FindingAssetKind, LucideIcon> = {
 };
 
 const KIND_LABEL: Record<FindingAssetKind, string> = {
-  company: "企业",
-  root_domain: "根域名",
-  subdomain: "子域名",
+  company: "기업",
+  root_domain: "루트 도메인",
+  subdomain: "하위 도메인",
   ip: "IP",
-  app: "应用",
-  service: "服务",
-  endpoint: "接口",
+  app: "앱",
+  service: "서비스",
+  endpoint: "인터페이스",
   none: "未关联",
 };
 
@@ -234,7 +234,7 @@ export function AssetTree({
   );
 
   let emptyHint = "当前筛选下没有关联到资产的发现。";
-  if (loading) emptyHint = "加载中…";
+  if (loading) emptyHint = "불러오는 중…";
   else if (searching) emptyHint = "没有匹配的资产。";
 
   const rows: React.ReactNode[] = [];
@@ -343,7 +343,7 @@ function AssetTreeRow({
           type="button"
           onClick={onToggle}
           className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground"
-          aria-label={open ? "折叠" : "展开"}
+          aria-label={open ? "折叠" : "펼치기"}
           aria-expanded={open}
         >
           <ChevronRightIcon className={cn("size-3.5 transition-transform", open && "rotate-90")} />
@@ -362,12 +362,12 @@ function AssetTreeRow({
       </button>
       <span className="flex shrink-0 items-center gap-1 text-xs tabular-nums">
         {node.critical > 0 && (
-          <span className="text-rose-600" title={`严重 ${node.critical}`}>
+          <span className="text-rose-600" title={`심각 ${node.critical}`}>
             {node.critical}
           </span>
         )}
         {node.high > 0 && (
-          <span className="text-red-500" title={`高危 ${node.high}`}>
+          <span className="text-red-500" title={`높음 ${node.high}`}>
             {node.high}
           </span>
         )}

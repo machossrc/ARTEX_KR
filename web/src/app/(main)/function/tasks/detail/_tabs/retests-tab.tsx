@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -20,7 +20,7 @@ import type { Finding, FindingsPage } from "@/lib/types";
 const PAGE_SIZE = 20;
 
 function findingLabel(finding: Finding) {
-  return finding.name?.trim() || finding.vulnclass.trim() || "未分类";
+  return finding.name?.trim() || finding.vulnclass.trim() || "미분류";
 }
 
 export function RetestsTab({ taskId }: { taskId: string }) {
@@ -75,7 +75,7 @@ export function RetestsTab({ taskId }: { taskId: string }) {
           <AlertDescription>
             加载任务漏洞失败：{error}
             <Button variant="outline" size="sm" onClick={refresh}>
-              重试
+              다시 시도
             </Button>
           </AlertDescription>
         </Alert>
@@ -127,7 +127,7 @@ export function RetestsTab({ taskId }: { taskId: string }) {
                 <ChevronLeftIcon />
               </Button>
               <span className="text-muted-foreground text-xs">
-                第 {page} / {Math.ceil(data.total / PAGE_SIZE)} 页
+                페이지  {page} / {Math.ceil(data.total / PAGE_SIZE)} 페이지
               </span>
               <Button
                 variant="outline"

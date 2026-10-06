@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -98,13 +98,13 @@ function statusTone(code: number) {
 const PAGE_SIZES = [25, 50, 100, 200];
 
 const TABS: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: "company", label: "企业", icon: BuildingIcon },
-  { key: "root_domain", label: "根域名", icon: GlobeIcon },
+  { key: "company", label: "기업", icon: BuildingIcon },
+  { key: "root_domain", label: "루트 도메인", icon: GlobeIcon },
   { key: "ip", label: "IP", icon: NetworkIcon },
-  { key: "subdomain", label: "子域名", icon: GlobeIcon },
-  { key: "app", label: "应用", icon: SmartphoneIcon },
-  { key: "service", label: "服务", icon: LayoutTemplateIcon },
-  { key: "endpoint", label: "接口", icon: LinkIcon },
+  { key: "subdomain", label: "하위 도메인", icon: GlobeIcon },
+  { key: "app", label: "앱", icon: SmartphoneIcon },
+  { key: "service", label: "서비스", icon: LayoutTemplateIcon },
+  { key: "endpoint", label: "인터페이스", icon: LinkIcon },
 ];
 
 export default function AssetsPage() {
@@ -192,11 +192,11 @@ export default function AssetsPage() {
     setDeleting(true);
     try {
       const res = await api.deleteAssets(deleteIds);
-      toast.success(`已删除 ${res.deleted} 条资产`);
+      toast.success(`삭제됨 ${res.deleted} 条资产`);
       setSelected(new Set());
       refresh();
     } catch (e) {
-      toast.error("删除失败：" + String((e as Error)?.message ?? e));
+      toast.error("삭제 실패: " + String((e as Error)?.message ?? e));
     } finally {
       setDeleting(false);
       setDeleteOpen(false);
@@ -215,7 +215,7 @@ export default function AssetsPage() {
       toast.success(msg);
       refresh();
     } catch (e) {
-      toast.error("删除失败：" + String((e as Error)?.message ?? e));
+      toast.error("삭제 실패: " + String((e as Error)?.message ?? e));
     } finally {
       setCompanyDeleting(false);
       setCompanyDeleteTarget(null);
@@ -316,7 +316,7 @@ export default function AssetsPage() {
     <div className="flex h-[calc(100vh-6rem)] min-h-0 flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">资产</h1>
+          <h1 className="text-xl font-semibold tracking-tight">자산</h1>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
@@ -328,7 +328,7 @@ export default function AssetsPage() {
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
-            <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> 刷新
+            <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> 새로고침
           </Button>
           <CompanyDialog onSaved={refresh} />
         </div>
@@ -354,10 +354,10 @@ export default function AssetsPage() {
               <Table>
                 <TableHeader className="sticky top-0 z-10 bg-card">
                   <TableRow>
-                    <TableHead>企业</TableHead>
+                    <TableHead>기업</TableHead>
                     <TableHead className="w-24 text-right">资产数</TableHead>
-                    <TableHead>资产范围</TableHead>
-                    <TableHead className="w-36 text-right">操作</TableHead>
+                    <TableHead>자산 범위</TableHead>
+                    <TableHead className="w-36 text-right">동작</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,7 +420,7 @@ export default function AssetsPage() {
         <TabsContent value="root_domain" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", "域名", "ICP 备案", "归属企业", ""]}
+            cols={["", "도메인", "ICP 备案", "归属企业", ""]}
             loaded={loaded}
             total={total}
             page={page}
@@ -508,7 +508,7 @@ export default function AssetsPage() {
         <TabsContent value="subdomain" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", "域名", "根域名", "解析类型", "解析值", ""]}
+            cols={["", "도메인", "루트 도메인", "解析类型", "解析值", ""]}
             loaded={loaded}
             total={total}
             page={page}
@@ -590,7 +590,7 @@ export default function AssetsPage() {
         <TabsContent value="service" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", "服务", "域名", "IP", "端口", "状态码", "标题", "指纹", "认证", ""]}
+            cols={["", "서비스", "도메인", "IP", "端口", "상태 코드", "标题", "指纹", "认证", ""]}
             loaded={loaded}
             total={total}
             page={page}
@@ -686,7 +686,7 @@ export default function AssetsPage() {
         <TabsContent value="endpoint" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", "方法", "完整地址", "参数", ""]}
+            cols={["", "方法", "完整地址", "인수", ""]}
             loaded={loaded}
             total={total}
             page={page}
@@ -744,7 +744,7 @@ export default function AssetsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -792,7 +792,7 @@ export default function AssetsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={companyDeleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={companyDeleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -870,7 +870,7 @@ function AssetCard({
             ) : (
               <TableRow>
                 <TableCell colSpan={cols.length} className="py-12 text-center text-sm text-muted-foreground">
-                  {loaded ? "暂无数据。" : "加载中…"}
+                  {loaded ? "暂无数据。" : "불러오는 중…"}
                 </TableCell>
               </TableRow>
             )}
@@ -1006,7 +1006,7 @@ function CompanyDialog({ onSaved }: { onSaved: () => void }) {
     } catch (e) {
       const msg = String((e as Error)?.message ?? e);
       if (/:\s*409$/.test(msg)) toast.error("企业已存在，请换个名称");
-      else toast.error(`保存失败：${msg}`);
+      else toast.error(`저장 실패: ${msg}`);
     } finally {
       setBusy(false);
     }
@@ -1040,10 +1040,10 @@ function CompanyDialog({ onSaved }: { onSaved: () => void }) {
         </div>
         <SheetFooter className="flex-row justify-end gap-2 border-t p-4">
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            取消
+            취소
           </Button>
           <Button onClick={submit} disabled={busy || !name.trim() || parsedScope.errors.length > 0}>
-            {busy ? "保存中…" : "保存"}
+            {busy ? "저장 중…" : "저장"}
           </Button>
         </SheetFooter>
       </SheetContent>
@@ -1079,12 +1079,12 @@ function EditScopeDialog({ company, onSaved }: { company: Company; onSaved: () =
       const res = await api.updateCompanyScope(company.id, parsedScope.rules, reason);
       const errCount = res.invalid ?? 0;
       if (errCount > 0) toast.warning(`已保存；${errCount} 行无效`);
-      else toast.success(`范围已更新，共 ${res.added} 条`);
+      else toast.success(`范围已更新，共 ${res.added} 건`);
       showScopeWarnings(res.warnings);
       setOpen(false);
       onSaved();
     } catch (e) {
-      toast.error(`保存失败：${String((e as Error)?.message ?? e)}`);
+      toast.error(`저장 실패: ${String((e as Error)?.message ?? e)}`);
     } finally {
       setBusy(false);
     }
@@ -1094,7 +1094,7 @@ function EditScopeDialog({ company, onSaved }: { company: Company; onSaved: () =
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-7">
-          编辑
+          편집
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -1123,10 +1123,10 @@ function EditScopeDialog({ company, onSaved }: { company: Company; onSaved: () =
         </FieldGroup>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            取消
+            취소
           </Button>
           <Button onClick={submit} disabled={busy || parsedScope.errors.length > 0}>
-            {busy ? "保存中…" : "覆盖保存"}
+            {busy ? "저장 중…" : "覆盖保存"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1167,7 +1167,7 @@ function AppendScopeDialog({ company, onSaved }: { company: Company; onSaved: ()
       setOpen(false);
       onSaved();
     } catch (e) {
-      toast.error(`保存失败：${String((e as Error)?.message ?? e)}`);
+      toast.error(`저장 실패: ${String((e as Error)?.message ?? e)}`);
     } finally {
       setBusy(false);
     }
@@ -1204,10 +1204,10 @@ function AppendScopeDialog({ company, onSaved }: { company: Company; onSaved: ()
         </FieldGroup>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            取消
+            취소
           </Button>
           <Button onClick={submit} disabled={busy || parsedScope.rules.length === 0 || parsedScope.errors.length > 0}>
-            {busy ? "保存中…" : "追加"}
+            {busy ? "저장 중…" : "追加"}
           </Button>
         </DialogFooter>
       </DialogContent>

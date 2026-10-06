@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -155,11 +155,11 @@ export function FindingsTable({
           <TableHead className="w-8" />
           <TableHead className="w-20">严重度</TableHead>
           <TableHead>漏洞名称</TableHead>
-          <TableHead className="w-44">资产</TableHead>
-          <TableHead className="w-28">状态</TableHead>
+          <TableHead className="w-44">자산</TableHead>
+          <TableHead className="w-28">상태</TableHead>
           <TableHead className="w-32">所属任务</TableHead>
-          <TableHead className="w-24">时间</TableHead>
-          <TableHead className="w-48">操作</TableHead>
+          <TableHead className="w-24">시간</TableHead>
+          <TableHead className="w-48">동작</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -207,13 +207,13 @@ export function FindingsTable({
                         className="truncate font-medium hover:text-primary hover:underline"
                         title="查看发现详情"
                       >
-                        {f.name || f.vulnclass || "未分类"}
+                        {f.name || f.vulnclass || "미분류"}
                       </Link>
                     ) : (
-                      <span className="truncate font-medium">{f.name || f.vulnclass || "未分类"}</span>
+                      <span className="truncate font-medium">{f.name || f.vulnclass || "미분류"}</span>
                     )}
                     <span className="truncate text-xs text-muted-foreground">{f.summary}</span>
-                    <Badge variant="outline">流量证据 {f.traffic_count ?? 0} 条</Badge>
+                    <Badge variant="outline">流量证据 {f.traffic_count ?? 0} 건</Badge>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -274,9 +274,9 @@ export function FindingsTable({
                   <div className="flex items-center gap-1">
                     {retest ? (
                       <Button asChild size="sm" variant="ghost">
-                        <Link href={`/chat?c=${retest.conversation_id}`} title="查看正在进行的复测会话">
+                        <Link href={`/chat?c=${retest.conversation_id}`} title="진행 중인 재검증 세션 보기">
                           <Spinner data-icon="inline-start" />
-                          复测中
+                          재검증 중
                         </Link>
                       </Button>
                     ) : null}
@@ -316,8 +316,8 @@ export function FindingsTable({
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>取消</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onDelete(f)}>删除</AlertDialogAction>
+                            <AlertDialogCancel>취소</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(f)}>삭제</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -369,7 +369,7 @@ export function FindingsTable({
                             </Select>
                           </div>
                           <Button size="sm" disabled={saving} onClick={() => onSave(f)}>
-                            {saving ? "保存中…" : "保存"}
+                            {saving ? "저장 중…" : "저장"}
                           </Button>
                         </div>
                       )}
@@ -418,7 +418,7 @@ export function FindingsTable({
                           {(() => {
                             const rep = reports[rowKey];
                             if (!rep || rep.status === "loading")
-                              return <p className="text-xs text-muted-foreground">加载中…</p>;
+                              return <p className="text-xs text-muted-foreground">불러오는 중…</p>;
                             if (rep.status === "error")
                               return <p className="text-xs text-muted-foreground">报告加载失败。</p>;
                             if (!rep.text.trim())

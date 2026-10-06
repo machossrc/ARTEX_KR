@@ -1,4 +1,4 @@
-// Mock 路由：把 (method, path) 映射到 lib/mock/data 的静态数据。
+﻿// Mock 路由：把 (method, path) 映射到 lib/mock/data 的静态数据。
 // 未命中的一律返回安全默认（[] / {} / {ok:true}），保证任何页面都不崩。
 // 只在 NEXT_PUBLIC_MOCK=1 时经由 api.ts 的 http() 短路进入这里。
 
@@ -1022,7 +1022,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
         label: finding.name || finding.vulnclass,
         description: `${finding.severity} · ${finding.summary}`,
       })),
-      ...D.companies.map((company) => ({ kind: "company", id: company.id, label: company.name, description: "企业" })),
+      ...D.companies.map((company) => ({ kind: "company", id: company.id, label: company.name, description: "기업" })),
       ...D.assets.map((asset) => ({
         kind: asset.type,
         id: asset.id,
@@ -1303,7 +1303,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
     const name = normalizedTemplateName(b.name);
     const description = String(b.description ?? "").trim();
     const goal = String(b.goal ?? "").trim();
-    if (!name || !description || !goal) throw new Error("请填写模板名称、描述和目标");
+    if (!name || !description || !goal) throw new Error("템플릿 이름, 설명과 목표를 입력하세요");
     if (
       mockTaskTemplates.some((template) => normalizedTemplateName(template.name).toLowerCase() === name.toLowerCase())
     ) {
@@ -1327,7 +1327,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
     const name = typeof b.name === "string" ? normalizedTemplateName(b.name) : template.name;
     const description = typeof b.description === "string" ? b.description.trim() : template.description;
     const goal = typeof b.goal === "string" ? b.goal.trim() : template.goal;
-    if (!name || !description || !goal) throw new Error("请填写模板名称、描述和目标");
+    if (!name || !description || !goal) throw new Error("템플릿 이름, 설명과 목표를 입력하세요");
     if (
       mockTaskTemplates.some(
         (item) => item.id !== template.id && normalizedTemplateName(item.name).toLowerCase() === name.toLowerCase(),
@@ -1655,7 +1655,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
       const rules: CompanyScopeRule[] = b.scope.map((candidate, index) => {
         if (typeof candidate === "string") {
           const issue = classifyCompanyScopeLine(candidate, index + 1);
-          if (!issue.rule || issue.error) throw new Error(`第 ${index + 1} 条范围无效：${issue.error ?? "无法识别"}`);
+          if (!issue.rule || issue.error) throw new Error(`페이지  ${index + 1} 条范围无效：${issue.error ?? "无法识别"}`);
           return issue.rule;
         }
         const item = candidate as { kind?: unknown; value?: unknown };
@@ -1665,7 +1665,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
             ? { kind: item.kind, value }
             : classifyCompanyScopeLine(value, index + 1).rule;
         const error = rule ? companyScopeRuleError(rule) : "无法识别";
-        if (!rule || error) throw new Error(`第 ${index + 1} 条范围无效：${error}`);
+        if (!rule || error) throw new Error(`페이지  ${index + 1} 条范围无效：${error}`);
         return rule;
       });
       const mutation: TaskAssetScopeMutation = {
@@ -2433,7 +2433,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
     if (decisionSource && !["model", "rule", "unknown"].includes(decisionSource)) throw new Error("无效判定来源");
     const filtered = mockInterceptHistory.filter((row) => {
       const source =
-        row.decision_source || (row.rule_id ? "rule" : row.reason?.startsWith("[模型]") ? "model" : "unknown");
+        row.decision_source || (row.rule_id ? "rule" : row.reason?.startsWith("[모델]") ? "model" : "unknown");
       return (
         (seg[1] !== "task" || row.task_id === decodeURIComponent(seg[2])) &&
         (!status || row.status === status) &&

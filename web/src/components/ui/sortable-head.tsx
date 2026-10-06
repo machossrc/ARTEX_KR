@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 import type * as React from "react";
@@ -32,8 +32,8 @@ export function SortableHead<Field extends string>({
   let ariaSort: React.AriaAttributes["aria-sort"] = "none";
   if (active) ariaSort = direction === "asc" ? "ascending" : "descending";
 
-  let actionLabel = `按${label}倒序排序`;
-  if (active) actionLabel = `${label}当前${direction === "asc" ? "正序" : "倒序"}，点击切换排序方向`;
+  let actionLabel = `정렬 기준: ${label}내림차순 정렬`;
+  if (active) actionLabel = `${label}현재${direction === "asc" ? "오름차순" : "내림차순"}, 클릭하여 정렬 방향 변경`;
 
   let icon = <ArrowUpDownIcon className="size-3.5 opacity-40 transition-opacity group-hover/sort:opacity-100" />;
   if (active) icon = direction === "asc" ? <ArrowUpIcon className="size-3.5" /> : <ArrowDownIcon className="size-3.5" />;

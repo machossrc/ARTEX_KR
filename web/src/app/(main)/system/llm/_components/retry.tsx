@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // LLM 重试配置的共用件：五层重试各自的「次数 + 间隔」。
 //
@@ -188,7 +188,7 @@ export function RetryRuleFields({
         </div>
         {/* 哪些错误会走到这层，具体到状态码——填了旋钮却看不到效果，多半是错误压根不落在这层。 */}
         <p className="text-muted-foreground text-xs">
-          <span className="font-medium text-foreground">触发</span>：{meta.trigger}
+          <span className="font-medium text-foreground">트리거</span>：{meta.trigger}
         </p>
         {!compact && meta.skips && (
           <p className="text-muted-foreground text-xs">
@@ -292,7 +292,7 @@ export function RetryPolicyPanel() {
       setPolicy({ ...ZERO_POLICY, ...saved });
       toast.success("已保存，即时生效（正在跑的这一轮调用仍用旧参数）");
     } catch (e) {
-      toast.error(`保存失败：${(e as Error).message}`);
+      toast.error(`저장 실패: ${(e as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -328,7 +328,7 @@ export function RetryPolicyPanel() {
       <div className="flex gap-2">
         <Button onClick={save} disabled={saving}>
           {saving ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
-          保存
+          저장
         </Button>
         <Button variant="outline" onClick={() => setPolicy(ZERO_POLICY)} disabled={saving}>
           全部恢复默认

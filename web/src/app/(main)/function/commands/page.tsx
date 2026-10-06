@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -205,12 +205,12 @@ export default function CommandsPage() {
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
-                  <TableHead className="w-[130px]">时间</TableHead>
-                  <TableHead className="w-[60px]">任务</TableHead>
+                  <TableHead className="w-[130px]">시간</TableHead>
+                  <TableHead className="w-[60px]">작업</TableHead>
                   <TableHead className="w-[90px]">Worker</TableHead>
-                  <TableHead className="w-[110px]">工具</TableHead>
+                  <TableHead className="w-[110px]">도구</TableHead>
                   <TableHead>输入</TableHead>
-                  <TableHead className="w-[60px]">状态</TableHead>
+                  <TableHead className="w-[60px]">상태</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -255,11 +255,11 @@ export default function CommandsPage() {
                       <TableCell>
                         {cmd.is_error ? (
                           <Badge variant="destructive" className="text-xs">
-                            失败
+                            실패
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="text-xs text-emerald-600">
-                            成功
+                            성공
                           </Badge>
                         )}
                       </TableCell>
@@ -309,7 +309,7 @@ export default function CommandsPage() {
                     <div className="flex items-center gap-2">
                       <span className="truncate font-mono text-xs font-medium">{s.tool}</span>
                       {s.errors > 0 && (
-                        <span className="text-[11px] tabular-nums text-red-600 dark:text-red-400">失败 {s.errors}</span>
+                        <span className="text-[11px] tabular-nums text-red-600 dark:text-red-400">실패 {s.errors}</span>
                       )}
                     </div>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -351,11 +351,11 @@ export default function CommandsPage() {
                   </Badge>
                   {selected.is_error ? (
                     <Badge variant="destructive" className="text-xs">
-                      失败
+                      실패
                     </Badge>
                   ) : (
                     <Badge variant="secondary" className="text-xs text-emerald-600">
-                      成功
+                      성공
                     </Badge>
                   )}
                 </div>
@@ -378,7 +378,7 @@ export default function CommandsPage() {
                         selected.is_error && "text-red-600 dark:text-red-400",
                       )}
                     >
-                      {selected.output || "（空）"}
+                      {selected.output || "(비어 있음)"}
                     </pre>
                   </div>
                 </div>

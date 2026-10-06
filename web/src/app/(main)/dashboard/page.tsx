@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -45,7 +45,7 @@ import { cn } from "@/lib/utils";
 
 const dailyTrendConfig = {
   input: { label: "输入", color: "hsl(217 91% 60%)" },
-  output: { label: "输出", color: "hsl(263 70% 60%)" },
+  output: { label: "출력", color: "hsl(263 70% 60%)" },
   cacheRead: { label: "缓存读", color: "hsl(160 60% 45%)" },
 } satisfies ChartConfig;
 
@@ -70,11 +70,11 @@ function fmtTokens(n: number): string {
 }
 
 const ASSET_TYPE_LABELS: Record<string, string> = {
-  root_domain: "根域名",
+  root_domain: "루트 도메인",
   ip: "IP",
-  subdomain: "子域名",
-  app: "应用",
-  service: "服务",
+  subdomain: "하위 도메인",
+  app: "앱",
+  service: "서비스",
   endpoint: "端点",
 };
 
@@ -531,10 +531,10 @@ export default function DashboardPage() {
             <div className="text-2xl font-semibold tabular-nums">{findings.length}</div>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2.5 text-[10px]">
-            <span className="text-rose-500">严重 {findingsBySev.critical}</span>
-            <span className="text-red-400">高危 {findingsBySev.high}</span>
-            <span className="text-amber-400">中危 {findingsBySev.medium}</span>
-            <span className="text-slate-400">低危 {findingsBySev.low}</span>
+            <span className="text-rose-500">심각 {findingsBySev.critical}</span>
+            <span className="text-red-400">높음 {findingsBySev.high}</span>
+            <span className="text-amber-400">중간 {findingsBySev.medium}</span>
+            <span className="text-slate-400">낮음 {findingsBySev.low}</span>
           </CardContent>
         </Card>
 
@@ -707,7 +707,7 @@ export default function DashboardPage() {
                     text: "text-emerald-400",
                   },
                   {
-                    label: "输出",
+                    label: "출력",
                     value: displayedTokens.output,
                     barColor: dailyTrendConfig.output.color!,
                     text: "text-violet-400",
@@ -958,7 +958,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold">
             <ClockIcon className="size-3.5 text-muted-foreground" />
-            任务
+            작업
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-muted-foreground">{tasks.length} 个任务</span>
@@ -973,7 +973,7 @@ export default function DashboardPage() {
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b">
-              {["任务", "状态", "引擎", "目标进度", "在途", "最近活动"].map((h) => (
+              {["작업", "상태", "引擎", "目标进度", "在途", "最近活动"].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2 text-left text-[9px] font-semibold uppercase tracking-widest text-muted-foreground first:pl-4"
@@ -1156,7 +1156,7 @@ export default function DashboardPage() {
                     : "text-muted-foreground",
                 )}
               >
-                {settings?.traffic_capture ? "开启" : "关闭"}
+                {settings?.traffic_capture ? "开启" : "닫기"}
               </Badge>
             </div>
 

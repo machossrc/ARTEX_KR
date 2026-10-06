@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -106,7 +106,7 @@ export function ChangePasswordDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-              取消
+              취소
             </Button>
             <Button type="submit" disabled={saving}>
               {saving ? "修改中…" : "确认修改"}

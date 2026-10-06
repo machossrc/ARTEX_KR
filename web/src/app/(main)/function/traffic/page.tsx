@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -251,7 +251,7 @@ export default function TrafficPage() {
 
   // "清空" for the unfiltered purge, "删除" for the host-scoped ones — the dialog's
   // title and its confirm button both follow from which is in play.
-  const deleteVerb = deleteMode === "all" ? "清空" : "删除";
+  const deleteVerb = deleteMode === "all" ? "清空" : "삭제";
   const deleteTitle = deleteMode
     ? {
         all: "清空全部流量记录？",
@@ -285,7 +285,7 @@ export default function TrafficPage() {
           // Reclaimed space is the whole point of compacting an emptied index, so say so.
           const reclaimed = r.reclaimed ?? 0;
           const freed = reclaimed > 0 ? `，释放 ${fmtBytes(reclaimed)} 存储` : "";
-          toast.success(`已清空 ${r.deleted} 条流量${freed}`);
+          toast.success(`已清空 ${r.deleted} 건의 트래픽${freed}`);
         }
         setPage(0);
         setReloadTick((t) => t + 1);
@@ -341,7 +341,7 @@ export default function TrafficPage() {
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">流量</h1>
+          <h1 className="text-xl font-semibold tracking-tight">트래픽</h1>
           <p className="text-muted-foreground text-sm">全局录制代理 · 所有 HTTP 往来</p>
         </div>
         <div className="flex items-center gap-4 text-sm">
@@ -354,11 +354,11 @@ export default function TrafficPage() {
             )}
           >
             <RadioTowerIcon className="size-3.5" />
-            {traffic?.enabled ? "录制中" : "已停用"}
+            {traffic?.enabled ? "录制中" : "비활성화됨"}
           </span>
           {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
           <span className="text-xs text-muted-foreground">
-            共 <span className="tabular-nums">{traffic?.count ?? 0}</span> 条
+            共 <span className="tabular-nums">{traffic?.count ?? 0}</span> 건
           </span>
         </div>
       </div>
@@ -396,7 +396,7 @@ export default function TrafficPage() {
                         {hostCountSortDirection === "desc" ? <ArrowDownWideNarrowIcon /> : <ArrowUpNarrowWideIcon />}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>按数据包数量{hostCountSortDirection === "desc" ? "倒序" : "正序"}</TooltipContent>
+                    <TooltipContent>按数据包数量{hostCountSortDirection === "desc" ? "내림차순" : "오름차순"}</TooltipContent>
                   </Tooltip>
                 )}
                 {hosts.length > 0 && (
@@ -493,7 +493,7 @@ export default function TrafficPage() {
             <SelectValue placeholder="方法" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部方法</SelectItem>
+            <SelectItem value="all">모든 메서드</SelectItem>
             {METHODS.map((m) => (
               <SelectItem key={m} value={m}>
                 {m}
@@ -563,7 +563,7 @@ export default function TrafficPage() {
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger size="sm" className="w-28">
-            <SelectValue placeholder="状态码" />
+            <SelectValue placeholder="상태 코드" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">全部状态码</SelectItem>
@@ -597,15 +597,15 @@ export default function TrafficPage() {
         {hasAdvancedFilter ? (
           <Button variant="ghost" size="sm" className="h-8" onClick={resetAdvancedFilters}>
             <FilterXIcon className="size-3.5" />
-            清除筛选
+            필터 초기화
           </Button>
         ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted-foreground">已选 {selectedFlows.size} 条流量</span>
+        <span className="text-sm text-muted-foreground">선택됨 {selectedFlows.size} 건의 트래픽</span>
         <Button variant="outline" size="sm" disabled={selectedFlows.size === 0} onClick={() => setLinking(true)}>
-          关联到漏洞
+          취약점에 연결
         </Button>
         {selectedFlows.size > 0 ? (
           <Button variant="ghost" size="sm" onClick={() => setSelectedFlows(new Set())}>
@@ -638,7 +638,7 @@ export default function TrafficPage() {
                   </TableHead>
                   <SortableHead
                     field="ts"
-                    label="时间"
+                    label="시간"
                     activeField={sort.field}
                     direction={sort.direction}
                     onSort={toggleSort}
@@ -649,7 +649,7 @@ export default function TrafficPage() {
                   <TableHead>URL</TableHead>
                   <SortableHead
                     field="status"
-                    label="状态码"
+                    label="상태 코드"
                     activeField={sort.field}
                     direction={sort.direction}
                     onSort={toggleSort}
@@ -676,7 +676,7 @@ export default function TrafficPage() {
                   >
                     <TableCell>
                       <Checkbox
-                        aria-label={`选择流量 ${e.id}`}
+                        aria-label={`트래픽 선택 ${e.id}`}
                         checked={selectedFlows.has(e.id)}
                         onClick={(event) => event.stopPropagation()}
                         onCheckedChange={(checked) =>
@@ -709,7 +709,7 @@ export default function TrafficPage() {
                 {exchanges.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
-                      {traffic === null ? "加载中…" : "没有匹配的流量。"}
+                      {traffic === null ? "불러오는 중…" : "没有匹配的流量。"}
                     </TableCell>
                   </TableRow>
                 )}
@@ -743,8 +743,8 @@ export default function TrafficPage() {
               </SheetHeader>
               <Tabs defaultValue="request" className="min-h-0 flex-1 gap-0">
                 <TabsList className="mx-5 mt-4 grid w-auto grid-cols-2">
-                  <TabsTrigger value="request">请求 Request</TabsTrigger>
-                  <TabsTrigger value="response">响应 Response</TabsTrigger>
+                  <TabsTrigger value="request">요청 Request</TabsTrigger>
+                  <TabsTrigger value="response">응답 Response</TabsTrigger>
                 </TabsList>
                 <TabsContent value="request" className="min-h-0 overflow-auto">
                   {detailLoading ? (
@@ -811,7 +811,7 @@ export default function TrafficPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -820,7 +820,7 @@ export default function TrafficPage() {
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? `${deleteVerb}中…` : `确认${deleteVerb}`}
+              {deleting ? `${deleteVerb}中…` : `확인${deleteVerb}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

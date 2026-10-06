@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -205,12 +205,12 @@ type DeleteCounts = Omit<DeleteTaskResult, "deleted" | "cleanup_warning">;
 
 function deleteDetails(result: DeleteCounts): string[] {
   const details: string[] = [];
-  if (result.assets_deleted > 0) details.push(`删除资产 ${result.assets_deleted} 条`);
-  if (result.assets_detached > 0) details.push(`解除共享资产关联 ${result.assets_detached} 条`);
-  if (result.traffic_deleted > 0) details.push(`删除流量 ${result.traffic_deleted} 条`);
+  if (result.assets_deleted > 0) details.push(`删除资产 ${result.assets_deleted} 건`);
+  if (result.assets_detached > 0) details.push(`解除共享资产关联 ${result.assets_detached} 건`);
+  if (result.traffic_deleted > 0) details.push(`删除流量 ${result.traffic_deleted} 건`);
   if (result.files_deleted) details.push("删除任务文件");
-  if (result.findings_deleted > 0) details.push(`删除漏洞 ${result.findings_deleted} 条`);
-  if (result.llm_records_deleted > 0) details.push(`删除 LLM 请求/响应记录 ${result.llm_records_deleted} 条`);
+  if (result.findings_deleted > 0) details.push(`删除漏洞 ${result.findings_deleted} 건`);
+  if (result.llm_records_deleted > 0) details.push(`删除 LLM 请求/响应记录 ${result.llm_records_deleted} 건`);
   return details;
 }
 
@@ -229,13 +229,13 @@ function fmtDateTime(unix?: number): string {
 }
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-  { value: "created", label: "已创建" },
-  { value: "queued", label: "排队中" },
-  { value: "running", label: "运行中" },
-  { value: "paused", label: "已暂停" },
-  { value: "done", label: "已完成" },
-  { value: "failed", label: "失败" },
-  { value: "timeout", label: "已超时" },
+  { value: "created", label: "생성됨" },
+  { value: "queued", label: "대기열에 있음" },
+  { value: "running", label: "실행 중" },
+  { value: "paused", label: "일시 중지됨" },
+  { value: "done", label: "완료됨" },
+  { value: "failed", label: "실패" },
+  { value: "timeout", label: "시간 초과됨" },
 ];
 
 // Select 不接受空字符串 value,所以「无分类」在筛选器、新建表单和批量移动里
@@ -536,7 +536,7 @@ export default function TasksPage() {
         }
         load();
       } catch (e) {
-        toast.error("删除失败：" + (e as Error).message);
+        toast.error("삭제 실패: " + (e as Error).message);
         throw e;
       }
     },
@@ -551,7 +551,7 @@ export default function TasksPage() {
       try {
         const result = await api.controlTask(id, action);
         toast.success(
-          action === "pause" ? `任务 #${id} 已暂停` : `任务 #${id} 已继续${result.queued ? "，已进入队列" : ""}`,
+          action === "pause" ? `任务 #${id} 일시 중지됨` : `任务 #${id} 已继续${result.queued ? "，已进入队列" : ""}`,
         );
       } catch (e) {
         toast.error(`${action === "pause" ? "暂停" : "继续"}失败：${(e as Error).message}`);
@@ -651,7 +651,7 @@ export default function TasksPage() {
           return next;
         });
         const details = deleteDetails(total);
-        const summary = `已删除 ${deleted.length} 个任务` + (details.length > 0 ? `（${details.join("，")}）` : "");
+        const summary = `삭제됨 ${deleted.length} 个任务` + (details.length > 0 ? `（${details.join("，")}）` : "");
         if (warnings.length > 0) {
           toast.warning(`${summary}；部分外部数据清理未完成：${warnings.join("；")}`);
         } else {
@@ -719,7 +719,7 @@ export default function TasksPage() {
         if (succeeded.length > 0) {
           toast.success(
             action === "pause"
-              ? `已暂停 ${succeeded.length} 个任务`
+              ? `일시 중지됨 ${succeeded.length} 个任务`
               : `已继续 ${succeeded.length} 个任务${succeeded.some((item) => item.queued) ? "，部分任务已进入队列" : ""}`,
           );
         }
@@ -755,7 +755,7 @@ export default function TasksPage() {
         const result = await api.updateTasksCategory(ids, categoryID);
         const succeeded = result.items.filter((item) => item.ok);
         const failed = result.items.filter((item) => !item.ok);
-        const target = result.category?.name ?? "未分类";
+        const target = result.category?.name ?? "미분류";
         if (succeeded.length > 0) {
           toast.success(`已将 ${succeeded.length} 个任务移动到「${target}」`);
           setSelectedIds(new Set());
@@ -808,11 +808,11 @@ export default function TasksPage() {
               </div>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | "all")}>
                 <SelectTrigger className="w-36">
-                  <SelectValue placeholder="状态" />
+                  <SelectValue placeholder="상태" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">全部状态</SelectItem>
+                    <SelectItem value="all">모든 상태</SelectItem>
                     {STATUS_OPTIONS.map((s) => (
                       <SelectItem key={s.value} value={s.value}>
                         {s.label}
@@ -823,12 +823,12 @@ export default function TasksPage() {
               </Select>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="任务分类" />
+                  <SelectValue placeholder="작업 분류" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="all">全部分类</SelectItem>
-                    <SelectItem value={UNCATEGORIZED_VALUE}>未分类</SelectItem>
+                    <SelectItem value={UNCATEGORIZED_VALUE}>미분류</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={String(category.id)}>
                         {category.name}
@@ -838,11 +838,11 @@ export default function TasksPage() {
                 </SelectContent>
               </Select>
               <span className="text-muted-foreground text-xs tabular-nums">
-                {filtered.length}/{tasks.length} 条
+                {filtered.length}/{tasks.length} 건
               </span>
               {selectedIds.size > 0 && (
                 <>
-                  <span className="text-xs tabular-nums">已选 {selectedIds.size} 个</span>
+                  <span className="text-xs tabular-nums">선택됨 {selectedIds.size} 个</span>
                   <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
                     取消选择
                   </Button>
@@ -940,18 +940,18 @@ export default function TasksPage() {
                       onSort={sortTasksBy}
                     />
                     <TableHead>名称</TableHead>
-                    <TableHead>描述</TableHead>
-                    <TableHead>目标</TableHead>
+                    <TableHead>설명</TableHead>
+                    <TableHead>목표</TableHead>
                     <SortableTaskHead
                       field="status"
-                      label="状态"
+                      label="상태"
                       activeField={sortField}
                       direction={sortDirection}
                       onSort={sortTasksBy}
                     />
                     <TableHead className="text-center">目标进度</TableHead>
                     <TableHead className="text-center" title="严重 / 高 / 中 / 低">
-                      漏洞 <span className="text-muted-foreground font-normal">严/高/中/低</span>
+                      취약점 <span className="text-muted-foreground font-normal">严/高/中/低</span>
                     </TableHead>
                     <TableHead className="text-center">运行中 Worker</TableHead>
                     <SortableTaskHead
@@ -972,7 +972,7 @@ export default function TasksPage() {
                     />
                     <TableHead className="text-right">Token</TableHead>
                     <TableHead className="sticky right-0 z-10 bg-card text-right shadow-[-1px_0_0_0_hsl(var(--border))]">
-                      操作
+                      동작
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1045,8 +1045,8 @@ function SortableTaskHead({
   let ariaSort: React.AriaAttributes["aria-sort"] = "none";
   if (active) ariaSort = direction === "asc" ? "ascending" : "descending";
 
-  let actionLabel = `按${label}倒序排序`;
-  if (active) actionLabel = `${label}当前${direction === "asc" ? "正序" : "倒序"}，点击切换排序方向`;
+  let actionLabel = `정렬 기준: ${label}내림차순 정렬`;
+  if (active) actionLabel = `${label}현재${direction === "asc" ? "오름차순" : "내림차순"}, 클릭하여 정렬 방향 변경`;
 
   return (
     <TableHead className={className} aria-sort={ariaSort}>
@@ -1096,7 +1096,7 @@ function ConcurrencySettingsDialog() {
       toast.success(enabled ? `已开启并发限制：最多同时运行 ${nextLimit} 个任务` : "已关闭任务并发限制");
       setOpen(false);
     } catch (error) {
-      toast.error(`保存失败：${(error as Error).message}`);
+      toast.error(`저장 실패: ${(error as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -1141,10 +1141,10 @@ function ConcurrencySettingsDialog() {
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">취소</Button>
           </DialogClose>
           <Button onClick={save} disabled={loading || saving}>
-            {saving && <Loader2Icon className="animate-spin" />} 保存
+            {saving && <Loader2Icon className="animate-spin" />} 저장
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1495,7 +1495,7 @@ function ArchiveConfirmDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>취소</AlertDialogCancel>
           <AlertDialogAction
             disabled={pending}
             onClick={async (event) => {
@@ -1559,7 +1559,7 @@ function archiveStateLabel(state: TaskArchiveState): string {
     restoring: "还原中",
     restore_failed: "还原失败",
     delete_queued: "等待删除",
-    deleting: "删除中",
+    deleting: "삭제 중",
     delete_failed: "删除失败",
   };
   return labels[state];
@@ -1622,7 +1622,7 @@ function ArchiveDeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>취소</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={pending}
@@ -1814,14 +1814,14 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="all">모든 상태</SelectItem>
                 <SelectItem value="archive_queued">等待归档</SelectItem>
                 <SelectItem value="archiving">归档中</SelectItem>
                 <SelectItem value="ready">可还原</SelectItem>
                 <SelectItem value="restore_queued">等待还原</SelectItem>
                 <SelectItem value="restoring">还原中</SelectItem>
                 <SelectItem value="delete_queued">等待删除</SelectItem>
-                <SelectItem value="deleting">删除中</SelectItem>
+                <SelectItem value="deleting">삭제 중</SelectItem>
                 <SelectItem value="archive_failed">归档失败</SelectItem>
                 <SelectItem value="restore_failed">还原失败</SelectItem>
                 <SelectItem value="delete_failed">删除失败</SelectItem>
@@ -1831,7 +1831,7 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
           <span className="text-muted-foreground text-xs tabular-nums">{total} 个归档</span>
           {selectedArchives.length > 0 && (
             <>
-              <span className="text-xs tabular-nums">已选 {selectedArchives.length} 个</span>
+              <span className="text-xs tabular-nums">선택됨 {selectedArchives.length} 个</span>
               {restorable.length > 0 && (
                 <Button size="sm" variant="outline" onClick={() => void restoreMany(restorable)}>
                   <Undo2Icon data-icon="inline-start" />
@@ -1877,14 +1877,14 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                     aria-label="选择当前页归档"
                   />
                 </TableHead>
-                <TableHead>任务</TableHead>
+                <TableHead>작업</TableHead>
                 <TableHead>原状态</TableHead>
                 <TableHead>分类</TableHead>
                 <TableHead>归档时间</TableHead>
                 <TableHead>压缩大小</TableHead>
                 <TableHead>数据量</TableHead>
                 <TableHead className="min-w-44">处理状态</TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                <TableHead className="text-right">동작</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1922,7 +1922,7 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                     <TableCell>
                       <StatusBadge domain="task" value={archive.original_status} dot />
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{archive.category_name || "未分类"}</TableCell>
+                    <TableCell className="text-muted-foreground">{archive.category_name || "미분류"}</TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap text-xs">
                       {archiveDate(archive.archived_at || archive.requested_at)}
                     </TableCell>
@@ -1961,7 +1961,7 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                             variant="ghost"
                             onClick={() => void retry(archive)}
                             aria-label="重试归档操作"
-                            title="重试"
+                            title="다시 시도"
                           >
                             <Undo2Icon />
                           </Button>
@@ -2096,7 +2096,7 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateOption("delete_traffic", checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-traffic-${idPrefix}`}>关联流量</FieldLabel>
+            <FieldLabel htmlFor={`delete-traffic-${idPrefix}`}>트래픽 연결</FieldLabel>
             <FieldDescription>按关联资产的精确主机名删除；仍被其他任务引用的共享主机流量会保留。</FieldDescription>
           </FieldContent>
         </Field>
@@ -2192,7 +2192,7 @@ function DeleteTaskDialog({
         </AlertDialogHeader>
         <DeleteOptionFields idPrefix={task.id} options={options} onOptionsChange={setOptions} disabled={deleting} />
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={deleting}
@@ -2202,7 +2202,7 @@ function DeleteTaskDialog({
             }}
           >
             {deleting && <Spinner data-icon="inline-start" />}
-            {deleting ? "删除中" : "删除"}
+            {deleting ? "삭제 중" : "삭제"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -2256,7 +2256,7 @@ function MoveTasksCategoryDialog({
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value={UNCATEGORIZED_VALUE}>未分类</SelectItem>
+                <SelectItem value={UNCATEGORIZED_VALUE}>미분류</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={String(category.id)}>
                     {category.name}
@@ -2270,7 +2270,7 @@ function MoveTasksCategoryDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" disabled={moving}>
-              取消
+              취소
             </Button>
           </DialogClose>
           <Button
@@ -2344,7 +2344,7 @@ function BulkDeleteTasksDialog({
         </div>
         <DeleteOptionFields idPrefix="bulk" options={options} onOptionsChange={setOptions} disabled={deleting} />
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={deleting}
@@ -2354,7 +2354,7 @@ function BulkDeleteTasksDialog({
             }}
           >
             {deleting && <Spinner data-icon="inline-start" />}
-            {deleting ? `删除中 ${done}/${ids.length}` : `删除 ${ids.length} 个任务`}
+            {deleting ? `삭제 중 ${done}/${ids.length}` : `삭제 ${ids.length} 个任务`}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -2558,11 +2558,11 @@ function CategoryPicker({
 }
 
 const COMPANY_SCOPE_LABELS: Record<string, string> = {
-  domain: "域名",
+  domain: "도메인",
   ip: "IP",
   cidr: "CIDR",
   icp: "ICP",
-  keyword: "关键词",
+  keyword: "키워드",
 };
 
 function companyScopeSummary(company: Company): string {
@@ -2572,7 +2572,7 @@ function companyScopeSummary(company: Company): string {
     const value = row.raw || row.value || row.domain || row.net || "";
     return `${COMPANY_SCOPE_LABELS[row.kind] ?? row.kind}：${value}`;
   });
-  return `${preview.join(" · ")}${rows.length > preview.length ? ` · 另 ${rows.length - preview.length} 条` : ""}`;
+  return `${preview.join(" · ")}${rows.length > preview.length ? ` · 另 ${rows.length - preview.length} 건` : ""}`;
 }
 
 function CompanyPicker({
@@ -2866,7 +2866,7 @@ function CategoryManagementSheet({
     try {
       await api.updateTaskCategory(task.id, category?.id);
       onTaskMoved(task.id, category);
-      toast.success(`任务 #${task.id} 已移至「${category?.name ?? "未分类"}」`);
+      toast.success(`任务 #${task.id} 已移至「${category?.name ?? "미분류"}」`);
     } catch (error) {
       toast.error(`移动任务失败：${(error as Error).message}`);
     } finally {
@@ -2891,7 +2891,7 @@ function CategoryManagementSheet({
     void moveTask(task, destination.slice("category:".length));
   }
 
-  const saveLabel = saving ? "保存中" : selectedView === "new" ? "创建分类" : "保存修改";
+  const saveLabel = saving ? "저장 중" : selectedView === "new" ? "创建分类" : "변경 사항 저장";
 
   return (
     <>
@@ -2923,7 +2923,7 @@ function CategoryManagementSheet({
                   <div className="flex flex-col gap-1 pr-2">
                     <CategoryDropTarget
                       value="uncategorized"
-                      name="未分类"
+                      name="미분류"
                       count={uncategorizedCount}
                       selected={selectedView === "uncategorized"}
                       disabled={movingTaskID != null}
@@ -3017,7 +3017,7 @@ function CategoryManagementSheet({
               </Button>
             )}
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              关闭
+              닫기
             </Button>
             {selectedView !== "uncategorized" && (
               <Button
@@ -3041,7 +3041,7 @@ function CategoryManagementSheet({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               disabled={deleting}
@@ -3051,7 +3051,7 @@ function CategoryManagementSheet({
               }}
             >
               {deleting && <Spinner data-icon="inline-start" />}
-              {deleting ? "删除中" : "删除"}
+              {deleting ? "삭제 중" : "삭제"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -3230,7 +3230,7 @@ function CreateTaskSheet({
               />
             </div>
             <Field>
-              <FieldLabel htmlFor="task-category">任务分类</FieldLabel>
+              <FieldLabel htmlFor="task-category">작업 분류</FieldLabel>
               <CategoryPicker
                 categories={categories}
                 value={categoryID}
@@ -3241,7 +3241,7 @@ function CreateTaskSheet({
               <FieldDescription>可选，单个分类；用于任务列表筛选和归档，不影响 Agent 执行。</FieldDescription>
             </Field>
             <div className="grid gap-2">
-              <Label htmlFor="description">描述</Label>
+              <Label htmlFor="description">설명</Label>
               <Textarea
                 id="description"
                 className="min-h-32"
@@ -3276,7 +3276,7 @@ function CreateTaskSheet({
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="goal">目标</Label>
+              <Label htmlFor="goal">목표</Label>
               <Textarea
                 id="goal"
                 className="min-h-32"
@@ -3404,7 +3404,7 @@ function CreateTaskSheet({
 
         <SheetFooter className="flex-row justify-end gap-2 border-t p-4">
           <SheetClose asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">취소</Button>
           </SheetClose>
           <Button onClick={createTask} disabled={creating || uploading}>
             {creating && <Spinner data-icon="inline-start" />}

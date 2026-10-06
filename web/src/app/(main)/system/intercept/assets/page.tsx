@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -25,17 +25,17 @@ const KIND_OPTIONS: { value: AssetInterceptKind; label: string; group: string; p
   { value: "exact_domain", label: "域名（全等）", group: "全等匹配", placeholder: "example.gov.cn" },
   { value: "exact_ip", label: "IP（全等）", group: "全等匹配", placeholder: "203.0.113.10" },
   { value: "exact_url", label: "URL（全等）", group: "全等匹配", placeholder: "https://example.gov.cn/login" },
-  { value: "fuzzy_domain", label: "域名（模糊）", group: "模糊匹配", placeholder: ".gov.cn" },
-  { value: "fuzzy_ip", label: "IP（模糊）", group: "模糊匹配", placeholder: "203.0.113." },
-  { value: "fuzzy_url", label: "URL（模糊）", group: "模糊匹配", placeholder: "/admin" },
-  { value: "cidr", label: "CIDR 网段", group: "网段", placeholder: "192.168.0.0/16" },
+  { value: "fuzzy_domain", label: "域名（模糊）", group: "부분 일치", placeholder: ".gov.cn" },
+  { value: "fuzzy_ip", label: "IP（模糊）", group: "부분 일치", placeholder: "203.0.113." },
+  { value: "fuzzy_url", label: "URL（模糊）", group: "부분 일치", placeholder: "/admin" },
+  { value: "cidr", label: "CIDR 네트워크 대역", group: "网段", placeholder: "192.168.0.0/16" },
 ];
 
 const KIND_LABEL: Record<AssetInterceptKind, string> = Object.fromEntries(
   KIND_OPTIONS.map((o) => [o.value, o.label]),
 ) as Record<AssetInterceptKind, string>;
 
-const KIND_GROUPS = ["全等匹配", "模糊匹配", "网段"];
+const KIND_GROUPS = ["全等匹配", "부분 일치", "网段"];
 
 function KindBadge({ kind }: { kind: AssetInterceptKind }) {
   const fuzzy = kind.startsWith("fuzzy_");
@@ -201,7 +201,7 @@ export default function AssetInterceptPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <p className="p-6 text-sm text-muted-foreground">加载中…</p>
+            <p className="p-6 text-sm text-muted-foreground">불러오는 중…</p>
           ) : rules.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
               <BanIcon className="h-8 w-8 text-muted-foreground/40" />
@@ -215,7 +215,7 @@ export default function AssetInterceptPage() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[130px]">类型</TableHead>
+                  <TableHead className="w-[130px]">유형</TableHead>
                   <TableHead>匹配内容</TableHead>
                   <TableHead>备注</TableHead>
                   <TableHead className="w-[64px] text-center">启用</TableHead>
@@ -339,10 +339,10 @@ export default function AssetInterceptPage() {
 
           <SheetFooter className="border-t px-6 py-4 flex-row justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              取消
+              취소
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? "保存中…" : "保存"}
+              {saving ? "저장 중…" : "저장"}
             </Button>
           </SheetFooter>
         </SheetContent>

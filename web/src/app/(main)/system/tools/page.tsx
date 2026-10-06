@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -180,7 +180,7 @@ function ToolEditor({
       onSaved();
       onClose();
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -192,7 +192,7 @@ function ToolEditor({
       onSaved();
       onClose();
     } catch (e) {
-      toast.error("恢复失败：" + (e as Error).message);
+      toast.error("복원 실패: " + (e as Error).message);
     }
   }
 
@@ -273,7 +273,7 @@ function ToolEditor({
               </div>
               <div className="grid gap-2">
                 <div className="grid gap-1">
-                  <Label className="text-muted-foreground text-[11px]">描述</Label>
+                  <Label className="text-muted-foreground text-[11px]">설명</Label>
                   <Input
                     className="text-xs"
                     value={r.description}
@@ -299,10 +299,10 @@ function ToolEditor({
       <Separator className="mt-4" />
       <div className="flex flex-wrap gap-2 p-4">
         <Button size="sm" onClick={save} disabled={saving}>
-          <SaveIcon /> 保存
+          <SaveIcon /> 저장
         </Button>
         <Button size="sm" variant="outline" onClick={reset}>
-          <RotateCcwIcon /> 恢复默认
+          <RotateCcwIcon /> 기본값 복원
         </Button>
       </div>
     </div>
@@ -335,7 +335,7 @@ function ToolGridCard({ tool, onClick }: { tool: Tool; onClick: () => void }) {
         )}
         {!tool.enabled && (
           <Badge variant="outline" className="text-destructive px-1.5 py-0 text-[10px]">
-            已停用
+            비활성화됨
           </Badge>
         )}
         <Badge
@@ -402,7 +402,7 @@ export default function ToolsPage() {
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">工具</h1>
+          <h1 className="text-xl font-semibold tracking-tight">도구</h1>
           <p className="text-muted-foreground text-sm">系统工具的描述/绑定，以及自定义工具(command/script/http)</p>
         </div>
         <div className="relative w-64">
@@ -634,7 +634,7 @@ function CustomToolDialog({
       toast.success(isNew ? "已创建自定义工具" : "已保存");
       onSaved();
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -643,10 +643,10 @@ function CustomToolDialog({
     if (!tool) return;
     try {
       await api.deleteCustomTool(tool.key);
-      toast.success("已删除");
+      toast.success("삭제됨");
       onSaved();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
   // runTest dry-runs the CURRENT form (unsaved) with the sample params, so a
@@ -678,7 +678,7 @@ function CustomToolDialog({
         className="flex flex-col gap-0 p-0 data-[side=right]:w-[45vw] data-[side=right]:sm:max-w-[45vw] data-[side=right]:min-w-[480px]"
       >
         <SheetHeader className="px-4">
-          <SheetTitle>{isNew ? "新建自定义工具" : `编辑 ${tool?.key}`}</SheetTitle>
+          <SheetTitle>{isNew ? "新建自定义工具" : `편집 ${tool?.key}`}</SheetTitle>
           <SheetDescription>shell=bash 环境声明(只需名称+描述，告知模型可用 bash 调用)；command/script/http 需写执行规格。</SheetDescription>
         </SheetHeader>
 
@@ -694,7 +694,7 @@ function CustomToolDialog({
           </div>
 
           <div className="grid gap-1.5">
-            <Label className="text-xs">类型</Label>
+            <Label className="text-xs">유형</Label>
             <Select value={kind} onValueChange={(v) => setKind(v as "shell" | "command" | "script" | "http")}>
               <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -829,11 +829,11 @@ function CustomToolDialog({
         <Separator />
         <div className="flex items-center gap-2 p-4">
           <Button size="sm" onClick={save} disabled={saving}>
-            <SaveIcon /> {isNew ? "创建" : "保存"}
+            <SaveIcon /> {isNew ? "创建" : "저장"}
           </Button>
           {!isNew && (
             <Button size="sm" variant="outline" className="text-destructive" onClick={del}>
-              <Trash2Icon /> 删除
+              <Trash2Icon /> 삭제
             </Button>
           )}
         </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -496,7 +496,7 @@ export default function SkillsPage() {
       if (selected?.skill === skill && selected.path === path) setSelected(null);
       load();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
 
@@ -507,7 +507,7 @@ export default function SkillsPage() {
       if (selected?.skill === name) setSelected(null);
       load();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
 
@@ -532,7 +532,7 @@ export default function SkillsPage() {
       toast.success("已保存");
       setDirty(false);
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally { setSaving(false); }
   }
 
@@ -556,7 +556,7 @@ export default function SkillsPage() {
     const on = (visibility[skillName] ?? []).includes(agentId);
     try {
       await api.toggleSkillVisibility(agentId, skillName, !on);
-      toast.success(`${on ? "取消" : "授予"}「${agentName}」可见`);
+      toast.success(`${on ? "취소" : "授予"}「${agentName}」 표시`);
       const ids = await api.skillVisibility(skillName);
       setVisibility((v) => ({ ...v, [skillName]: ids }));
     } catch (e) {
@@ -895,7 +895,7 @@ export default function SkillsPage() {
                     <p className="text-xs text-muted-foreground">加载调用明细…</p>
                   ) : usageCalls.length > 0 ? (
                     <div className="rounded-md border">
-                      <div className="border-b px-2 py-1 text-xs text-muted-foreground">最近 {usageCalls.length} 次调用</div>
+                      <div className="border-b px-2 py-1 text-xs text-muted-foreground">최근  {usageCalls.length} 次调用</div>
                       <div className="max-h-56 overflow-y-auto">
                         {usageCalls.map((c, i) => (
                           <div key={`${c.ts}-${i}`} className="flex items-center gap-2 border-b px-2 py-1 text-xs last:border-b-0">
@@ -966,11 +966,11 @@ export default function SkillsPage() {
                 <span>/</span>
                 <span className="font-mono">{selected.path}</span>
                 <Button size="sm" className="ml-auto" onClick={saveFile} disabled={!dirty || saving}>
-                  {saving ? "保存中…" : "保存"}
+                  {saving ? "저장 중…" : "저장"}
                 </Button>
               </div>
               {fileLoading ? (
-                <p className="text-xs text-muted-foreground">加载中…</p>
+                <p className="text-xs text-muted-foreground">불러오는 중…</p>
               ) : (
                 <Textarea
                   className="flex-1 resize-none font-mono text-xs"
@@ -1001,12 +1001,12 @@ export default function SkillsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>취소</AlertDialogCancel>
             <AlertDialogAction
               disabled={deleting}
               onClick={(e) => { e.preventDefault(); void runPendingDelete(); }}
             >
-              {deleting ? "删除中…" : "删除"}
+              {deleting ? "删除中…" : "삭제"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1047,7 +1047,7 @@ export default function SkillsPage() {
                 <p className="text-muted-foreground text-xs">小写字母 / 数字 / 连字符，1–64 字符</p>
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="sk-desc">描述 <span className="text-destructive">*</span></Label>
+                <Label htmlFor="sk-desc">설명 <span className="text-destructive">*</span></Label>
                 <Textarea id="sk-desc" rows={2} className="resize-none"
                   placeholder="这个 skill 做什么、何时使用。"
                   value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
@@ -1063,7 +1063,7 @@ export default function SkillsPage() {
                 </div>
               </div>
               <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-                <Label htmlFor="sk-inst">正文 <span className="text-muted-foreground text-xs font-normal">（留空自动生成骨架）</span></Label>
+                <Label htmlFor="sk-inst">본문 <span className="text-muted-foreground text-xs font-normal">（留空自动生成骨架）</span></Label>
                 <Textarea id="sk-inst"
                   className="min-h-40 flex-1 resize-none font-mono text-sm leading-relaxed"
                   placeholder={"## 执行方法\n\n1. 先探测错误\n2. 区分盲注类型\n\n脚本放 scripts/ 目录。"}
@@ -1117,7 +1117,7 @@ export default function SkillsPage() {
           </Tabs>
 
           <SheetFooter className="flex-row justify-end gap-2 border-t px-4 py-3">
-            <Button variant="outline" onClick={() => setNewOpen(false)}>取消</Button>
+            <Button variant="outline" onClick={() => setNewOpen(false)}>취소</Button>
             <Button onClick={createNewSkill} disabled={creatingSkill}>{creatingSkill ? "创建中…" : "创建"}</Button>
           </SheetFooter>
         </SheetContent>

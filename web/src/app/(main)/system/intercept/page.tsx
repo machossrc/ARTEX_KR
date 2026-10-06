@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -111,7 +111,7 @@ function sdkTool(key: string, description: string): Tool {
 const SDK_EXEC: Tool[] = [
   sdkTool("Bash",        "在 shell 中执行命令"),
   sdkTool("WebFetch",    "发起 HTTP/HTTPS 请求（含代理支持）"),
-  sdkTool("web_search",  "网络搜索"),
+  sdkTool("web_search",  "웹 검색"),
   sdkTool("shell_open",  "开启持久 PTY 交互会话"),
   sdkTool("shell_send",  "向交互会话发送输入"),
   sdkTool("shell_read",  "读取交互会话输出"),
@@ -175,7 +175,7 @@ const defaultForm = (): RuleForm => ({
 // ---- small components ----
 
 function ActionBadge({ action }: { action: InterceptAction }) {
-  if (action === "allow") return <Badge variant="secondary">允许</Badge>;
+  if (action === "allow") return <Badge variant="secondary">허용</Badge>;
   if (action === "deny")  return <Badge variant="destructive">禁止</Badge>;
   return <Badge variant="outline" className="border-amber-400 text-amber-600">申请</Badge>;
 }
@@ -310,7 +310,7 @@ function JudgeCard() {
                 </p>
               </div>
               <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={loadUsage}>
-                刷新
+                새로고침
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -390,9 +390,9 @@ function JudgeCard() {
                   <Select value={cfg.fail_action} onValueChange={(v) => patch({ fail_action: v as JudgeConfig["fail_action"] })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="allow">放行</SelectItem>
-                      <SelectItem value="ask">转人工审批</SelectItem>
-                      <SelectItem value="deny">拦截</SelectItem>
+                      <SelectItem value="allow">통과 허용</SelectItem>
+                      <SelectItem value="ask">수동 승인으로 전환</SelectItem>
+                      <SelectItem value="deny">차단</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -417,8 +417,8 @@ function JudgeCard() {
                   <Select value={cfg.ask_timeout_action} onValueChange={(v) => patch({ ask_timeout_action: v as JudgeConfig["ask_timeout_action"] })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="deny">拦截</SelectItem>
-                      <SelectItem value="allow">放行</SelectItem>
+                      <SelectItem value="deny">차단</SelectItem>
+                      <SelectItem value="allow">통과 허용</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -430,7 +430,7 @@ function JudgeCard() {
 
       <div className="flex justify-end">
         <Button size="sm" onClick={save} disabled={saving || loading}>
-          {saving ? "保存中…" : "保存配置"}
+          {saving ? "저장 중…" : "설정 저장"}
         </Button>
       </div>
     </div>
@@ -672,7 +672,7 @@ export default function InterceptPage() {
           <Card>
             <CardContent className="p-0">
           {loading ? (
-            <p className="p-6 text-sm text-muted-foreground">加载中…</p>
+            <p className="p-6 text-sm text-muted-foreground">불러오는 중…</p>
           ) : rules.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
               <ShieldAlertIcon className="h-8 w-8 text-muted-foreground/40" />
@@ -686,10 +686,10 @@ export default function InterceptPage() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[72px]">优先级</TableHead>
+                  <TableHead className="w-[72px]">우선순위</TableHead>
                   <TableHead>名称</TableHead>
-                  <TableHead className="w-[90px]">目标</TableHead>
-                  <TableHead className="w-[80px]">类型</TableHead>
+                  <TableHead className="w-[90px]">목표</TableHead>
+                  <TableHead className="w-[80px]">유형</TableHead>
                   <TableHead>模式</TableHead>
                   <TableHead className="w-[72px]">策略</TableHead>
                   <TableHead className="w-[64px] text-center">启用</TableHead>
@@ -914,9 +914,9 @@ export default function InterceptPage() {
           </div>
 
           <SheetFooter className="border-t px-6 py-4 flex-row justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>取消</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>취소</Button>
             <Button onClick={handleSave} disabled={saving || !!regexErr}>
-              {saving ? "保存中…" : "保存"}
+              {saving ? "저장 중…" : "저장"}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -937,7 +937,7 @@ export default function InterceptPage() {
 
           <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-5">
             {scopeLoading ? (
-              <p className="text-sm text-muted-foreground py-4">加载中…</p>
+              <p className="text-sm text-muted-foreground py-4">불러오는 중…</p>
             ) : (
               toolGroups.map((group, gi) => (
                 <div key={group.label}>
@@ -973,9 +973,9 @@ export default function InterceptPage() {
           </div>
 
           <div className="shrink-0 border-t px-6 py-3 flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setScopeOpen(false)}>取消</Button>
+            <Button variant="outline" size="sm" onClick={() => setScopeOpen(false)}>취소</Button>
             <Button size="sm" onClick={saveScope} disabled={scopeSaving || scopeLoading}>
-              {scopeSaving ? "保存中…" : "保存"}
+              {scopeSaving ? "저장 중…" : "저장"}
             </Button>
           </div>
         </DialogContent>

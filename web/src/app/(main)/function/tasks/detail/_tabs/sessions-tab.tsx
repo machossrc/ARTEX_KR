@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -391,7 +391,7 @@ function SessionItem({
         )}
         {s.inherited && s.source_task_id && (
           <Badge variant="outline" className="shrink-0">
-            来源 #{s.source_task_id}
+            출처 #{s.source_task_id}
           </Badge>
         )}
         <span
@@ -401,7 +401,7 @@ function SessionItem({
         </span>
         {deleted && (
           <Badge variant="outline" className="shrink-0 border-destructive/40 text-destructive">
-            已删除
+            삭제됨
           </Badge>
         )}
         {hasPending && <ShieldAlertIcon className="size-3.5 shrink-0 text-amber-500" />}
@@ -604,7 +604,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         const res = await api.controlIntent(taskId, session.intent_id, action, reason, mode);
         if (action === "pause") {
           patchIntentState(session.intent_id, "paused");
-          toast.success(`Worker #${session.intent_id} 已暂停`);
+          toast.success(`Worker #${session.intent_id} 일시 중지됨`);
         } else if (action === "resume") {
           patchIntentState(session.intent_id, "open");
           toast.success(`Worker #${session.intent_id} 已恢复，等待重新领取`);
@@ -710,7 +710,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
             patchStore(key, (s) => ({
               ...s,
               loading: false,
-              error: (error as Error).message || "加载失败",
+              error: (error as Error).message || "불러오기 실패",
             }));
           })
           .finally(() => loadingKeysRef.current.delete(key));
@@ -738,7 +738,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         })
         .catch((e) => {
           if (reqTokenRef.current[key] !== token) return;
-          patchStore(key, (s) => ({ ...s, loading: false, error: (e as Error).message || "加载失败" }));
+          patchStore(key, (s) => ({ ...s, loading: false, error: (e as Error).message || "불러오기 실패" }));
         })
         .finally(() => loadingKeysRef.current.delete(key));
     },
@@ -1036,7 +1036,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       .catch((err) => {
         if (!alive || reqTokenRef.current.mainboot !== token) return;
         if ((err as Error).message === "superseded") return;
-        patchStore(bootKey, (s) => ({ ...s, loading: false, error: (err as Error).message || "加载失败" }));
+        patchStore(bootKey, (s) => ({ ...s, loading: false, error: (err as Error).message || "불러오기 실패" }));
       })
       .finally(() => loadingKeysRef.current.delete(bootKey));
 
@@ -1524,7 +1524,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     if (side.handleCommand(message, () => setWorkerMessage(""))) return;
     if (!intentId || active.inherited || active.status !== "paused" || workerMessageSending || !message) return;
     if (workerMessageCharCount(message) > MAX_WORKER_MESSAGE_CHARS) {
-      toast.error(`消息不能超过 ${MAX_WORKER_MESSAGE_CHARS} 个字符`);
+      toast.error(`消息不能超过 ${MAX_WORKER_MESSAGE_CHARS} 자`);
       return;
     }
     const requestId = workerMessageRequestId || newWorkerMessageRequestID();
@@ -1780,7 +1780,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               )}
               {activeAssets && activeAssets.length > 0 && <WorkerAssetBadge assets={activeAssets} />}
               {active.inherited && active.source_task_id && (
-                <Badge variant="outline">来源任务 #{active.source_task_id} · 只读历史</Badge>
+                <Badge variant="outline">출처 작업 #{active.source_task_id} · 只读历史</Badge>
               )}
               {active.live && (
                 <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
@@ -1890,7 +1890,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       className="h-6 px-2 text-xs"
                       onClick={() => loadSession(activeKey)}
                     >
-                      重试
+                      다시 시도
                     </Button>
                   </div>
                 ) : activity.length ? (
@@ -1970,7 +1970,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       {uploading ? <Loader2Icon className="animate-spin" /> : <PaperclipIcon />}
                     </InputGroupButton>
                     {mainBusy && isBtwCommand(input) && (
-                      <InputGroupButton size="icon-xs" onClick={send} aria-label="发送旁路问题">
+                      <InputGroupButton size="icon-xs" onClick={send} aria-label="보조 질문 전송">
                         <ArrowUpIcon />
                       </InputGroupButton>
                     )}
@@ -2036,7 +2036,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       {workerMessageCharCount(workerMessage)}/{MAX_WORKER_MESSAGE_CHARS}
                     </span>
                     {active.status === "running" && isBtwCommand(workerMessage) && (
-                      <InputGroupButton size="icon-xs" onClick={sendWorkerChat} aria-label="发送旁路问题">
+                      <InputGroupButton size="icon-xs" onClick={sendWorkerChat} aria-label="보조 질문 전송">
                         <ArrowUpIcon />
                       </InputGroupButton>
                     )}
@@ -2192,7 +2192,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={creatingMain}>取消</AlertDialogCancel>
+              <AlertDialogCancel disabled={creatingMain}>취소</AlertDialogCancel>
               <AlertDialogAction disabled={creatingMain} onClick={() => void createMainSession()}>
                 {creatingMain ? "开启中…" : "开启新会话"}
               </AlertDialogAction>

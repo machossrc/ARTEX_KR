@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import {
@@ -124,7 +124,7 @@ export default function WorkspacePage() {
         load(path);
       })
       .catch((err) => {
-        toast.error(`保存失败：${(err as Error).message}`);
+        toast.error(`저장 실패: ${(err as Error).message}`);
         setEdit((cur) => (cur ? { ...cur, saving: false } : cur));
       });
   };
@@ -134,10 +134,10 @@ export default function WorkspacePage() {
     api
       .workspaceDelete(e.path)
       .then(() => {
-        toast.success("已删除");
+        toast.success("삭제됨");
         load(path);
       })
-      .catch((err) => toast.error(`删除失败：${(err as Error).message}`));
+      .catch((err) => toast.error(`삭제 실패: ${(err as Error).message}`));
   };
 
   const doUpload = (files: FileList | null) => {
@@ -198,7 +198,7 @@ export default function WorkspacePage() {
           <Button variant="outline" size="sm" onClick={() => uploadRef.current?.click()}>
             <UploadIcon /> 上传
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => load(path)} title="刷新">
+          <Button variant="ghost" size="icon" className="size-8" onClick={() => load(path)} title="새로고침">
             <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} />
           </Button>
           <input
@@ -219,14 +219,14 @@ export default function WorkspacePage() {
                 <TableHead>名称</TableHead>
                 <TableHead className="w-28 text-right">大小</TableHead>
                 <TableHead className="w-40">修改时间</TableHead>
-                <TableHead className="w-24 text-right">操作</TableHead>
+                <TableHead className="w-24 text-right">동작</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {entries.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-muted-foreground py-10 text-center text-sm">
-                    {loading ? "加载中…" : "空目录"}
+                    {loading ? "불러오는 중…" : "空目录"}
                   </TableCell>
                 </TableRow>
               )}
@@ -267,7 +267,7 @@ export default function WorkspacePage() {
                         variant="ghost"
                         size="icon"
                         className="text-destructive size-7"
-                        title="删除"
+                        title="삭제"
                         onClick={() => del(e)}
                       >
                         <Trash2Icon className="size-3.5" />
@@ -325,7 +325,7 @@ export default function WorkspacePage() {
                         <DownloadIcon /> 下载
                       </Button>
                       <Button onClick={saveFile} disabled={!edit.dirty || edit.saving}>
-                        <SaveIcon /> {edit.saving ? "保存中…" : "保存"}
+                        <SaveIcon /> {edit.saving ? "저장 중…" : "저장"}
                       </Button>
                     </div>
                   </SheetFooter>
@@ -351,7 +351,7 @@ export default function WorkspacePage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setMkdirOpen(false)}>
-              取消
+              취소
             </Button>
             <Button onClick={doMkdir} disabled={!mkdirName.trim()}>
               创建

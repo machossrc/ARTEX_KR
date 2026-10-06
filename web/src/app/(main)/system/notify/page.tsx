@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -190,7 +190,7 @@ export default function NotifyPage() {
       }
       load();
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -217,7 +217,7 @@ export default function NotifyPage() {
       setOpen(false);
       load();
     } catch (e) {
-      toast.error("删除失败：" + (e as Error).message);
+      toast.error("삭제 실패: " + (e as Error).message);
     }
   }
 
@@ -253,7 +253,7 @@ export default function NotifyPage() {
       toast.success("已保存");
       load();
     } catch (e) {
-      toast.error("保存失败：" + (e as Error).message);
+      toast.error("저장 실패: " + (e as Error).message);
     } finally {
       setGlobalSaving(false);
     }
@@ -291,8 +291,8 @@ export default function NotifyPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <StatTile label="渠道" value={`${meta.stats.channels_on} / ${meta.stats.channels}`} hint="启用 / 总数" />
           <StatTile label="今日送达" value={String(meta.stats.sent_today)} />
-          <StatTile label="待发送" value={String(meta.stats.pending)} />
-          <StatTile label="失败" value={String(meta.stats.failed)} tone={meta.stats.failed > 0 ? "red" : undefined} />
+          <StatTile label="전송 대기" value={String(meta.stats.pending)} />
+          <StatTile label="실패" value={String(meta.stats.failed)} tone={meta.stats.failed > 0 ? "red" : undefined} />
           <StatTile
             label="最久积压"
             value={formatBacklog(meta.stats.backlog_age_ms)}
@@ -380,7 +380,7 @@ export default function NotifyPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        aria-label="删除"
+                        aria-label="삭제"
                         onClick={(e) => {
                           e.stopPropagation();
                           // void 显式丢弃 Promise：removeChannel 自己 catch 并 toast，
@@ -397,7 +397,7 @@ export default function NotifyPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{KIND_LABEL[ch.kind] ?? ch.kind}</Badge>
                     <Badge variant="outline">{ch.mode === "digest" ? "汇总" : "实时"}</Badge>
-                    {!ch.enabled && <Badge variant="outline">已停用</Badge>}
+                    {!ch.enabled && <Badge variant="outline">비활성화됨</Badge>}
                   </div>
                   <FilterSummary filter={ch.filter} />
                 </CardContent>
@@ -589,7 +589,7 @@ export default function NotifyPage() {
 
             <div className="flex gap-2 pt-2 pb-6">
               <Button onClick={saveForm} disabled={saving}>
-                {editing ? "保存" : "添加"}
+                {editing ? "저장" : "添加"}
               </Button>
               {editing && (
                 <Button variant="outline" onClick={testChannel} disabled={testing}>

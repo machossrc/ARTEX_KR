@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { CheckIcon } from "lucide-react";
 
@@ -142,7 +142,7 @@ export function FilterSummary({ filter }: { filter: NotificationFilter }) {
     parts.push(SEVERITY_OPTIONS.find((o) => o.value === filter.min_severity)?.label ?? filter.min_severity);
   }
   if (filter.vulnclass_include?.length) parts.push(`类型含 ${filter.vulnclass_include.length} 词`);
-  if (filter.vulnclass_exclude?.length) parts.push(`排除 ${filter.vulnclass_exclude.length} 词`);
+  if (filter.vulnclass_exclude?.length) parts.push(`제외 ${filter.vulnclass_exclude.length} 词`);
   if (filter.task_ids?.length) parts.push(`${filter.task_ids.length} 个任务`);
   if (filter.asset_ids?.length) parts.push(`${filter.asset_ids.length} 个资产`);
   if (filter.on_status_change) parts.push("含状态变更");

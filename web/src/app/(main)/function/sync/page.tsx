@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -28,8 +28,8 @@ type SSStatus = {
 type Dimension = "project" | "task";
 
 const ASSET_TYPES: { key: string; label: string }[] = [
-  { key: "subdomain", label: "子域名" },
-  { key: "service", label: "服务" },
+  { key: "subdomain", label: "하위 도메인" },
+  { key: "service", label: "서비스" },
   { key: "app", label: "App" },
 ];
 
@@ -128,7 +128,7 @@ function DataSourceCard({
       setApiKey("");
       onChanged();
     } catch (e) {
-      toast.error(`保存失败：${(e as Error).message}`);
+      toast.error(`저장 실패: ${(e as Error).message}`);
     } finally {
       setBusy(false);
     }
@@ -142,7 +142,7 @@ function DataSourceCard({
           <StatusBadge status={status} loading={loading} />
         </CardTitle>
         <Button variant="ghost" size="sm" onClick={onChanged} disabled={loading}>
-          <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} /> 刷新
+          <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} /> 새로고침
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -266,7 +266,7 @@ function SyncWorkbench() {
   const chosenTypes = ASSET_TYPES.filter((t) => assetTypes[t.key]).map((t) => t.key);
 
   const runSync = async () => {
-    if (selected.size === 0) return toast.error(`请至少选择一个${dimension === "project" ? "项目" : "任务"}`);
+    if (selected.size === 0) return toast.error(`请至少选择一个${dimension === "project" ? "项目" : "작업"}`);
     if (chosenTypes.length === 0) return toast.error("请至少选择一种资产类型");
     setSyncing(true);
     setResult(null);
@@ -292,7 +292,7 @@ function SyncWorkbench() {
       return (
         <TableRow>
           <TableCell colSpan={4} className="py-8 text-center text-muted-foreground text-sm">
-            加载中…
+            불러오는 중…
           </TableCell>
         </TableRow>
       );
@@ -396,7 +396,7 @@ function SyncWorkbench() {
             <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} />
           </Button>
           <div className="flex-1" />
-          <span className="text-muted-foreground text-xs">已选 {selected.size}</span>
+          <span className="text-muted-foreground text-xs">선택됨 {selected.size}</span>
           <Button onClick={runSync} disabled={syncing || selected.size === 0}>
             <DownloadIcon className={syncing ? "size-4 animate-pulse" : "size-4"} /> 同步选中
           </Button>
@@ -418,8 +418,8 @@ function SyncWorkbench() {
                   </>
                 ) : (
                   <>
-                    <TableHead>状态</TableHead>
-                    <TableHead>时间</TableHead>
+                    <TableHead>상태</TableHead>
+                    <TableHead>시간</TableHead>
                   </>
                 )}
               </TableRow>
@@ -431,16 +431,16 @@ function SyncWorkbench() {
         {/* 分页 */}
         <div className="flex items-center justify-end gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)}>
-            上一页
+            이전 페이지
           </Button>
-          <span className="text-muted-foreground text-xs">第 {page} 页</span>
+          <span className="text-muted-foreground text-xs">페이지  {page} 페이지</span>
           <Button
             variant="outline"
             size="sm"
             disabled={rows.length < 50 || loading}
             onClick={() => setPage((p) => p + 1)}
           >
-            下一页
+            다음 페이지
           </Button>
         </div>
 
@@ -453,7 +453,7 @@ function SyncWorkbench() {
 
 function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>> }) {
   const synced = result.synced ?? {};
-  const labels: Record<string, string> = { subdomain: "子域名", service: "服务", app: "App", ip: "IP" };
+  const labels: Record<string, string> = { subdomain: "하위 도메인", service: "서비스", app: "App", ip: "IP" };
   return (
     <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-sm">
       <div className="flex flex-wrap gap-3">

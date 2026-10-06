@@ -1,4 +1,4 @@
-// 渠道字段表与配置值的解析工具。
+﻿// 渠道字段表与配置值的解析工具。
 //
 // 与页面拆开是因为这一份是**数据**而不是视图：它描述每种渠道有哪些字段、
 // 各自该用什么控件，以及表单文本到配置值（JSON）的双向转换。
@@ -66,7 +66,7 @@ export const CHANNEL_FIELDS: Record<string, FieldDef[]> = {
     { key: "url", label: "目标 URL", kind: "text", placeholder: "https://your-endpoint.example.com/hook" },
     {
       key: "method",
-      label: "请求方法",
+      label: "요청 메서드",
       kind: "select",
       options: [
         { value: "POST", label: "POST（带请求体）" },

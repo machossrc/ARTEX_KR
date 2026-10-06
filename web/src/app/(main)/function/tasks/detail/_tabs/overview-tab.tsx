@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -65,12 +65,12 @@ function scopeValue(row: TaskScopeRow): string {
 
 const SCOPE_KIND_LABELS: Record<TaskScopeRow["kind"], string> = {
   company: "公司",
-  root_domain: "根域名",
-  subdomain: "子域名",
+  root_domain: "루트 도메인",
+  subdomain: "하위 도메인",
   ip: "IP",
   cidr: "网段",
   icp: "ICP",
-  keyword: "关键词",
+  keyword: "키워드",
 };
 
 const SCOPE_SOURCE_LABELS: Record<TaskScopeRow["source"], string> = {
@@ -441,11 +441,11 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <div className="text-xs font-medium text-muted-foreground">描述</div>
+            <div className="text-xs font-medium text-muted-foreground">설명</div>
             <p className="text-sm whitespace-pre-wrap break-words">{task?.description?.trim() || "—"}</p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <div className="text-xs font-medium text-muted-foreground">目标</div>
+            <div className="text-xs font-medium text-muted-foreground">목표</div>
             <p className="text-sm whitespace-pre-wrap break-words">{task?.goal?.trim() || "—"}</p>
           </div>
         </CardContent>
@@ -593,7 +593,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
               onChange={(e) => setConKind(e.target.value as TaskConstraint["kind"])}
             >
               <NativeSelectOption value="deny">禁止</NativeSelectOption>
-              <NativeSelectOption value="allow">允许</NativeSelectOption>
+              <NativeSelectOption value="allow">허용</NativeSelectOption>
             </NativeSelect>
             <Input
               className="h-7 min-w-56 flex-1 text-sm"
@@ -627,7 +627,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       onChange={(e) => setEditConKind(e.target.value as TaskConstraint["kind"])}
                     >
                       <NativeSelectOption value="deny">禁止</NativeSelectOption>
-                      <NativeSelectOption value="allow">允许</NativeSelectOption>
+                      <NativeSelectOption value="allow">허용</NativeSelectOption>
                     </NativeSelect>
                     <Input
                       className="h-7 min-w-56 flex-1 text-sm"
@@ -668,7 +668,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                           : "bg-red-500/15 text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {c.kind === "allow" ? "允许" : "禁止"}
+                      {c.kind === "allow" ? "허용" : "禁止"}
                     </span>
                     <span className="min-w-0 flex-1 break-words">{c.text}</span>
                     <Button
@@ -754,7 +754,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                   <span className="font-semibold">{fmtTokens(tokenTotals.input)}</span>
                 </span>
                 <span className="tabular-nums">
-                  <span className="text-muted-foreground">输出 </span>
+                  <span className="text-muted-foreground">출력 </span>
                   <span className="font-semibold">{fmtTokens(tokenTotals.output)}</span>
                 </span>
                 <span className="tabular-nums">
@@ -776,7 +776,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       <th className="py-1.5 pr-3 font-medium">模型</th>
                       <th className="py-1.5 pr-3 text-right font-medium">调用</th>
                       <th className="py-1.5 pr-3 text-right font-medium">输入</th>
-                      <th className="py-1.5 pr-3 text-right font-medium">输出</th>
+                      <th className="py-1.5 pr-3 text-right font-medium">출력</th>
                       <th className="py-1.5 pr-3 text-right font-medium">缓存读</th>
                       <th className="py-1.5 text-right font-medium">命中率</th>
                     </tr>
@@ -823,12 +823,12 @@ export function OverviewTab({ taskId }: { taskId: string }) {
               value={scopeKind}
               onChange={(e) => setScopeKind(e.target.value as TaskScopeRow["kind"])}
             >
-              <NativeSelectOption value="root_domain">根域名</NativeSelectOption>
-              <NativeSelectOption value="subdomain">子域名</NativeSelectOption>
+              <NativeSelectOption value="root_domain">루트 도메인</NativeSelectOption>
+              <NativeSelectOption value="subdomain">하위 도메인</NativeSelectOption>
               <NativeSelectOption value="ip">IP</NativeSelectOption>
               <NativeSelectOption value="cidr">网段</NativeSelectOption>
               <NativeSelectOption value="icp">ICP</NativeSelectOption>
-              <NativeSelectOption value="keyword">关键词</NativeSelectOption>
+              <NativeSelectOption value="keyword">키워드</NativeSelectOption>
               <NativeSelectOption value="company">公司</NativeSelectOption>
             </NativeSelect>
             <Input
@@ -921,7 +921,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">
-              目标 {task?.goals_met ?? 0}/{task?.goals_total ?? 0}
+              목표 {task?.goals_met ?? 0}/{task?.goals_total ?? 0}
             </div>
             <Progress value={goalsPct} className="mt-2" />
           </div>
@@ -969,7 +969,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
             </div>
             <div>
               <div className="text-2xl font-semibold tabular-nums text-blue-600">{running.length}</div>
-              <div className="text-xs text-muted-foreground">执行中</div>
+              <div className="text-xs text-muted-foreground">실행 중</div>
             </div>
             <div>
               <div className="text-2xl font-semibold tabular-nums">{open.length}</div>
@@ -1051,13 +1051,13 @@ export function OverviewTab({ taskId }: { taskId: string }) {
 }
 
 const TASK_RULE_KIND_OPTIONS: { value: AssetInterceptKind; label: string; placeholder: string }[] = [
-  { value: "exact_domain", label: "域名(全等)", placeholder: "example.gov.cn" },
-  { value: "exact_ip", label: "IP(全等)", placeholder: "203.0.113.10" },
-  { value: "exact_url", label: "URL(全等)", placeholder: "https://example.com/login" },
-  { value: "fuzzy_domain", label: "域名(模糊)", placeholder: ".gov.cn" },
-  { value: "fuzzy_ip", label: "IP(模糊)", placeholder: "203.0.113." },
-  { value: "fuzzy_url", label: "URL(模糊)", placeholder: "/admin" },
-  { value: "cidr", label: "CIDR 网段", placeholder: "192.168.0.0/16" },
+  { value: "exact_domain", label: "도메인(정확히 일치)", placeholder: "example.gov.cn" },
+  { value: "exact_ip", label: "IP(정확히 일치)", placeholder: "203.0.113.10" },
+  { value: "exact_url", label: "URL(정확히 일치)", placeholder: "https://example.com/login" },
+  { value: "fuzzy_domain", label: "도메인(부분 일치)", placeholder: ".gov.cn" },
+  { value: "fuzzy_ip", label: "IP(부분 일치)", placeholder: "203.0.113." },
+  { value: "fuzzy_url", label: "URL(부분 일치)", placeholder: "/admin" },
+  { value: "cidr", label: "CIDR 네트워크 대역", placeholder: "192.168.0.0/16" },
 ];
 
 const TASK_RULE_KIND_LABEL: Record<AssetInterceptKind, string> = Object.fromEntries(
@@ -1178,8 +1178,8 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
         {/* 新增表单 */}
         <div className="flex flex-wrap items-center gap-2">
           <NativeSelect size="sm" value={newAction} onChange={(e) => setNewAction(e.target.value as "block" | "allow")}>
-            <NativeSelectOption value="block">拦截</NativeSelectOption>
-            <NativeSelectOption value="allow">允许</NativeSelectOption>
+            <NativeSelectOption value="block">차단</NativeSelectOption>
+            <NativeSelectOption value="allow">허용</NativeSelectOption>
           </NativeSelect>
           <NativeSelect size="sm" value={newKind} onChange={(e) => setNewKind(e.target.value as AssetInterceptKind)}>
             {TASK_RULE_KIND_OPTIONS.map((o) => (
@@ -1200,7 +1200,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
           />
           <Input
             className="h-7 w-36 text-sm"
-            placeholder="备注(可选)"
+            placeholder="메모(선택)"
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             disabled={busy}
@@ -1221,8 +1221,8 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                     value={editAction}
                     onChange={(e) => setEditAction(e.target.value as "block" | "allow")}
                   >
-                    <NativeSelectOption value="block">拦截</NativeSelectOption>
-                    <NativeSelectOption value="allow">允许</NativeSelectOption>
+                    <NativeSelectOption value="block">차단</NativeSelectOption>
+                    <NativeSelectOption value="allow">허용</NativeSelectOption>
                   </NativeSelect>
                   <NativeSelect
                     size="sm"
@@ -1248,7 +1248,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                   />
                   <Input
                     className="h-7 w-36 text-sm"
-                    placeholder="备注(可选)"
+                    placeholder="메모(선택)"
                     value={editNote}
                     onChange={(e) => setEditNote(e.target.value)}
                     disabled={busy}
@@ -1281,7 +1281,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                         : "bg-red-500/15 text-red-600 dark:text-red-400"
                     }`}
                   >
-                    {r.action === "allow" ? "允许" : "拦截"}
+                    {r.action === "allow" ? "허용" : "차단"}
                   </span>
                   <span className="text-muted-foreground shrink-0 text-xs">{TASK_RULE_KIND_LABEL[r.kind]}</span>
                   <code className="bg-muted min-w-0 flex-1 truncate rounded px-1.5 py-0.5 text-xs">{r.pattern}</code>

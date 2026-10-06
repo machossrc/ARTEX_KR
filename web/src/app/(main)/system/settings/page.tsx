@@ -74,7 +74,7 @@ export default function SystemSettingsPage() {
         apply(s);
         toast.success("已保存并发工作 agent 数（对之后启动的任务生效）");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSavingWorkers(false));
   };
 
@@ -86,7 +86,7 @@ export default function SystemSettingsPage() {
         apply(s);
         toast.success("已保存 Python 解释器配置");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSaving(false));
   };
   const detectPython = () => {
@@ -135,7 +135,7 @@ export default function SystemSettingsPage() {
       })
       .catch((e) => {
         setAgentTrafficBinding(!v);
-        toast.error(`保存失败：${(e as Error).message}`);
+        toast.error(`저장 실패: ${(e as Error).message}`);
       })
       .finally(() => setSaving(false));
   };
@@ -158,7 +158,7 @@ export default function SystemSettingsPage() {
       })
       .catch((e) => {
         setNoaCompaction(!v); // revert on failure
-        toast.error(`保存失败：${(e as Error).message}`);
+        toast.error(`저장 실패: ${(e as Error).message}`);
       });
   };
 
@@ -172,7 +172,7 @@ export default function SystemSettingsPage() {
         toast.success("已保存网络搜索配置");
       })
       .catch((e) => {
-        toast.error("保存失败：" + (e as Error).message);
+        toast.error("저장 실패: " + (e as Error).message);
         api
           .settings()
           .then(apply)
@@ -190,7 +190,7 @@ export default function SystemSettingsPage() {
         setBraveKeyInput("");
         toast.success("已保存 Brave API Key");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSavingKey(false));
   };
 
@@ -203,7 +203,7 @@ export default function SystemSettingsPage() {
         setTavilyKeyInput("");
         toast.success("已保存 Tavily API Key");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSavingTavilyKey(false));
   };
 
@@ -215,7 +215,7 @@ export default function SystemSettingsPage() {
         apply(s);
         toast.success(proxyInput.trim() ? "已保存出口代理" : "已清除出口代理（改为直连）");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSavingProxy(false));
   };
 
@@ -227,7 +227,7 @@ export default function SystemSettingsPage() {
         apply(s);
         toast.success(globalProxyInput.trim() ? "已保存全局代理" : "已清除全局代理（改为直连）");
       })
-      .catch((e) => toast.error("保存失败：" + (e as Error).message))
+      .catch((e) => toast.error("저장 실패: " + (e as Error).message))
       .finally(() => setSavingGlobalProxy(false));
   };
 
@@ -334,7 +334,7 @@ export default function SystemSettingsPage() {
               开启<b>流量捕获</b>时，它作为记录代理的<b>上游</b>（流量仍全量落库，再经此代理出网）；关闭捕获时，直接注入
               Agent 的 bash / WebFetch 出网。与网络搜索代理、LLM 代理相互独立。
               <br />
-              <b>提示</b>：socks5 在<b>关闭捕获</b>时依赖各命令行工具对 <code>ALL_PROXY</code> 的支持（curl
+              <b>힌트</b>：socks5 在<b>关闭捕获</b>时依赖各命令行工具对 <code>ALL_PROXY</code> 的支持（curl
               可用，部分工具可能忽略）； 若主要用 socks5，建议开启流量捕获——此路径由 MITM
               亲自拨号，工具无感知、稳定生效。
             </CardDescription>
@@ -353,7 +353,7 @@ export default function SystemSettingsPage() {
                 onChange={(e) => setGlobalProxyInput(e.target.value)}
               />
               <Button type="button" onClick={saveGlobalProxy} disabled={!loaded || savingGlobalProxy}>
-                保存
+                저장
               </Button>
             </div>
             <p className="text-muted-foreground text-xs">
@@ -434,7 +434,7 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <SearchIcon className="size-4" />
-              网络搜索
+              웹 검색
             </CardTitle>
             <CardDescription>
               这是网络搜索的<b>总开关 + 来源配置</b>。开启后，才能在<b>每个 Agent 的配置</b>里单独选择是否启用
@@ -526,7 +526,7 @@ export default function SystemSettingsPage() {
                     onClick={saveBraveKey}
                     disabled={!loaded || savingKey || braveKeyInput.trim() === ""}
                   >
-                    保存
+                    저장
                   </Button>
                 </div>
                 {braveNeedsKey && (
@@ -561,7 +561,7 @@ export default function SystemSettingsPage() {
                     onClick={saveTavilyKey}
                     disabled={!loaded || savingTavilyKey || tavilyKeyInput.trim() === ""}
                   >
-                    保存
+                    저장
                   </Button>
                 </div>
                 {webSearch && backend === "tavily" && !tavilyKeySet && (
@@ -588,7 +588,7 @@ export default function SystemSettingsPage() {
                     onChange={(e) => setProxyInput(e.target.value)}
                   />
                   <Button type="button" onClick={saveProxy} disabled={!loaded || savingProxy}>
-                    保存
+                    저장
                   </Button>
                 </div>
                 <p className="text-muted-foreground text-xs">
@@ -623,7 +623,7 @@ export default function SystemSettingsPage() {
               自定义脚本 · Python 解释器
             </CardTitle>
             <CardDescription>
-              自定义 <b>script</b> 类型工具用它跑 Python。开机会自动检测（python3 优先）；此处可手填 venv /
+              사용자 지정 <b>script</b> 类型工具用它跑 Python。开机会自动检测（python3 优先）；此处可手填 venv /
               特定版本的绝对路径，留空则运行时自动检测。
             </CardDescription>
           </CardHeader>
@@ -640,7 +640,7 @@ export default function SystemSettingsPage() {
                 重新检测
               </Button>
               <Button onClick={savePython} disabled={!loaded || saving}>
-                保存
+                저장
               </Button>
             </div>
           </CardContent>
@@ -669,7 +669,7 @@ export default function SystemSettingsPage() {
                 onChange={(e) => setWorkers(e.target.value)}
               />
               <Button onClick={saveWorkers} disabled={!loaded || savingWorkers}>
-                保存
+                저장
               </Button>
             </div>
           </CardContent>

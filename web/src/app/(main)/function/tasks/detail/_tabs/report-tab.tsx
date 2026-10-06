@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -43,7 +43,7 @@ export function ReportTab({ taskId }: { taskId: string }) {
       toast.success("已复制 Markdown");
       setTimeout(() => setCopied(false), 1500);
     } else {
-      toast.error("复制失败，请手动选择文本复制");
+      toast.error("복사하지 못했습니다. 텍스트를 직접 선택하여 복사하세요");
     }
   }
 
@@ -52,7 +52,7 @@ export function ReportTab({ taskId }: { taskId: string }) {
     content = (
       <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed py-16 text-muted-foreground text-sm">
         <FileTextIcon className="size-8 opacity-40" />
-        加载中…
+        불러오는 중…
       </div>
     );
   } else if (report) {
@@ -79,7 +79,7 @@ export function ReportTab({ taskId }: { taskId: string }) {
         <div className="flex gap-2">
           {report && (
             <Button size="sm" variant="outline" onClick={copy}>
-              {copied ? <CheckIcon /> : <CopyIcon />} 复制
+              {copied ? <CheckIcon /> : <CopyIcon />} 복사
             </Button>
           )}
         </div>

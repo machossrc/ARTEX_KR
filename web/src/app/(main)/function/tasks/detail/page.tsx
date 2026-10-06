@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -59,7 +59,7 @@ const TABS = [
   { value: "retests", label: "复测" },
   { value: "assets", label: "测试资产" },
   { value: "coverage", label: "资产覆盖图" },
-  { value: "intercept", label: "拦截审批" },
+  { value: "intercept", label: "차단 승인" },
   { value: "report", label: "报告" },
 ];
 
@@ -93,7 +93,7 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
   const activeProfile = profiles.find((profile) => profile.id === activeID);
   const currentLabel = exhausted
     ? "配置链已耗尽"
-    : (activeProfile?.name ?? (activeID ? `配置 #${activeID}` : "跟随默认配置"));
+    : (activeProfile?.name ?? (activeID ? `설정 #${activeID}` : "跟随默认配置"));
   const activeIndex = chain.indexOf(activeID);
   const backupCount = activeIndex >= 0 ? Math.max(0, chain.length - activeIndex - 1) : 0;
   const currentTitle = [currentLabel, activeProfile?.model, backupCount > 0 ? `${backupCount} 个备用` : ""]
@@ -101,9 +101,9 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
     .join(" · ");
   let editorDescription = "调整顺序或当前配置后，将从下一次 LLM 调用开始生效。";
   if (terminal) editorDescription = "任务已结束，改动只影响后续的主 Agent 对话。";
-  let saveLabel = "保存";
+  let saveLabel = "저장";
   if (exhausted) saveLabel = "保存并重置";
-  if (saving) saveLabel = "保存中";
+  if (saving) saveLabel = "저장 중";
 
   const syncDraft = React.useCallback(() => {
     const next = taskProfileIDs(task);
@@ -190,7 +190,7 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-            关闭
+            닫기
           </Button>
           <Button type="button" size="sm" onClick={save} disabled={saving}>
             {saving && <Spinner data-icon="inline-start" />}
@@ -303,7 +303,7 @@ function TaskDetailInner() {
   if (!task) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-10 text-center">
-        <p className="text-muted-foreground">{loaded ? `任务 ${id} 已被删除、归档或不存在` : "加载中…"}</p>
+        <p className="text-muted-foreground">{loaded ? `작업 ${id} 已被删除、归档或不存在` : "불러오는 중…"}</p>
         {loaded && (
           <Button asChild variant="outline">
             <Link href="/function/tasks">
@@ -330,7 +330,7 @@ function TaskDetailInner() {
   if (terminal) {
     controlVariant = "secondary";
     controlIcon = <CheckIcon data-icon="inline-start" />;
-    controlLabel = completed ? "已完成" : "已结束";
+    controlLabel = completed ? "완료됨" : "已结束";
   } else if (paused) {
     controlVariant = "default";
     controlIcon = <PlayIcon data-icon="inline-start" />;
@@ -379,7 +379,7 @@ function TaskDetailInner() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>取消</AlertDialogCancel>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
                   <AlertDialogAction onClick={() => void archiveTask()}>确认归档</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -41,7 +41,7 @@ const fromStore = (v?: string) => (v ? v : NONE);
 const toStore = (v: string) => (v === NONE ? "" : v);
 const THINKING_TYPES: { value: string; label: string }[] = [
   { value: NONE, label: "不发送（默认）" },
-  { value: "disabled", label: "关闭" },
+  { value: "disabled", label: "닫기" },
   { value: "enabled", label: "开启" },
 ];
 // 输出上限用哪个请求字段名（仅 openai 格式有意义）。NONE ↔ "" 走同一套哨兵转换。
@@ -147,7 +147,7 @@ function PoolSheet({
       await onReload();
       toast.success(id ? "已恢复该配置" : "已恢复全部配置");
     } catch (e) {
-      toast.error(`恢复失败：${(e as Error).message}`);
+      toast.error(`복원 실패: ${(e as Error).message}`);
     }
   }
 
@@ -264,7 +264,7 @@ function PoolSheet({
                       </div>
                       <div className="flex flex-wrap items-center gap-x-3 pl-7 text-muted-foreground text-xs">
                         <code className="truncate font-mono">{m.model}</code>
-                        {!m.active && <span>优先级 {m.priority}</span>}
+                        {!m.active && <span>우선순위 {m.priority}</span>}
                       </div>
                       {m.last_error && (
                         <p className="truncate pl-7 font-mono text-muted-foreground text-xs" title={m.last_error}>
@@ -451,7 +451,7 @@ function ProfileSheet({
       onSaved(String(id));
       onOpenChange(false);
     } catch (e) {
-      toast.error(`保存失败：${(e as Error).message}`);
+      toast.error(`저장 실패: ${(e as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -775,7 +775,7 @@ function ProfileSheet({
           <Button onClick={save} disabled={saving} className="flex-1">
             {saving && <Loader2Icon className="animate-spin" />}
             {!saving && (isNew ? <PlusIcon /> : <SaveIcon />)}
-            {isNew ? "新建" : "保存"}
+            {isNew ? "新建" : "저장"}
           </Button>
         </div>
       </SheetContent>
@@ -846,7 +846,7 @@ export default function LLMPage() {
       toast.success(`已删除：${p.name}`);
       await load();
     } catch (e) {
-      toast.error(`删除失败：${(e as Error).message}`);
+      toast.error(`삭제 실패: ${(e as Error).message}`);
     }
   }
 
@@ -866,7 +866,7 @@ export default function LLMPage() {
             <ZapIcon /> 轮询配置
             {poolOn && (
               <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
-                已开启
+                활성화했습니다
               </Badge>
             )}
           </Button>
@@ -938,7 +938,7 @@ export default function LLMPage() {
                       {/* 轮询相关的两个字段只在轮询开着时才有意义，关着时不占版面 */}
                       {poolOn &&
                         !p.is_default &&
-                        (p.pool_exclude ? <span>不参与轮询</span> : <span>优先级 {p.priority ?? 0}</span>)}
+                        (p.pool_exclude ? <span>不参与轮询</span> : <span>우선순위 {p.priority ?? 0}</span>)}
                     </div>
 
                     <div className="mt-1 flex gap-2">

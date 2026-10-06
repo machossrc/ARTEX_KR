@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -687,7 +687,7 @@ export default function FindingsPage() {
           });
         refreshAfterMutation(f);
       } catch (e) {
-        toast.error(`保存失败：${(e as Error).message}`);
+        toast.error(`저장 실패: ${(e as Error).message}`);
       } finally {
         setSaving(false);
       }
@@ -720,7 +720,7 @@ export default function FindingsPage() {
           });
         refreshAfterMutation(f, true);
       } catch (e) {
-        toast.error(`删除失败：${(e as Error).message}`);
+        toast.error(`삭제 실패: ${(e as Error).message}`);
       }
     },
     [refreshAfterMutation, setFindings],
@@ -753,11 +753,11 @@ export default function FindingsPage() {
 
   const statCards = [
     { label: "发现总数", value: stats.total, icon: BugIcon },
-    { label: "待处理", value: stats.pending, tone: "text-amber-500", icon: ClockIcon },
-    { label: "严重", value: stats.critical, tone: "text-rose-600", icon: ShieldAlertIcon },
-    { label: "高危", value: stats.high, tone: "text-red-500", icon: TriangleAlertIcon },
-    { label: "中危", value: stats.medium, tone: "text-amber-500", icon: TriangleAlertIcon },
-    { label: "低危", value: stats.low, tone: "text-slate-500", icon: InfoIcon },
+    { label: "처리 대기", value: stats.pending, tone: "text-amber-500", icon: ClockIcon },
+    { label: "심각", value: stats.critical, tone: "text-rose-600", icon: ShieldAlertIcon },
+    { label: "높음", value: stats.high, tone: "text-red-500", icon: TriangleAlertIcon },
+    { label: "중간", value: stats.medium, tone: "text-amber-500", icon: TriangleAlertIcon },
+    { label: "낮음", value: stats.low, tone: "text-slate-500", icon: InfoIcon },
   ];
 
   // 导出弹窗里「当前筛选」的条数:两个视图的筛选一致,只是统计口径来源不同。
@@ -872,13 +872,13 @@ export default function FindingsPage() {
             {(
               [
                 ["all", "全部"],
-                ["critical", "严重"],
-                ["high", "高危"],
-                ["medium", "中危"],
-                ["low", "低危"],
+                ["critical", "심각"],
+                ["high", "높음"],
+                ["medium", "중간"],
+                ["low", "낮음"],
               ] as const
             ).map(([val, label]) => (
-              <ToggleGroupItem key={val} value={val} aria-label={`按${label}等级筛选`}>
+              <ToggleGroupItem key={val} value={val} aria-label={`정렬 기준: ${label}等级筛选`}>
                 {label}
               </ToggleGroupItem>
             ))}
@@ -886,10 +886,10 @@ export default function FindingsPage() {
 
           <Select value={status} onValueChange={(v) => setStatus(v as "all" | FindingStatus)}>
             <SelectTrigger size="sm" className="w-32">
-              <SelectValue placeholder="状态" />
+              <SelectValue placeholder="상태" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">全部状态</SelectItem>
+              <SelectItem value="all">모든 상태</SelectItem>
               {FINDING_STATUSES.map((st) => (
                 <SelectItem key={st} value={st}>
                   {statusMeta("finding", st).label}
@@ -914,7 +914,7 @@ export default function FindingsPage() {
 
           <Select value={task} onValueChange={setTask}>
             <SelectTrigger size="sm" className="w-48">
-              <SelectValue placeholder="任务" />
+              <SelectValue placeholder="작업" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">全部任务</SelectItem>
@@ -951,7 +951,7 @@ export default function FindingsPage() {
 
           <div className="ml-auto flex items-center gap-3">
             {selectedIds.size > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">已选 {selectedIds.size} 条</span>
+              <span className="text-xs text-muted-foreground tabular-nums">선택됨 {selectedIds.size} 건</span>
             )}
             <Button size="sm" variant="outline" onClick={openExport}>
               <DownloadIcon /> 导出
@@ -1008,7 +1008,7 @@ export default function FindingsPage() {
                     </button>
                   </React.Fragment>
                 ))}
-                <span className="ml-auto shrink-0 text-xs tabular-nums">共 {flat.total} 条</span>
+                <span className="ml-auto shrink-0 text-xs tabular-nums">共 {flat.total} 건</span>
               </div>
               {flatListCard}
             </div>
@@ -1191,7 +1191,7 @@ export default function FindingsPage() {
               }}
               disabled={deepening}
             >
-              取消
+              취소
             </Button>
             <Button onClick={submitDeepen} disabled={deepening || !deepenDescription.trim()}>
               {deepening && <Spinner data-icon="inline-start" />}
@@ -1224,7 +1224,7 @@ export default function FindingsPage() {
                   className={cn("flex items-center gap-2 text-sm", selectedIds.size === 0 && "text-muted-foreground")}
                 >
                   <RadioGroupItem id="export-scope-selected" value="selected" disabled={selectedIds.size === 0} />
-                  导出勾选的 {selectedIds.size} 条
+                  导出勾选的 {selectedIds.size} 건
                 </label>
               </RadioGroup>
             </div>
@@ -1250,7 +1250,7 @@ export default function FindingsPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setExportOpen(false)} disabled={exporting}>
-              取消
+              취소
             </Button>
             <Button onClick={doExport} disabled={exporting || (exportScope === "selected" && selectedIds.size === 0)}>
               <DownloadIcon /> {exporting ? "导出中…" : "导出"}

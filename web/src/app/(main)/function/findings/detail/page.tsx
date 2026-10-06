@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 
@@ -114,7 +114,7 @@ function FindingDetailInner() {
   if (!finding) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-10 text-center">
-        <p className="text-muted-foreground">{loaded ? `未找到发现 ${id}` : "加载中…"}</p>
+        <p className="text-muted-foreground">{loaded ? `未找到发现 ${id}` : "불러오는 중…"}</p>
         {loaded && (
           <Button asChild variant="outline">
             <Link href="/function/findings">
@@ -126,7 +126,7 @@ function FindingDetailInner() {
     );
   }
 
-  const title = finding.name || finding.vulnclass || "未分类";
+  const title = finding.name || finding.vulnclass || "미분류";
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="flex flex-1 flex-col gap-0">
@@ -148,7 +148,7 @@ function FindingDetailInner() {
           <StatusBadge domain="severity" value={finding.severity} dot />
           <StatusBadge domain="finding" value={finding.status} dot />
           {finding.inherited && finding.source_task_id && (
-            <Badge variant="outline">来源任务 #{finding.source_task_id} · 只读</Badge>
+            <Badge variant="outline">출처 작업 #{finding.source_task_id} · 읽기 전용</Badge>
           )}
         </div>
         <TabsList>
@@ -218,7 +218,7 @@ function FindingDetailInner() {
             {/* 右栏：状态区 */}
             <Card className="h-fit lg:sticky lg:top-24">
               <CardHeader>
-                <CardTitle className="text-sm">状态</CardTitle>
+                <CardTitle className="text-sm">상태</CardTitle>
               </CardHeader>
               <CardContent className="divide-y">
                 {/* 漏洞 ID */}

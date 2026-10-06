@@ -153,11 +153,11 @@ export function FindingsTable({
             />
           </TableHead>
           <TableHead className="w-8" />
-          <TableHead className="w-20">严重度</TableHead>
-          <TableHead>漏洞名称</TableHead>
+          <TableHead className="w-20">심각도</TableHead>
+          <TableHead>취약점 이름</TableHead>
           <TableHead className="w-44">자산</TableHead>
           <TableHead className="w-28">상태</TableHead>
-          <TableHead className="w-32">所属任务</TableHead>
+          <TableHead className="w-32">소속 작업</TableHead>
           <TableHead className="w-24">시간</TableHead>
           <TableHead className="w-48">동작</TableHead>
         </TableRow>
@@ -186,7 +186,7 @@ export function FindingsTable({
                     <Checkbox
                       checked={selectedIds.has(f.finding_id)}
                       onCheckedChange={(c) => onToggleSelected(f.finding_id as string, c === true)}
-                      aria-label="选择该漏洞"
+                      aria-label="이 취약점 선택"
                     />
                   )}
                 </TableCell>
@@ -205,7 +205,7 @@ export function FindingsTable({
                         href={`/function/findings/detail?id=${f.finding_id}`}
                         onClick={(e) => e.stopPropagation()}
                         className="truncate font-medium hover:text-primary hover:underline"
-                        title="查看发现详情"
+                        title="발견 사항 상세 보기"
                       >
                         {f.name || f.vulnclass || "미분류"}
                       </Link>
@@ -213,7 +213,7 @@ export function FindingsTable({
                       <span className="truncate font-medium">{f.name || f.vulnclass || "미분류"}</span>
                     )}
                     <span className="truncate text-xs text-muted-foreground">{f.summary}</span>
-                    <Badge variant="outline">流量证据 {f.traffic_count ?? 0} 건</Badge>
+                    <Badge variant="outline">트래픽 증거 {f.traffic_count ?? 0} 건</Badge>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -281,15 +281,15 @@ export function FindingsTable({
                       </Button>
                     ) : null}
                     {!retest && f.finding_id && !f.inherited ? (
-                      <Button size="sm" variant="ghost" onClick={() => onRetest(f)} title="在独立会话中复测该漏洞">
+                      <Button size="sm" variant="ghost" onClick={() => onRetest(f)} title="독립 세션에서 이 취약점 재검증">
                         <RotateCcwIcon data-icon="inline-start" />
-                        复测
+                        재검증
                       </Button>
                     ) : null}
                     {f.finding_id && f.task_id && (
                       <Button size="sm" variant="ghost" onClick={() => onDeepen(f)}>
                         <FlaskConicalIcon data-icon="inline-start" />
-                        深入
+                        심층 검증
                       </Button>
                     )}
                     {f.finding_id && (
@@ -306,13 +306,13 @@ export function FindingsTable({
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>确认删除该漏洞？</AlertDialogTitle>
+                            <AlertDialogTitle>이 취약점을 삭제할까요?</AlertDialogTitle>
                             <AlertDialogDescription className="break-words">
                               「
                               <span className="break-all">
                                 {f.name || f.vulnclass || f.summary || `#${f.finding_id}`}
                               </span>
-                              」将被永久删除， 同时从发现列表、任务发现 Tab 与探索图中移除，此操作不可撤销。
+                              」을 영구 삭제하며 발견 사항 목록, 작업의 발견 사항 탭 및 탐색 그래프에서도 제거합니다. 이 작업은 취소할 수 없습니다.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -335,23 +335,23 @@ export function FindingsTable({
                       {f.finding_id && edit && (
                         <div className="flex flex-wrap items-end gap-3 rounded-md border bg-background px-3 py-2.5">
                           <div className="flex min-w-[12rem] flex-1 flex-col gap-1">
-                            <Label className="text-xs text-muted-foreground">漏洞名称</Label>
+                            <Label className="text-xs text-muted-foreground">취약점 이름</Label>
                             <Input
                               value={edit.name}
                               onChange={(e) => onEditChange((s) => (s ? { ...s, name: e.target.value } : s))}
-                              placeholder="可读标题，留空回退类别"
+                              placeholder="알아보기 쉬운 제목. 비워 두면 분류 사용"
                             />
                           </div>
                           <div className="flex min-w-[10rem] flex-col gap-1">
-                            <Label className="text-xs text-muted-foreground">类别</Label>
+                            <Label className="text-xs text-muted-foreground">분류</Label>
                             <Input
                               value={edit.vulnclass}
                               onChange={(e) => onEditChange((s) => (s ? { ...s, vulnclass: e.target.value } : s))}
-                              placeholder="如 SQL Injection"
+                              placeholder="예: SQL Injection"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <Label className="text-xs text-muted-foreground">严重等级</Label>
+                            <Label className="text-xs text-muted-foreground">심각도</Label>
                             <Select
                               value={edit.severity}
                               onValueChange={(v) => onEditChange((s) => (s ? { ...s, severity: v as Severity } : s))}
@@ -375,17 +375,17 @@ export function FindingsTable({
                       )}
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <ShieldAlertIcon className="size-3.5" />
-                        证据
+                        증거
                         {f.vulnclass && (
                           <span>
-                            · 类型：
+                            · 유형:
                             <code className="rounded bg-muted px-1.5 py-0.5 font-mono">{f.vulnclass}</code>
                           </span>
                         )}
                         {f.param_id && <code className="rounded bg-muted px-1.5 py-0.5 font-mono">{f.param_id}</code>}
                         {f.assets && f.assets.length > 0 && (
                           <span className="flex flex-wrap items-center gap-1">
-                            · 资产：
+                            · 자산:
                             {f.assets.map((a) => (
                               <code key={a.id} className="rounded bg-muted px-1.5 py-0.5 font-mono" title={a.type}>
                                 {a.label}
@@ -404,12 +404,12 @@ export function FindingsTable({
                           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                             <span className="flex items-center gap-2">
                               <FileTextIcon className="size-3.5" />
-                              详细报告
+                              상세 보고서
                             </span>
                             {reports[rowKey]?.status === "done" && reports[rowKey]?.text.trim() && (
                               <CopyButton
                                 text={reports[rowKey]?.text}
-                                successMessage="已复制详细报告"
+                                successMessage="상세 보고서를 복사했습니다"
                                 variant="ghost"
                                 className="h-6 px-2 text-xs"
                               />
@@ -420,9 +420,9 @@ export function FindingsTable({
                             if (!rep || rep.status === "loading")
                               return <p className="text-xs text-muted-foreground">불러오는 중…</p>;
                             if (rep.status === "error")
-                              return <p className="text-xs text-muted-foreground">报告加载失败。</p>;
+                              return <p className="text-xs text-muted-foreground">보고서 불러오기에 실패했습니다.</p>;
                             if (!rep.text.trim())
-                              return <p className="text-xs text-muted-foreground">暂无详细报告。</p>;
+                              return <p className="text-xs text-muted-foreground">상세 보고서가 없습니다.</p>;
                             return (
                               // break-words 会继承到段落/列表,pre 另加
                               // whitespace-pre-wrap 让代码块也换行——否则长代码行/长 URL

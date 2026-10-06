@@ -37,7 +37,7 @@ type Kind = CoverageGraphNode["kind"];
 type KindMeta = { label: string; icon: LucideIcon; iconBg: string; hex: string; size: number };
 
 const kindMeta: Record<Kind, KindMeta> = {
-  company: { label: "公司", icon: Building2, iconBg: "bg-slate-500", hex: "#64748b", size: 46 },
+  company: { label: "기업", icon: Building2, iconBg: "bg-slate-500", hex: "#64748b", size: 46 },
   root_domain: { label: "루트 도메인", icon: Globe, iconBg: "bg-indigo-500", hex: "#6366f1", size: 38 },
   subdomain: { label: "하위 도메인", icon: Waypoints, iconBg: "bg-blue-500", hex: "#3b82f6", size: 30 },
   ip: { label: "IP", icon: Server, iconBg: "bg-cyan-600", hex: "#0891b2", size: 28 },
@@ -347,15 +347,15 @@ function AssetSheet({
                 <section>
                   <h4 className="text-muted-foreground mb-1 text-xs font-medium">속성</h4>
                   <DetailRow label="유형">{meta.label}</DetailRow>
-                  <DetailRow label="测试状态">
+                  <DetailRow label="테스트 상태">
                     {node.in_scope ? (
                       node.tested ? (
-                        <span className="text-emerald-600 dark:text-emerald-400">已测试</span>
+                        <span className="text-emerald-600 dark:text-emerald-400">테스트됨</span>
                       ) : (
-                        <span className="text-neutral-500">未测试</span>
+                        <span className="text-neutral-500">테스트되지 않음</span>
                       )
                     ) : (
-                      <span className="text-neutral-400">范围外（连接节点）</span>
+                      <span className="text-neutral-400">범위 밖(연결 노드)</span>
                     )}
                   </DetailRow>
                   <DetailRow label="도메인">{node.domain}</DetailRow>
@@ -368,15 +368,15 @@ function AssetSheet({
                   <DetailRow label="제목">{node.page_title}</DetailRow>
                   <DetailRow label="상태 코드">{node.status_code ? node.status_code : undefined}</DetailRow>
                   <DetailRow label="App">{node.app_name}</DetailRow>
-                  <DetailRow label="资产ID">
+                  <DetailRow label="자산 ID">
                     {node.asset_id ? <span className="font-mono text-xs">{node.asset_id}</span> : undefined}
                   </DetailRow>
                 </section>
                 {refs && (refs.intents.length > 0 || refs.facts.length > 0 || refs.findings.length > 0) && (
                   <section className="flex flex-col gap-3 border-t pt-3">
-                    <RefList title="关联意图" items={refs.intents} />
-                    <RefList title="关联事实" items={refs.facts} />
-                    <RefList title="关联发现" items={refs.findings} />
+                    <RefList title="연결된 의도" items={refs.intents} />
+                    <RefList title="연결된 사실" items={refs.facts} />
+                    <RefList title="연결된 발견 사항" items={refs.findings} />
                   </section>
                 )}
                 <section className="border-t pt-3">
@@ -414,9 +414,9 @@ function FoldSheet({
           <>
             <SheetHeader className="border-b p-4">
               <SheetTitle className="text-base">
-                未展示的{meta.label}（{fold.hidden.length}）
+                표시하지 않은 항목: {meta.label}（{fold.hidden.length}）
               </SheetTitle>
-              <p className="text-muted-foreground text-xs">已测优先展示。点「展示更多」把下一批拉进图里。</p>
+              <p className="text-muted-foreground text-xs">테스트한 항목을 먼저 표시합니다. 「더 표시」를 누르면 다음 묶음을 그래프에 추가합니다.</p>
             </SheetHeader>
             <ScrollArea className="min-h-0 flex-1">
               <div className="flex flex-col gap-1 p-3">
@@ -445,7 +445,7 @@ function FoldSheet({
             </ScrollArea>
             <div className="border-t p-3">
               <Button className="w-full" variant="outline" onClick={() => onShowMore(fold.groupId)}>
-                展示更多（+{FOLD_STEP}）
+                더 표시(+{FOLD_STEP}）
               </Button>
             </div>
           </>
@@ -644,17 +644,17 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
         <div className="flex items-center justify-between gap-3">
           {total > 0 ? (
             <span className="text-muted-foreground">
-              范围内 <span className="text-foreground font-semibold tabular-nums">{inScope}</span>
+              범위 내 <span className="text-foreground font-semibold tabular-nums">{inScope}</span>
               {coverageEnabled && (
                 <>
                   {" "}
-                  · 已测{" "}
+                  · 테스트됨{" "}
                   <span className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{tested}</span>
                 </>
               )}
             </span>
           ) : (
-            <span className="text-muted-foreground">{loading ? "불러오는 중…" : "暂无范围内资产（先锚定任务范围）"}</span>
+            <span className="text-muted-foreground">{loading ? "불러오는 중…" : "범위 내 자산이 없습니다(먼저 작업 범위 지정 필요)"}</span>
           )}
           <Button variant="ghost" size="icon" className="size-6" onClick={fetchGraph} title="새로고침">
             <RefreshCw className={cn("size-3.5", loading && "animate-spin")} />
@@ -678,19 +678,19 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
           {coverageEnabled && (
             <>
               <span className="inline-flex items-center gap-1.5">
-                <span className="size-3 rounded-full bg-emerald-500" /> 已测（高亮）
+                <span className="size-3 rounded-full bg-emerald-500" /> 테스트됨(강조 표시)
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="size-3 rounded-full bg-neutral-400" /> 未测
+                <span className="size-3 rounded-full bg-neutral-400" /> 미테스트
               </span>
             </>
           )}
           <span className="inline-flex items-center gap-1.5">
-            <span className="size-3 rounded-full border border-dashed border-neutral-400 bg-neutral-200" /> 范围外
+            <span className="size-3 rounded-full border border-dashed border-neutral-400 bg-neutral-200" /> 범위 밖
           </span>
         </div>
         <p className="text-muted-foreground/80 border-border/60 border-t pt-2 leading-relaxed">
-          力导向布局，可拖拽节点、滚轮缩放；灰色「⋯」是折叠节点，点开可展开更多。
+          힘 기반 배치입니다. 노드를 드래그하고 휠로 확대·축소할 수 있습니다. 회색 「⋯」은 접힌 노드이며 클릭하면 더 펼칠 수 있습니다.
         </p>
       </div>
 

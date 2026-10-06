@@ -41,7 +41,7 @@ const KIND_LABEL: Record<FindingAssetKind, string> = {
   app: "앱",
   service: "서비스",
   endpoint: "인터페이스",
-  none: "未关联",
+  none: "연결되지 않음",
 };
 
 // TreeNode 是节点数组组装出来的树。后端已按「同父下发现多的在前」排好序,
@@ -233,9 +233,9 @@ export function AssetTree({
     [isExpanded],
   );
 
-  let emptyHint = "当前筛选下没有关联到资产的发现。";
+  let emptyHint = "현재 필터에는 자산과 연결된 발견 사항이 없습니다.";
   if (loading) emptyHint = "불러오는 중…";
-  else if (searching) emptyHint = "没有匹配的资产。";
+  else if (searching) emptyHint = "일치하는 자산이 없습니다.";
 
   const rows: React.ReactNode[] = [];
   const pushRows = (list: TreeNode[]) => {
@@ -264,8 +264,8 @@ export function AssetTree({
             type="search"
             value={keyword}
             onChange={(event) => setKeyword(event.target.value)}
-            placeholder="过滤资产"
-            aria-label="过滤资产"
+            placeholder="자산 필터"
+            aria-label="자산 필터"
           />
           <InputGroupAddon>
             <SearchIcon aria-hidden="true" />
@@ -278,8 +278,8 @@ export function AssetTree({
             className="size-8 shrink-0 text-muted-foreground"
             onClick={onRefresh}
             disabled={loading}
-            aria-label="刷新资产树"
-            title="刷新资产树"
+            aria-label="자산 트리 새로고침"
+            title="자산 트리 새로고침"
           >
             <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} />
           </Button>
@@ -307,8 +307,8 @@ export function AssetTree({
 
       {truncated && (
         <p className="px-1 text-xs text-muted-foreground">
-          资产过多，已隐藏{(droppedKinds ?? []).map((k) => KIND_LABEL[k as FindingAssetKind] ?? k).join(" / ")}
-          层级（计数仍已计入上层）。用筛选或过滤框收窄可看到完整层级。
+          자산이 너무 많아 숨긴 계층: {(droppedKinds ?? []).map((k) => KIND_LABEL[k as FindingAssetKind] ?? k).join(" / ")}
+          (개수는 상위 계층에 포함됩니다). 필터로 범위를 좁히면 전체 계층을 볼 수 있습니다.
         </p>
       )}
     </div>
@@ -343,7 +343,7 @@ function AssetTreeRow({
           type="button"
           onClick={onToggle}
           className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-foreground"
-          aria-label={open ? "折叠" : "펼치기"}
+          aria-label={open ? "접기" : "펼치기"}
           aria-expanded={open}
         >
           <ChevronRightIcon className={cn("size-3.5 transition-transform", open && "rotate-90")} />
@@ -371,7 +371,7 @@ function AssetTreeRow({
             {node.high}
           </span>
         )}
-        <span className="text-muted-foreground" title={`총  ${node.total} 条发现`}>
+        <span className="text-muted-foreground" title={`총  ${node.total} 건의 발견 사항`}>
           {node.total}
         </span>
       </span>

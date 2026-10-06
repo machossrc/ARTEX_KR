@@ -32,7 +32,7 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
         setRows(r.deliveries);
         setTotal(r.total);
       })
-      .catch((e) => toast.error("读取投递记录失败：" + (e as Error).message))
+      .catch((e) => toast.error("전달 기록 읽기 실패: " + (e as Error).message))
       .finally(() => setLoading(false));
   }, [channelID, state, page]);
   React.useEffect(() => {
@@ -42,10 +42,10 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
   async function retry(id: number) {
     try {
       await api.notifyRetryDelivery(id);
-      toast.success("已重新入队");
+      toast.success("대기열에 다시 추가했습니다");
       load();
     } catch (e) {
-      toast.error("重发失败：" + (e as Error).message);
+      toast.error("재전송 실패: " + (e as Error).message);
     }
   }
 
@@ -62,10 +62,10 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
           }}
         >
           <SelectTrigger size="sm" className="w-44">
-            <SelectValue placeholder="全部渠道" />
+            <SelectValue placeholder="모든 채널" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部渠道</SelectItem>
+            <SelectItem value="all">모든 채널</SelectItem>
             {channels.map((c) => (
               <SelectItem key={c.id} value={String(c.id)}>
                 {c.name}
@@ -104,10 +104,10 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
             <TableRow>
               <TableHead className="w-40">시간</TableHead>
               <TableHead>취약점</TableHead>
-              <TableHead className="w-40">渠道</TableHead>
+              <TableHead className="w-40">채널</TableHead>
               <TableHead className="w-24">상태</TableHead>
-              <TableHead className="w-16">尝试</TableHead>
-              <TableHead>错误</TableHead>
+              <TableHead className="w-16">시도</TableHead>
+              <TableHead>오류</TableHead>
               <TableHead className="w-20" />
             </TableRow>
           </TableHeader>
@@ -115,7 +115,7 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-muted-foreground py-8 text-center">
-                  {loading ? "불러오는 중…" : "暂无投递记录"}
+                  {loading ? "불러오는 중…" : "전달 기록이 없습니다"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -129,10 +129,10 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
                       <Badge variant="outline" className={toneClasses[statusMeta("severity", d.severity).tone]}>
                         {statusMeta("severity", d.severity).label}
                       </Badge>
-                      <span className="truncate text-sm">{d.title || "（无标题）"}</span>
+                      <span className="truncate text-sm">{d.title || "(제목 없음)"}</span>
                       {d.event_kind === "finding_status_changed" && (
                         <Badge variant="outline" className="shrink-0">
-                          状态变更
+                          상태 변경
                         </Badge>
                       )}
                     </div>
@@ -149,7 +149,7 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
                     {/* 只有失败/跳过的才给重发入口：已送达的重发会造成重复推送。 */}
                     {(d.state === "failed" || d.state === "skipped") && (
                       <Button size="sm" variant="outline" onClick={() => retry(d.id)}>
-                        <RotateCcwIcon /> 重发
+                        <RotateCcwIcon /> 재전송
                       </Button>
                     )}
                   </TableCell>

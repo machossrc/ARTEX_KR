@@ -133,7 +133,7 @@ function Chips({ items, mono }: { items: string[]; mono?: boolean }) {
 
 function SourceCell({ asset }: { asset: Asset }) {
   const source = firstText([asset.task_source], "legacy");
-  const summary = firstText([asset.task_source_summary], "由历史任务资产关联迁移，暂无更详细来源说明");
+  const summary = firstText([asset.task_source_summary], "과거 작업의 자산 연결에서 이전한 항목으로, 더 자세한 출처 설명이 없습니다");
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -146,7 +146,7 @@ function SourceCell({ asset }: { asset: Asset }) {
           <span className="font-medium">{taskAssetSourceLabel(source)}</span>
           <span className="[overflow-wrap:anywhere]">{summary}</span>
           {asset.task_source_node_id ? (
-            <span className="font-mono opacity-80">来源节点 #{asset.task_source_node_id}</span>
+            <span className="font-mono opacity-80">출처 노드 #{asset.task_source_node_id}</span>
           ) : null}
         </div>
       </TooltipContent>
@@ -192,7 +192,7 @@ function AssetCard({
     tableRows = (
       <TableRow>
         <TableCell colSpan={cols.length} className="py-10 text-center text-muted-foreground text-sm">
-          当前分类暂无测试资产
+          현재 분류에 테스트 자산이 없습니다
         </TableCell>
       </TableRow>
     );
@@ -293,11 +293,11 @@ function AddTaskAssetsSheet({
     try {
       const result = await api.registerTaskAssetScopes(taskId, parsedScope.rules);
       const assetSummary = result.assets_linked + result.assets_existing;
-      toast.success(`已登记 ${result.requested} 条范围，关联 ${assetSummary} 项域名/IP 资产`);
+      toast.success(`등록한 항목:  ${result.requested} 개의 범위, 연결한 항목:  ${assetSummary} 개의 도메인/IP 자산`);
       onAttached();
       onOpenChange(false);
     } catch (reason) {
-      toast.error(`新增失败：${String((reason as Error)?.message ?? reason)}`);
+      toast.error(`추가 실패: ${String((reason as Error)?.message ?? reason)}`);
     } finally {
       setSaving(false);
     }
@@ -307,9 +307,9 @@ function AddTaskAssetsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>新增测试资产</SheetTitle>
+          <SheetTitle>테스트 자산 추가</SheetTitle>
           <SheetDescription>
-            直接填写测试范围。域名和 IP 会创建或复用全局资产；CIDR、ICP 和关键词作为 Agent 范围上下文。
+            테스트 범위를 직접 입력하세요. 도메인과 IP는 전역 자산을 생성하거나 재사용하고, CIDR, ICP 및 키워드는 에이전트의 범위 컨텍스트로 사용합니다.
           </SheetDescription>
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4">
@@ -318,8 +318,8 @@ function AddTaskAssetsSheet({
             value={scopeText}
             onValueChange={setScopeText}
             parsed={parsedScope}
-            label="测试资产与范围"
-            description="每行一条，自动识别域名、IP、CIDR、ICP 备案和关键词。"
+            label="테스트 자산 및 범위"
+            description="한 줄에 하나씩 입력하면 도메인, IP, CIDR, ICP 등록 번호 및 키워드를 자동으로 인식합니다."
           />
         </div>
         <SheetFooter>
@@ -331,7 +331,7 @@ function AddTaskAssetsSheet({
             disabled={saving || parsedScope.rules.length === 0 || parsedScope.errors.length > 0}
           >
             {saving ? <Spinner data-icon="inline-start" /> : <PlusIcon data-icon="inline-start" />}
-            登记 {parsedScope.rules.length > 0 ? parsedScope.rules.length : ""} 건
+            등록 {parsedScope.rules.length > 0 ? parsedScope.rules.length : ""} 건
           </Button>
         </SheetFooter>
       </SheetContent>
@@ -404,7 +404,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
           setRows([]);
           setTotal(0);
         } else {
-          toast.error(`加载任务资产失败：${message}`);
+          toast.error(`작업 자산 불러오기 실패: ${message}`);
         }
       } finally {
         if (active && assetsRequestRef.current === request) {
@@ -438,11 +438,11 @@ export function AssetsTab({ taskId }: { taskId: string }) {
     setRemoving(true);
     try {
       await api.detachTaskAsset(taskId, removeTarget.id);
-      toast.success(`처리한 항목:  ${assetLabel(removeTarget)} 移出当前任务`);
+      toast.success(`처리한 항목:  ${assetLabel(removeTarget)} 현재 작업에서 제외`);
       setRemoveTarget(null);
       refresh();
     } catch (reason) {
-      toast.error(`移出失败：${String((reason as Error)?.message ?? reason)}`);
+      toast.error(`제외 실패: ${String((reason as Error)?.message ?? reason)}`);
     } finally {
       setRemoving(false);
     }
@@ -453,8 +453,8 @@ export function AssetsTab({ taskId }: { taskId: string }) {
       variant="ghost"
       size="icon-sm"
       onClick={() => setRemoveTarget(asset)}
-      aria-label={`将资产 ${assetLabel(asset)} 移出任务`}
-      title="移出任务"
+      aria-label={`자산  ${assetLabel(asset)} 작업에서 제외`}
+      title="작업에서 제외"
     >
       <Trash2Icon />
     </Button>
@@ -477,12 +477,12 @@ export function AssetsTab({ taskId }: { taskId: string }) {
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="font-medium text-sm">测试资产</h2>
-          <p className="text-muted-foreground text-xs">当前任务共关联 {totalAll} 개의 자산</p>
+          <h2 className="font-medium text-sm">테스트 자산</h2>
+          <p className="text-muted-foreground text-xs">현재 작업에 연결된 전체 항목:  {totalAll} 개의 자산</p>
         </div>
         <Button size="sm" onClick={() => setAddOpen(true)}>
           <PlusIcon data-icon="inline-start" />
-          新增测试资产
+          테스트 자산 추가
         </Button>
       </div>
 
@@ -566,7 +566,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="app" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["앱", "地址", "분류", "제목", "지문", "출처", "동작"]} {...commonCardProps}>
+          <AssetCard cols={["앱", "주소", "분류", "제목", "지문", "출처", "동작"]} {...commonCardProps}>
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="max-w-48 truncate font-medium text-xs">{asset.app_name || "—"}</TableCell>
@@ -589,7 +589,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
 
         <TabsContent value="service" className="mt-0 flex min-h-0 flex-1 flex-col">
           <AssetCard
-            cols={["地址 / 服务", "상태 코드", "제목", "响应长度", "지문", "인증", "출처", "동작"]}
+            cols={["주소 / 서비스", "상태 코드", "제목", "응답 길이", "지문", "인증", "출처", "동작"]}
             {...commonCardProps}
           >
             {rows.map((asset) => {
@@ -680,10 +680,10 @@ export function AssetsTab({ taskId }: { taskId: string }) {
       <AlertDialog open={Boolean(removeTarget)} onOpenChange={(open) => !open && !removing && setRemoveTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>移出当前任务？</AlertDialogTitle>
+            <AlertDialogTitle>현재 작업에서 제외할까요?</AlertDialogTitle>
             <AlertDialogDescription className="[overflow-wrap:anywhere]">
-              {removeTarget ? `将“${assetLabel(removeTarget)}”从当前任务的测试资产中移出。` : ""}
-              全局资产、关联流量和历史黑板锚点会继续保留。
+              {removeTarget ? `「${assetLabel(removeTarget)}」을 현재 작업의 테스트 자산에서 제외합니다.` : ""}
+              전역 자산, 연결된 트래픽 및 과거 블랙보드 기준점은 계속 보존됩니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -697,7 +697,7 @@ export function AssetsTab({ taskId }: { taskId: string }) {
               }}
             >
               {removing ? <Spinner data-icon="inline-start" /> : <Trash2Icon data-icon="inline-start" />}
-              {removing ? "移出中" : "确认移出"}
+              {removing ? "제외 중" : "제외 확인"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

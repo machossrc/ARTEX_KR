@@ -85,7 +85,7 @@ export default function WorkspacePage() {
           setEntries(r.entries);
           setPath(r.path);
         })
-        .catch((e) => toast.error(`读取目录失败：${(e as Error).message}`))
+        .catch((e) => toast.error(`디렉터리 읽기 실패: ${(e as Error).message}`))
         .finally(() => setLoading(false));
     },
     [],
@@ -110,7 +110,7 @@ export default function WorkspacePage() {
     api
       .workspaceRead(e.path)
       .then((f) => setEdit({ file: f, content: f.content ?? "", dirty: false, saving: false }))
-      .catch((err) => toast.error(`打开文件失败：${(err as Error).message}`));
+      .catch((err) => toast.error(`파일 열기 실패: ${(err as Error).message}`));
   };
 
   const saveFile = () => {
@@ -130,7 +130,7 @@ export default function WorkspacePage() {
   };
 
   const del = (e: WorkspaceEntry) => {
-    if (!window.confirm(`삭제 확인 ${e.dir ? "目录" : "文件"} “${e.name}”？${e.dir ? "（含其下所有内容）" : ""}`)) return;
+    if (!window.confirm(`삭제 확인 ${e.dir ? "디렉터리" : "파일"} “${e.name}”？${e.dir ? "(모든 하위 내용 포함)" : ""}`)) return;
     api
       .workspaceDelete(e.path)
       .then(() => {
@@ -145,7 +145,7 @@ export default function WorkspacePage() {
     api
       .workspaceUpload(path, Array.from(files))
       .then((r) => {
-        toast.success(`已上传 ${r.uploaded} 个文件`);
+        toast.success(`업로드 완료:  ${r.uploaded} 개의 파일`);
         load(path);
       })
       .catch((err) => toast.error(`업로드 실패: ${(err as Error).message}`))
@@ -161,7 +161,7 @@ export default function WorkspacePage() {
     api
       .workspaceMkdir(target)
       .then(() => {
-        toast.success("已创建目录");
+        toast.success("디렉터리를 생성했습니다");
         setMkdirOpen(false);
         setMkdirName("");
         load(path);
@@ -193,10 +193,10 @@ export default function WorkspacePage() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setMkdirOpen(true)}>
-            <FolderPlusIcon /> 新建文件夹
+            <FolderPlusIcon /> 새 폴더
           </Button>
           <Button variant="outline" size="sm" onClick={() => uploadRef.current?.click()}>
-            <UploadIcon /> 上传
+            <UploadIcon /> 업로드
           </Button>
           <Button variant="ghost" size="icon" className="size-8" onClick={() => load(path)} title="새로고침">
             <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} />
@@ -217,8 +217,8 @@ export default function WorkspacePage() {
             <TableHeader>
               <TableRow>
                 <TableHead>이름</TableHead>
-                <TableHead className="w-28 text-right">大小</TableHead>
-                <TableHead className="w-40">修改时间</TableHead>
+                <TableHead className="w-28 text-right">크기</TableHead>
+                <TableHead className="w-40">수정 시간</TableHead>
                 <TableHead className="w-24 text-right">동작</TableHead>
               </TableRow>
             </TableHeader>
@@ -226,7 +226,7 @@ export default function WorkspacePage() {
               {entries.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-muted-foreground py-10 text-center text-sm">
-                    {loading ? "불러오는 중…" : "空目录"}
+                    {loading ? "불러오는 중…" : "빈 디렉터리"}
                   </TableCell>
                 </TableRow>
               )}
@@ -257,8 +257,8 @@ export default function WorkspacePage() {
                           variant="ghost"
                           size="icon"
                           className="size-7"
-                          title="下载"
-                          onClick={() => api.workspaceDownload(e.path).catch((err) => toast.error(`下载失败：${(err as Error).message}`))}
+                          title="다운로드"
+                          onClick={() => api.workspaceDownload(e.path).catch((err) => toast.error(`다운로드 실패: ${(err as Error).message}`))}
                         >
                           <DownloadIcon className="size-3.5" />
                         </Button>
@@ -299,10 +299,10 @@ export default function WorkspacePage() {
               {edit.file.binary || edit.file.too_large ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
                   <p className="text-muted-foreground text-sm">
-                    {edit.file.too_large ? "文件过大，不支持在线预览/编辑。" : "二进制文件，不支持在线预览/编辑。"}
+                    {edit.file.too_large ? "파일이 너무 커서 온라인 미리보기/편집을 지원하지 않습니다." : "바이너리 파일은 온라인 미리보기/편집을 지원하지 않습니다."}
                   </p>
                   <Button variant="outline" onClick={() => api.workspaceDownload(edit.file.path)}>
-                    <DownloadIcon /> 下载文件
+                    <DownloadIcon /> 파일 다운로드
                   </Button>
                 </div>
               ) : (
@@ -316,13 +316,13 @@ export default function WorkspacePage() {
                     />
                   </div>
                   <SheetFooter className="flex-row items-center justify-between border-t p-3">
-                    <span className="text-muted-foreground text-xs">{edit.dirty ? "未保存的修改" : "已同步"}</span>
+                    <span className="text-muted-foreground text-xs">{edit.dirty ? "저장하지 않은 변경 사항" : "동기화됨"}</span>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         onClick={() => api.workspaceDownload(edit.file.path)}
                       >
-                        <DownloadIcon /> 下载
+                        <DownloadIcon /> 다운로드
                       </Button>
                       <Button onClick={saveFile} disabled={!edit.dirty || edit.saving}>
                         <SaveIcon /> {edit.saving ? "저장 중…" : "저장"}
@@ -340,21 +340,21 @@ export default function WorkspacePage() {
       <Dialog open={mkdirOpen} onOpenChange={setMkdirOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>新建文件夹</DialogTitle>
+            <DialogTitle>새 폴더</DialogTitle>
           </DialogHeader>
           <Input
             autoFocus
             value={mkdirName}
             onChange={(e) => setMkdirName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && doMkdir()}
-            placeholder="文件夹名称"
+            placeholder="폴더 이름"
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setMkdirOpen(false)}>
               취소
             </Button>
             <Button onClick={doMkdir} disabled={!mkdirName.trim()}>
-              创建
+              생성
             </Button>
           </DialogFooter>
         </DialogContent>

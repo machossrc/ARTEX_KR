@@ -74,7 +74,7 @@ import { cn } from "@/lib/utils";
 // keeps the model id in its tooltip. Env-backed configs can arrive without a name,
 // so fall back to the model id rather than rendering an empty badge.
 function resolutionLabel(r: TaskLLMResolution): string {
-  return r.name || r.model || "未命名配置";
+  return r.name || r.model || "이름 없는 설정";
 }
 
 // fmtBytes renders a human file size for attachment chips (mirrors transcript.tsx).
@@ -202,7 +202,7 @@ const TokenMetrics = React.forwardRef<
     labels?: "short" | "long";
   }
 >(({ input, cache, output, labels = "short", className, ...props }, ref) => {
-  const names = labels === "short" ? ["입력", "缓", "出"] : ["input", "cache", "output"];
+  const names = labels === "short" ? ["입력", "캐시", "출력"] : ["input", "cache", "output"];
   const values = [input, cache, output];
   return (
     <span
@@ -235,9 +235,9 @@ function fmtDuration(ms: number): string {
 
 const roleMeta = {
   mainagent: { label: "主 Agent", icon: UserIcon },
-  planner: { label: "规划 Planner", icon: BrainIcon },
+  planner: { label: "계획 Planner", icon: BrainIcon },
   worker: { label: "Workers", icon: RadioIcon },
-  system: { label: "系统审计", icon: HistoryIcon },
+  system: { label: "시스템 감사", icon: HistoryIcon },
 } as const;
 
 // The main-agent session is the interactive entry point of this tab and has no
@@ -249,7 +249,7 @@ const roleMeta = {
 // segment is a switchable UI session; only the current (highest) one is writable.
 const mainSessionId = (seg: number) => `s-main-${seg}`;
 const mainSessionKey = (seg: number) => `main:${seg}`;
-const mainSessionTitle = (seg: number) => `主 Agent · 会话 #${seg + 1}`;
+const mainSessionTitle = (seg: number) => `주 에이전트 · 세션 #${seg + 1}`;
 const MAIN_ID = mainSessionId(0);
 const MAIN_SESSION: Session = {
   id: MAIN_ID,
@@ -269,7 +269,7 @@ const PLANNER_ID = "s-planner";
 const PLANNER_SESSION: Session = {
   id: PLANNER_ID,
   role: "planner",
-  title: "规划 Planner · 态势研判",
+  title: "계획 Planner · 상황 분석",
   status: "running",
   live: true,
   last_activity: "",
@@ -282,7 +282,7 @@ const SYSTEM_ID = "s-system";
 const SYSTEM_SESSION: Session = {
   id: SYSTEM_ID,
   role: "system",
-  title: "系统事件 · LLM 故障转移",
+  title: "시스템 이벤트 · LLM 장애 조치",
   status: "done",
   live: false,
   last_activity: "",
@@ -425,8 +425,8 @@ function SessionItem({
             size="icon-xs"
             onClick={onCancel}
             disabled={controlling}
-            title="删除该意图（需填写原因，可选假删除/真删除）"
-            aria-label="删除该意图（需填写原因，可选假删除/真删除）"
+            title="이 의도 삭제(이유 필수, 논리 삭제/물리 삭제 선택 가능)"
+            aria-label="이 의도 삭제(이유 필수, 논리 삭제/물리 삭제 선택 가능)"
             className="text-destructive hover:text-destructive"
           >
             <Trash2Icon />
@@ -456,7 +456,7 @@ function WorkerAssetBadge({ assets }: { assets: IntentAsset[] }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Badge variant="outline" className="max-w-60 shrink-0 font-normal" title={firstRawLabel}>
-          <span className="truncate">当前资产：{firstLabel}</span>
+          <span className="truncate">현재 자산: {firstLabel}</span>
           {displayAssets.length > 1 && <span className="shrink-0 tabular-nums">+{displayAssets.length - 1}</span>}
         </Badge>
       </TooltipTrigger>
@@ -467,7 +467,7 @@ function WorkerAssetBadge({ assets }: { assets: IntentAsset[] }) {
               <div className="break-all font-mono text-xs">{asset.label.trim() || `#${asset.asset_id}`}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">
                 {taskAssetTypeLabel(asset.type)} · {taskAssetSourceLabel(asset.source)}
-                {asset.inherited ? ` · 来源任务 #${asset.source_task_id}` : ""}
+                {asset.inherited ? ` · 출처 작업 #${asset.source_task_id}` : ""}
               </div>
               <div className="mt-0.5 [overflow-wrap:anywhere] text-xs">{asset.source_summary}</div>
             </div>
@@ -576,7 +576,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       setListOpen(false);
       setInput("");
     } catch (e) {
-      toast.error(`新建会话失败：${(e as Error).message}`);
+      toast.error(`새 세션 생성 실패: ${(e as Error).message}`);
     } finally {
       setCreatingMain(false);
       setConfirmNewMain(false);
@@ -596,7 +596,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     async (session: Session, action: "pause" | "resume" | "cancel", reason?: string, mode?: "soft" | "hard") => {
       if (!session.intent_id || session.inherited || controllingIntent) return;
       if (action === "cancel" && !reason?.trim()) {
-        toast.error("请填写删除原因");
+        toast.error("삭제 이유를 입력하세요");
         return;
       }
       setControllingIntent(session.intent_id);
@@ -607,22 +607,22 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           toast.success(`Worker #${session.intent_id} 일시 중지됨`);
         } else if (action === "resume") {
           patchIntentState(session.intent_id, "open");
-          toast.success(`Worker #${session.intent_id} 已恢复，等待重新领取`);
+          toast.success(`Worker #${session.intent_id} 복구했으며 다시 할당되기를 기다립니다`);
         } else if (mode === "hard") {
           // 真删除:意图及独占下游已物理移除,从列表剔除该行。
           patchIntentState(session.intent_id);
           const d = res.deleted;
-          const extra = d ? `（含 ${d.intents} 意图 / ${d.facts} 事实 / ${d.findings} 漏洞）` : "";
-          toast.success(`Worker #${session.intent_id} 及其独占下游已彻底删除${extra}`);
+          const extra = d ? `(포함:  ${d.intents} 의도 / ${d.facts} 사실 / ${d.findings} 취약점)` : "";
+          toast.success(`Worker #${session.intent_id} 및 그 항목에만 의존하는 하위 항목을 완전히 삭제했습니다${extra}`);
           setCancelReason("");
         } else {
           // 假删除:意图置 deleted、记录删除原因,保留节点与产出。
           patchIntentState(session.intent_id, "deleted");
-          toast.success(`Worker #${session.intent_id} 已删除（原因已记录，规划者将据此重新规划）`);
+          toast.success(`Worker #${session.intent_id} 삭제했습니다(이유를 기록했으며 계획자가 이를 바탕으로 다시 계획합니다)`);
           setCancelReason("");
         }
       } catch (error) {
-        toast.error(`Worker 操作失败：${(error as Error).message}`);
+        toast.error(`워커 작업 실패: ${(error as Error).message}`);
       } finally {
         setControllingIntent(null);
         setCancelIntent(null);
@@ -1513,7 +1513,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       .catch((e) => {
         setInput(text); // restore so the user doesn't lose their text / attachments
         setAttachments(atts);
-        toast.error(`전송 실패: ${(e as Error).message || "请稍后重试"}`);
+        toast.error(`전송 실패: ${(e as Error).message || "잠시 후 다시 시도하세요"}`);
       })
       .finally(() => setSending(false));
   }
@@ -1524,7 +1524,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     if (side.handleCommand(message, () => setWorkerMessage(""))) return;
     if (!intentId || active.inherited || active.status !== "paused" || workerMessageSending || !message) return;
     if (workerMessageCharCount(message) > MAX_WORKER_MESSAGE_CHARS) {
-      toast.error(`消息不能超过 ${MAX_WORKER_MESSAGE_CHARS} 자`);
+      toast.error(`메시지 최대 길이:  ${MAX_WORKER_MESSAGE_CHARS} 자`);
       return;
     }
     const requestId = workerMessageRequestId || newWorkerMessageRequestID();
@@ -1538,10 +1538,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         patchIntentState(intentId, result.state);
         setWorkerMessage("");
         setWorkerMessageRequestId("");
-        toast.success(`消息已发送给 Worker #${intentId}，已立即继续执行`);
+        toast.success(`메시지를 전송한 워커 #${intentId}, 즉시 실행을 재개했습니다`);
       })
       .catch((error) => {
-        toast.error(`전송 실패: ${(error as Error).message || "请稍后重试"}`);
+        toast.error(`전송 실패: ${(error as Error).message || "잠시 후 다시 시도하세요"}`);
       })
       .finally(() => setWorkerMessageSending(false));
   }
@@ -1587,7 +1587,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 <ChevronDownIcon
                   className={cn("size-3.5 shrink-0 transition-transform lg:hidden", !listOpen && "-rotate-90")}
                 />
-                <span className="shrink-0">会话列表</span>
+                <span className="shrink-0">세션 목록</span>
                 {!listOpen && (
                   <>
                     <span className="min-w-0 truncate text-foreground lg:hidden" title={activeDisplayTitle}>
@@ -1607,7 +1607,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     "inline-flex items-center gap-1 text-[10px]",
                     sseLive ? "text-emerald-500" : "text-amber-500",
                   )}
-                  title={sseLive ? "实时连接正常" : "实时连接中断，正在自动重连（历史仍可见）"}
+                  title={sseLive ? "실시간 연결 정상" : "실시간 연결이 끊어져 자동으로 다시 연결 중입니다(과거 기록은 계속 조회 가능)"}
                 >
                   {sseLive ? (
                     <>
@@ -1617,7 +1617,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   ) : (
                     <>
                       <WifiOffIcon className="size-3" />
-                      重连中
+                      다시 연결 중
                     </>
                   )}
                 </span>
@@ -1627,7 +1627,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-xs text-muted-foreground">
-                    <span>任务总计</span>
+                    <span>작업 합계</span>
                     <span>·</span>
                     <TokenMetrics
                       input={taskTokens.input_tokens}
@@ -1637,8 +1637,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  입력 {taskTokens.input_tokens.toLocaleString()} · 출력 {taskTokens.output_tokens.toLocaleString()} ·
-                  缓存读取 {taskTokens.cache_read_tokens.toLocaleString()} · 缓存写入{" "}
+                  입력 {taskTokens.input_tokens.toLocaleString()} · 출력 {taskTokens.output_tokens.toLocaleString()} · 캐시 읽기 {taskTokens.cache_read_tokens.toLocaleString()} · 캐시 쓰기{" "}
                   {taskTokens.cache_write_tokens.toLocaleString()}
                 </TooltipContent>
               </Tooltip>
@@ -1667,8 +1666,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           type="button"
                           onClick={() => setConfirmNewMain(true)}
                           disabled={creatingMain}
-                          title="新建主 Agent 会话（清空上下文，任务状态保留）"
-                          aria-label="新建主 Agent 会话"
+                          title="새 주 에이전트 세션(컨텍스트를 비우고 작업 상태는 보존)"
+                          aria-label="새 주 에이전트 세션"
                           className="ml-auto flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
                         >
                           {creatingMain ? (
@@ -1676,7 +1675,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           ) : (
                             <PlusIcon className="size-3.5" />
                           )}
-                          新建
+                          새로 만들기
                         </button>
                       )}
                     </div>
@@ -1717,14 +1716,14 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         ) : (
                           <RotateCwIcon className="size-3.5" />
                         )}
-                        加载更早的 Worker
+                        이전 워커 불러오기
                       </button>
                     )}
                   </div>
                 );
               })}
               {mainLoaded && !workerSessions.length && (
-                <div className="px-2 py-1 text-xs text-muted-foreground">暂无运行中的 Worker 会话。</div>
+                <div className="px-2 py-1 text-xs text-muted-foreground">실행 중인 워커 세션이 없습니다.</div>
               )}
             </div>
           </ScrollArea>
@@ -1742,7 +1741,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 const meta = isWorker ? sessionMeta.get(active.id) : undefined;
                 // Worker: the intent moved into the transcript as a message, so the
                 // header shows a stable generic label (intent JSON stays on hover).
-                const title = isWorker ? "Worker 执行会话" : active.title;
+                const title = isWorker ? "워커 실행 세션" : active.title;
                 const titleEl = <span className="min-w-0 truncate text-sm font-medium">{title}</span>;
                 return meta?.json ? (
                   <Tooltip>
@@ -1763,24 +1762,24 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       variant="outline"
                       className="max-w-28 shrink-0 font-normal"
                       aria-label={
-                        activeResolution.available ? `当前配置：${resolutionLabel(activeResolution)}` : "模型不可用"
+                        activeResolution.available ? `현재 설정: ${resolutionLabel(activeResolution)}` : "모델 사용 불가"
                       }
                     >
                       <span className="truncate">
-                        {activeResolution.available ? resolutionLabel(activeResolution) : "模型不可用"}
+                        {activeResolution.available ? resolutionLabel(activeResolution) : "모델 사용 불가"}
                       </span>
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs [overflow-wrap:anywhere]">
                     {activeResolution.available
                       ? [resolutionLabel(activeResolution), activeResolution.model].filter(Boolean).join(" / ")
-                      : activeResolution.reason || "没有可用的 LLM 配置"}
+                      : activeResolution.reason || "사용 가능한 LLM 설정이 없습니다"}
                   </TooltipContent>
                 </Tooltip>
               )}
               {activeAssets && activeAssets.length > 0 && <WorkerAssetBadge assets={activeAssets} />}
               {active.inherited && active.source_task_id && (
-                <Badge variant="outline">출처 작업 #{active.source_task_id} · 只读历史</Badge>
+                <Badge variant="outline">출처 작업 #{active.source_task_id} · 읽기 전용 기록</Badge>
               )}
               {active.live && (
                 <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
@@ -1789,8 +1788,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 </span>
               )}
               {activeState?.hasMore && (
-                <span className="text-[10px] text-muted-foreground" title="向上滚动加载更早历史">
-                  ↑ 更早历史
+                <span className="text-[10px] text-muted-foreground" title="위로 스크롤하여 이전 기록 불러오기">
+                  ↑ 이전 기록
                 </span>
               )}
               <div className="ml-auto flex min-w-0 max-w-full items-center justify-end gap-x-3 gap-y-1 text-xs text-muted-foreground max-sm:w-full max-sm:flex-wrap">
@@ -1817,19 +1816,19 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     </TooltipTrigger>
                     <TooltipContent>
                       입력 {activeTokens.input_tokens.toLocaleString()} · 출력{" "}
-                      {activeTokens.output_tokens.toLocaleString()} · 缓存读取{" "}
-                      {activeTokens.cache_read_tokens.toLocaleString()} · 缓存写入{" "}
+                      {activeTokens.output_tokens.toLocaleString()} · 캐시 읽기{" "}
+                      {activeTokens.cache_read_tokens.toLocaleString()} · 캐시 쓰기{" "}
                       {activeTokens.cache_write_tokens.toLocaleString()}
                     </TooltipContent>
                   </Tooltip>
                 )}
                 {runDuration != null && (
-                  <span className="inline-flex items-center gap-1" title="运行时长（首步 → 末步）">
+                  <span className="inline-flex items-center gap-1" title="실행 시간(첫 단계 → 마지막 단계)">
                     <ClockIcon className="size-3" />
                     {fmtDuration(runDuration)}
                   </span>
                 )}
-                {isMain && <span>可交互</span>}
+                {isMain && <span>상호작용 가능</span>}
               </div>
             </div>
             {(() => {
@@ -1839,13 +1838,13 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 <div className="flex items-start gap-2 border-b border-destructive/30 bg-destructive/5 px-4 py-2.5 text-xs">
                   <Trash2Icon className="mt-0.5 size-3.5 shrink-0 text-destructive" />
                   <div className="min-w-0">
-                    <span className="font-medium text-destructive">此意图已被用户删除</span>
+                    <span className="font-medium text-destructive">사용자가 이 의도를 삭제했습니다</span>
                     <span className="text-muted-foreground">
-                      （已停止执行，规划者已收到通知；意图与产出保留，可在下方查看历史）
+                      (실행을 중지하고 계획자에게 알렸습니다. 의도와 산출물은 보존되며 아래에서 기록을 확인할 수 있습니다)
                     </span>
                     {dm.deleteReason && (
                       <p className="mt-1 break-words text-foreground">
-                        <span className="text-muted-foreground">删除原因：</span>
+                        <span className="text-muted-foreground">삭제 이유: </span>
                         {dm.deleteReason}
                       </p>
                     )}
@@ -1872,18 +1871,18 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 {activeState?.loadingMore && (
                   <div className="flex items-center justify-center gap-2 pb-2 text-xs text-muted-foreground">
                     <Loader2Icon className="size-3.5 animate-spin" />
-                    加载更早历史…
+                    이전 기록 불러오는 중…
                   </div>
                 )}
                 {showLoader ? (
                   <div className="flex items-center gap-2 pl-9 text-xs text-muted-foreground">
                     <Loader2Icon className="size-3.5 animate-spin" />
-                    加载活动流…
+                    활동 피드 불러오는 중…
                   </div>
                 ) : activeState?.error ? (
                   <div className="flex items-center gap-2 pl-9 text-xs text-red-500">
                     <CircleXIcon className="size-3.5" />
-                    加载失败：{activeState.error}
+                    불러오기 실패: {activeState.error}
                     <Button
                       size="sm"
                       variant="ghost"
@@ -1903,7 +1902,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   />
                 ) : (
                   <div className="pl-9 text-xs text-muted-foreground">
-                    {isMain ? "还没有对话。在下方给主 Agent 发消息，引导探索方向或介入流程。" : "暂无活动记录。"}
+                    {isMain ? "대화가 없습니다. 아래에서 주 에이전트에 메시지를 보내 탐색 방향을 안내하거나 진행 과정에 개입하세요." : "활동 기록이 없습니다."}
                   </div>
                 )}
               </div>
@@ -1944,9 +1943,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   <MentionTextarea
                     inputGroup
                     rows={1}
-                    aria-label="给主 Agent 发消息"
+                    aria-label="주 에이전트에 메시지 전송"
                     placeholder={
-                      mainBusy ? "主 Agent 正在运行，可输入 /btw 提问…" : "给主 Agent 发消息，@ 引用漏洞、资产等…"
+                      mainBusy ? "주 에이전트 실행 중입니다. /btw로 질문할 수 있습니다…" : "주 에이전트에 메시지 전송, @로 취약점·자산 등을 인용…"
                     }
                     value={input}
                     disabled={sending}
@@ -1981,8 +1980,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         variant="destructive"
                         onClick={stop}
                         disabled={stopping}
-                        title="停止当前执行"
-                        aria-label="停止当前执行"
+                        title="현재 실행 중지"
+                        aria-label="현재 실행 중지"
                       >
                         {stopping ? <Loader2Icon className="animate-spin" /> : <SquareIcon />}
                       </InputGroupButton>
@@ -2010,8 +2009,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   <MentionTextarea
                     inputGroup
                     rows={1}
-                    aria-label={`给 Worker #${active.intent_id} 发消息`}
-                    placeholder={`给 Worker #${active.intent_id} 发消息，@ 引用记录，调整执行方向…`}
+                    aria-label={`워커 #${active.intent_id} 에 메시지 전송`}
+                    placeholder={`워커 #${active.intent_id} 메시지를 보내고 @로 기록을 인용하여 실행 방향 조정…`}
                     value={workerMessage}
                     onValueChange={(value) => {
                       setWorkerMessage(value);
@@ -2047,8 +2046,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         variant="destructive"
                         onClick={() => void controlWorker(active, "pause")}
                         disabled={controllingIntent === active.intent_id}
-                        title="暂停当前 Worker"
-                        aria-label="暂停当前 Worker"
+                        title="현재 워커 일시 중지"
+                        aria-label="현재 워커 일시 중지"
                       >
                         {controllingIntent === active.intent_id ? (
                           <Loader2Icon className="animate-spin" />
@@ -2064,13 +2063,13 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           variant="ghost"
                           onClick={() => void controlWorker(active, "resume")}
                           disabled={controllingIntent === active.intent_id || workerMessageSending}
-                          title="不发消息，直接继续执行"
-                          aria-label="直接继续执行"
+                          title="메시지 없이 바로 실행 재개"
+                          aria-label="바로 실행 재개"
                         >
                           {controllingIntent === active.intent_id ? (
                             <Loader2Icon className="animate-spin" />
                           ) : (
-                            "直接继续"
+                            "바로 재개"
                           )}
                         </InputGroupButton>
                         <InputGroupButton
@@ -2114,18 +2113,17 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         >
           <AlertDialogContent className="max-w-[min(32rem,calc(100vw-2rem))]">
             <AlertDialogHeader>
-              <AlertDialogTitle>删除 Worker #{cancelIntent?.intent_id}？</AlertDialogTitle>
+              <AlertDialogTitle>워커 삭제 #{cancelIntent?.intent_id}？</AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
                 {deleteMode === "hard" ? (
                   <>
-                    <strong>真删除</strong>会物理移除该意图，以及<strong>仅由它支撑</strong>
-                    的下游节点（级联到叶子，避免留下孤立数据）；共享节点、目标和任务根事实会保留。
-                    <strong>此操作不可恢复。</strong>规划者会收到删除通知并据此重新规划。
+                    <strong>물리 삭제</strong>는 해당 의도와 <strong>그 의도에만 의존하는</strong>
+                    하위 노드를 실제로 제거합니다(고립된 데이터가 남지 않도록 말단까지 연쇄 처리). 공유 노드, 목표 및 작업의 루트 사실은 보존합니다.
+                    <strong>이 작업은 복구할 수 없습니다.</strong>계획자는 삭제 알림을 받고 이를 바탕으로 다시 계획합니다.
                   </>
                 ) : (
                   <>
-                    <strong>假删除</strong>会把该意图置为「已删除」并记录删除原因，意图节点、执行记录、
-                    已登记的事实和漏洞<strong>都会保留</strong>。规划者会收到「该意图由用户删除 + 原因」并据此重新规划。
+                    <strong>논리 삭제</strong>는 의도를 「삭제됨」 상태로 바꾸고 삭제 이유를 기록합니다. 의도 노드, 실행 기록, 등록한 사실과 취약점은 <strong>모두 보존합니다</strong>. 계획자는 「사용자가 이 의도를 삭제함 + 이유」를 전달받아 다시 계획합니다.
                   </>
                 )}
               </AlertDialogDescription>
@@ -2140,8 +2138,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     deleteMode === "soft" ? "border-primary bg-primary/5" : "hover:bg-accent",
                   )}
                 >
-                  <div className="font-medium">假删除</div>
-                  <div className="text-xs text-muted-foreground">保留数据，可追溯</div>
+                  <div className="font-medium">논리 삭제</div>
+                  <div className="text-xs text-muted-foreground">데이터 보존, 추적 가능</div>
                 </button>
                 <button
                   type="button"
@@ -2151,33 +2149,33 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     deleteMode === "hard" ? "border-destructive bg-destructive/5" : "hover:bg-accent",
                   )}
                 >
-                  <div className="font-medium">真删除</div>
-                  <div className="text-xs text-muted-foreground">级联移除，不可恢复</div>
+                  <div className="font-medium">물리 삭제</div>
+                  <div className="text-xs text-muted-foreground">연쇄 삭제, 복구 불가</div>
                 </button>
               </div>
               <div className="grid gap-2">
                 <label htmlFor="cancel-reason" className="text-sm font-medium">
-                  删除原因（必填）
+                  삭제 이유(필수)
                 </label>
                 <Textarea
                   id="cancel-reason"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  placeholder="说明为什么删除这条意图，例如：方向判断错误 / 目标已失效 / 与其他意图重复…"
+                  placeholder="이 의도를 삭제하는 이유를 설명하세요. 예: 방향 판단 오류 / 대상 무효 / 다른 의도와 중복…"
                   rows={3}
                   autoFocus
                 />
               </div>
             </div>
             <AlertDialogFooter>
-              <AlertDialogCancel>返回</AlertDialogCancel>
+              <AlertDialogCancel>반환한 항목: </AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 disabled={!cancelIntent || controllingIntent !== null || !cancelReason.trim()}
                 onClick={() => cancelIntent && void controlWorker(cancelIntent, "cancel", cancelReason, deleteMode)}
               >
                 {controllingIntent ? <Loader2Icon className="animate-spin" /> : <Trash2Icon />}
-                {deleteMode === "hard" ? "彻底删除" : "삭제 확인"}
+                {deleteMode === "hard" ? "완전히 삭제" : "삭제 확인"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -2186,15 +2184,15 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         <AlertDialog open={confirmNewMain} onOpenChange={(open) => !open && setConfirmNewMain(false)}>
           <AlertDialogContent className="max-w-[min(32rem,calc(100vw-2rem))]">
             <AlertDialogHeader>
-              <AlertDialogTitle>开启新会话？</AlertDialogTitle>
+              <AlertDialogTitle>새 세션을 열까요?</AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
-                当前会话会被归档（可随时切回），主 Agent 将以干净的上下文继续。任务的图谱、资产、目标不受影响。
+                현재 세션은 보관되며 언제든 돌아갈 수 있습니다. 주 에이전트는 비워진 컨텍스트에서 계속 진행합니다. 작업의 그래프, 자산 및 목표에는 영향을 주지 않습니다.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={creatingMain}>취소</AlertDialogCancel>
               <AlertDialogAction disabled={creatingMain} onClick={() => void createMainSession()}>
-                {creatingMain ? "开启中…" : "开启新会话"}
+                {creatingMain ? "여는 중…" : "새 세션 열기"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

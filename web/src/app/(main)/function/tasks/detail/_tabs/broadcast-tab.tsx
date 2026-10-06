@@ -109,19 +109,19 @@ const STATE_META: Record<string, Record<string, { label: string; tone: Tone }>> 
   fact: {
     origin: { label: "시작점", tone: "slate" },
     confirmed: { label: "확인됨", tone: "green" },
-    dismissed: { label: "已否定", tone: "slate" },
+    dismissed: { label: "부정됨", tone: "slate" },
   },
   finding: {
     confirmed: { label: "확인됨", tone: "red" },
-    dismissed: { label: "已排除", tone: "slate" },
+    dismissed: { label: "제외됨", tone: "slate" },
   },
   hint: {
-    active: { label: "待采纳", tone: "violet" },
-    consumed: { label: "已采纳", tone: "slate" },
+    active: { label: "채택 대기", tone: "violet" },
+    consumed: { label: "채택됨", tone: "slate" },
   },
   digest: {
-    active: { label: "生效中", tone: "green" },
-    superseded: { label: "已替代", tone: "slate" },
+    active: { label: "적용 중", tone: "green" },
+    superseded: { label: "대체됨", tone: "slate" },
   },
 };
 
@@ -159,7 +159,7 @@ function summaryOf(n: TaskNode): string {
 }
 
 function prettyPayload(raw?: string): string {
-  if (!raw?.trim()) return "（无 payload）";
+  if (!raw?.trim()) return "(페이로드 없음)";
   try {
     return JSON.stringify(JSON.parse(raw), null, 2);
   } catch {
@@ -170,10 +170,10 @@ function prettyPayload(raw?: string): string {
 function relTime(ts: number, now: number): string {
   if (!now || !ts) return "";
   const sec = Math.max(0, (now - ts) / 1000);
-  if (sec < 60) return "刚刚";
-  if (sec < 3600) return `${Math.floor(sec / 60)} 分钟前`;
-  if (sec < 86400) return `${Math.floor(sec / 3600)} 小时前`;
-  return `${Math.floor(sec / 86400)} 天前`;
+  if (sec < 60) return "방금";
+  if (sec < 3600) return `${Math.floor(sec / 60)} 분 전`;
+  if (sec < 86400) return `${Math.floor(sec / 3600)} 시간 전`;
+  return `${Math.floor(sec / 86400)} 일 전`;
 }
 
 const dayFmt = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short" });
@@ -215,7 +215,7 @@ function AssetList({ assets, dense = false }: { assets: FindingAsset[]; dense?: 
   if (assets.length === 0) return null;
   return (
     <div>
-      <div className="mb-1.5 text-xs font-medium text-muted-foreground">涉及资产 · {assets.length}</div>
+      <div className="mb-1.5 text-xs font-medium text-muted-foreground">관련 자산 · {assets.length}</div>
       <ul className="flex flex-wrap gap-1.5">
         {assets.map((a) => {
           // 运行时 a.type 可能是标签表未覆盖的类型,退回原始字符串。转一层类型让回退不被判成多余。
@@ -262,7 +262,7 @@ function RelatedNodeCard({ node, assets }: { node: TaskNode; assets: FindingAsse
         <span>출처 {node.origin || "system"}</span>
         <span>{Number.isNaN(ts) ? node.ts : new Date(ts).toLocaleString("zh-CN")}</span>
       </div>
-      <p className="line-clamp-4 text-xs break-words">{summary || "（无摘要）"}</p>
+      <p className="line-clamp-4 text-xs break-words">{summary || "(요약 없음)"}</p>
       <AssetList assets={assets} dense />
       <pre className="max-h-40 overflow-auto rounded border bg-muted/40 p-2 font-mono text-[11px] whitespace-pre-wrap">
         {prettyPayload(node.payload)}
@@ -303,7 +303,7 @@ function RelatedList({
                       className="flex min-w-0 cursor-help items-center gap-2 text-left hover:underline"
                     >
                       <KindChip kind={viewKind(node)} />
-                      <span className="truncate">{summaryOf(node) || `节点 #${node.id}`}</span>
+                      <span className="truncate">{summaryOf(node) || `노드 #${node.id}`}</span>
                     </button>
                   </HoverCardTrigger>
                   <HoverCardContent align="start" className="w-96">
@@ -311,7 +311,7 @@ function RelatedList({
                   </HoverCardContent>
                 </HoverCard>
               ) : (
-                <span className="text-muted-foreground">节点 #{row.id}</span>
+                <span className="text-muted-foreground">노드 #{row.id}</span>
               )}
             </li>
           );
@@ -386,12 +386,12 @@ function BroadcastRow({
               )}
               {fresh && (
                 <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  新
+                  새 항목
                 </span>
               )}
               <span className="ml-auto shrink-0 text-xs text-muted-foreground">{node.origin || "system"}</span>
             </div>
-            <p className={cn("mt-1 text-sm", !open && "line-clamp-2")}>{summary || `节点 #${node.id}`}</p>
+            <p className={cn("mt-1 text-sm", !open && "line-clamp-2")}>{summary || `노드 #${node.id}`}</p>
           </div>
         </button>
 
@@ -407,15 +407,15 @@ function BroadcastRow({
             </div>
             {node.state === "deleted" && node.delete_reason && (
               <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs">
-                <span className="font-medium text-destructive">删除原因</span>
+                <span className="font-medium text-destructive">삭제 이유</span>
                 <span className="ml-2 break-words text-muted-foreground">{node.delete_reason}</span>
               </div>
             )}
             <AssetList assets={assets[node.id] ?? []} />
             {(upstream.length > 0 || downstream.length > 0) && (
               <div className="flex flex-col gap-3 sm:flex-row">
-                <RelatedList title="上游 · 由此而来" rows={upstream} refs={refs} assets={assets} />
-                <RelatedList title="下游 · 由此产生" rows={downstream} refs={refs} assets={assets} />
+                <RelatedList title="상위 · 이 항목의 출처" rows={upstream} refs={refs} assets={assets} />
+                <RelatedList title="하위 · 이 항목에서 생성됨" rows={downstream} refs={refs} assets={assets} />
               </div>
             )}
             <div>
@@ -558,7 +558,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
   const groups: Array<{ day: string; rows: TaskNode[] }> = [];
   for (const node of items) {
     const ts = Date.parse(node.ts);
-    const day = Number.isNaN(ts) ? "未知日期" : dayFmt.format(ts);
+    const day = Number.isNaN(ts) ? "날짜 알 수 없음" : dayFmt.format(ts);
     const last = groups[groups.length - 1];
     if (last && last.day === day) last.rows.push(node);
     else groups.push({ day, rows: [node] });
@@ -573,9 +573,9 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
           <Input
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
-            placeholder="搜索内容 / 来源 / 节点 id"
+            placeholder="내용 / 출처 / 노드 ID 검색"
             className="h-8 pl-8"
-            aria-label="搜索播报"
+            aria-label="알림 검색"
           />
         </div>
         <div className="flex flex-wrap items-center gap-1">
@@ -607,7 +607,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
                 setPage(1);
               }}
             >
-              清除
+              지우기
             </Button>
           )}
         </div>
@@ -620,20 +620,20 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
               setOrder((o) => (o === "desc" ? "asc" : "desc"));
               setPage(1);
             }}
-            aria-label={order === "desc" ? "当前最新在前，点击改为最早在前" : "当前最早在前，点击改为最新在前"}
+            aria-label={order === "desc" ? "현재 최신순입니다. 클릭하면 오래된 순으로 변경합니다" : "현재 오래된 순입니다. 클릭하면 최신순으로 변경합니다"}
           >
             {order === "desc" ? <ArrowDownIcon /> : <ArrowUpIcon />}
-            {order === "desc" ? "最新在前" : "最早在前"}
+            {order === "desc" ? "최신순" : "오래된 순"}
           </Button>
           <Button
             variant={live ? "outline" : "secondary"}
             size="sm"
             className="h-8"
             onClick={() => setLive((v) => !v)}
-            aria-label={live ? "暂停自动刷新" : "恢复自动刷新"}
+            aria-label={live ? "자동 새로고침 일시 중지" : "자동 새로고침 재개"}
           >
             {live ? <PauseIcon /> : <PlayIcon />}
-            {live ? "自动刷新" : "일시 중지됨"}
+            {live ? "자동 새로고침" : "일시 중지됨"}
           </Button>
         </div>
       </div>
@@ -646,7 +646,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
           className="flex w-full items-center justify-center gap-1.5 border-b bg-primary/10 py-1.5 text-xs font-medium text-primary hover:bg-primary/15"
         >
           <ArrowUpToLineIcon className="size-3.5" />
-          {pending > 99 ? "99+" : pending} 条新播报 · 回到最新
+          {pending > 99 ? "99+" : pending} 개의 새 알림 · 최신 항목으로 이동
         </button>
       )}
 
@@ -659,7 +659,7 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
           </div>
         ) : items.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            {query || kinds.length > 0 ? "没有符合条件的播报。" : "这个任务还没有产生探索节点。"}
+            {query || kinds.length > 0 ? "조건에 맞는 알림이 없습니다." : "이 작업에는 아직 탐색 노드가 없습니다."}
           </p>
         ) : (
           groups.map((group) => (

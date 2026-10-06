@@ -2065,7 +2065,7 @@ function DeleteOptionFields({
 
   return (
     <FieldSet disabled={disabled}>
-      <FieldLegend variant="label">同时清理关联数据</FieldLegend>
+      <FieldLegend variant="label">연결된 데이터도 함께 정리</FieldLegend>
       <FieldGroup className="gap-3">
         <Field orientation="horizontal">
           <Checkbox
@@ -2074,8 +2074,8 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateAllOptions(checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-all-${idPrefix}`}>全部删除</FieldLabel>
-            <FieldDescription>选中下方全部关联数据，包括资产、流量、文件、漏洞和 LLM 请求/响应记录。</FieldDescription>
+            <FieldLabel htmlFor={`delete-all-${idPrefix}`}>모두 삭제</FieldLabel>
+            <FieldDescription>아래의 연결 데이터를 모두 선택합니다. 자산, 트래픽, 파일, 취약점 및 LLM 요청/응답 기록을 포함합니다.</FieldDescription>
           </FieldContent>
         </Field>
         <Field orientation="horizontal">
@@ -2085,8 +2085,8 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateOption("delete_assets", checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-assets-${idPrefix}`}>关联资产</FieldLabel>
-            <FieldDescription>删除仅属于该任务的资产；共享资产只解除当前任务关联。</FieldDescription>
+            <FieldLabel htmlFor={`delete-assets-${idPrefix}`}>연결된 자산</FieldLabel>
+            <FieldDescription>이 작업에만 속한 자산을 삭제합니다. 공유 자산은 현재 작업과의 연결만 해제합니다.</FieldDescription>
           </FieldContent>
         </Field>
         <Field orientation="horizontal">
@@ -2097,7 +2097,7 @@ function DeleteOptionFields({
           />
           <FieldContent>
             <FieldLabel htmlFor={`delete-traffic-${idPrefix}`}>트래픽 연결</FieldLabel>
-            <FieldDescription>按关联资产的精确主机名删除；仍被其他任务引用的共享主机流量会保留。</FieldDescription>
+            <FieldDescription>연결된 자산의 정확한 호스트 이름을 기준으로 삭제합니다. 다른 작업에서 참조 중인 공유 호스트의 트래픽은 보존합니다.</FieldDescription>
           </FieldContent>
         </Field>
         <Field orientation="horizontal">
@@ -2107,8 +2107,8 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateOption("delete_files", checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-files-${idPrefix}`}>任务文件</FieldLabel>
-            <FieldDescription>删除该任务工作目录中的上传文件、命令输出和其他产物。</FieldDescription>
+            <FieldLabel htmlFor={`delete-files-${idPrefix}`}>작업 파일</FieldLabel>
+            <FieldDescription>작업 디렉터리의 업로드 파일, 명령 출력 및 기타 산출물을 삭제합니다.</FieldDescription>
           </FieldContent>
         </Field>
         <Field orientation="horizontal">
@@ -2118,8 +2118,8 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateOption("delete_findings", checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-findings-${idPrefix}`}>关联漏洞</FieldLabel>
-            <FieldDescription>永久删除该任务产生的独立漏洞记录与漏洞报告。</FieldDescription>
+            <FieldLabel htmlFor={`delete-findings-${idPrefix}`}>연결된 취약점</FieldLabel>
+            <FieldDescription>이 작업에서 생성한 독립 취약점 기록 및 보고서를 영구 삭제합니다.</FieldDescription>
           </FieldContent>
         </Field>
         <Field orientation="horizontal">
@@ -2129,8 +2129,8 @@ function DeleteOptionFields({
             onCheckedChange={(checked) => updateOption("delete_llm_records", checked === true)}
           />
           <FieldContent>
-            <FieldLabel htmlFor={`delete-llm-records-${idPrefix}`}>LLM 请求/响应记录</FieldLabel>
-            <FieldDescription>永久删除该任务录制的 LLM 请求、响应、Token 与错误详情。</FieldDescription>
+            <FieldLabel htmlFor={`delete-llm-records-${idPrefix}`}>LLM 요청/응답 기록</FieldLabel>
+            <FieldDescription>이 작업에 기록된 LLM 요청, 응답, 토큰 및 오류 상세 정보를 영구 삭제합니다.</FieldDescription>
           </FieldContent>
         </Field>
       </FieldGroup>
@@ -2168,13 +2168,13 @@ function DeleteTaskDialog({
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button size="icon" variant="outline" aria-label="删除任务">
+        <Button size="icon" variant="outline" aria-label="작업 삭제">
           <Trash2Icon className="text-destructive" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>确认删除任务 #{task.id}？</AlertDialogTitle>
+          <AlertDialogTitle>작업 삭제 확인 #{task.id}？</AlertDialogTitle>
           <AlertDialogDescription className="break-words">
             {task.description ? (
               <>
@@ -2185,9 +2185,9 @@ function DeleteTaskDialog({
                 」
               </>
             ) : (
-              "该任务"
+              "이 작업"
             )}
-            的执行记录与探索链路将被永久删除。
+            의 실행 기록과 탐색 경로를 영구 삭제합니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <DeleteOptionFields idPrefix={task.id} options={options} onOptionsChange={setOptions} disabled={deleting} />
@@ -2240,19 +2240,19 @@ function MoveTasksCategoryDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          <FolderInputIcon data-icon="inline-start" /> 修改分类
+          <FolderInputIcon data-icon="inline-start" /> 분류 변경
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>修改所选 {count} 个任务的分类</DialogTitle>
-          <DialogDescription>目标分类对所选任务统一生效；选「未分类」会把它们移出当前分类。</DialogDescription>
+          <DialogTitle>선택한 작업의 분류 변경:  {count} 개</DialogTitle>
+          <DialogDescription>선택한 모든 작업에 대상 분류를 적용합니다. 「미분류」를 선택하면 현재 분류에서 제외합니다.</DialogDescription>
         </DialogHeader>
         <Field>
-          <FieldLabel htmlFor="bulk-category">目标分类</FieldLabel>
+          <FieldLabel htmlFor="bulk-category">대상 분류</FieldLabel>
           <Select value={target} onValueChange={setTarget} disabled={moving}>
             <SelectTrigger id="bulk-category" className="w-full">
-              <SelectValue placeholder="选择分类" />
+              <SelectValue placeholder="분류 선택" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -2265,7 +2265,7 @@ function MoveTasksCategoryDialog({
               </SelectGroup>
             </SelectContent>
           </Select>
-          {categories.length === 0 && <FieldDescription>还没有任何分类，先用「分类管理」创建一个。</FieldDescription>}
+          {categories.length === 0 && <FieldDescription>분류가 없습니다. 먼저 「분류 관리」에서 생성하세요.</FieldDescription>}
         </Field>
         <DialogFooter>
           <DialogClose asChild>
@@ -2280,7 +2280,7 @@ function MoveTasksCategoryDialog({
             }}
           >
             {moving && <Spinner data-icon="inline-start" />}
-            移动
+            이동
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2324,14 +2324,14 @@ function BulkDeleteTasksDialog({
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="outline">
-          <Trash2Icon className="text-destructive" /> 删除所选 {ids.length}
+          <Trash2Icon className="text-destructive" /> 선택 항목 삭제:  {ids.length}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-h-[85vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>确认删除所选 {ids.length} 个任务？</AlertDialogTitle>
+          <AlertDialogTitle>선택 항목 삭제 확인:  {ids.length} 개의 작업?</AlertDialogTitle>
           <AlertDialogDescription>
-            这些任务的执行记录与探索链路将被永久删除，下方清理选项对所选任务统一生效。
+            선택한 작업의 실행 기록과 탐색 경로를 영구 삭제합니다. 아래 정리 옵션은 선택한 모든 작업에 적용됩니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
@@ -2340,7 +2340,7 @@ function BulkDeleteTasksDialog({
               #{id}
             </code>
           ))}
-          {ids.length > 30 && <span className="self-center">…等 {ids.length} 개</span>}
+          {ids.length > 30 && <span className="self-center">…등 {ids.length} 개</span>}
         </div>
         <DeleteOptionFields idPrefix="bulk" options={options} onOptionsChange={setOptions} disabled={deleting} />
         <AlertDialogFooter>
@@ -2404,12 +2404,12 @@ function SourceTaskPicker({
         </ComboboxValue>
         <ComboboxChipsInput
           id="source-tasks"
-          placeholder={atLimit ? `最多关联 ${MAX_SOURCE_TASKS} 개의 작업` : "搜索任务 ID、描述或目标"}
+          placeholder={atLimit ? `최대 연결 수:  ${MAX_SOURCE_TASKS} 개의 작업` : "작업 ID, 설명 또는 목표 검색"}
           disabled={atLimit}
         />
       </ComboboxChips>
       <ComboboxContent portalContainer={portalContainer}>
-        <ComboboxEmpty>没有匹配的任务</ComboboxEmpty>
+        <ComboboxEmpty>일치하는 작업이 없습니다</ComboboxEmpty>
         <ComboboxList>
           {(taskID) => {
             const task = tasksByID.get(taskID);
@@ -2418,7 +2418,7 @@ function SourceTaskPicker({
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
-                      #{taskID} · {task?.description ?? "未知任务"}
+                      #{taskID} · {task?.description ?? "알 수 없는 작업"}
                     </p>
                     {task?.goal && <p className="text-muted-foreground truncate text-xs">{task.goal}</p>}
                   </div>
@@ -2489,9 +2489,9 @@ function CategoryPicker({
       onValueChange(created.id);
       setInputValue("");
       onCategoryCreated();
-      toast.success(`已创建分类「${created.name}」`);
+      toast.success(`생성한 분류: 「${created.name}」`);
     } catch (e) {
-      toast.error(`创建分类失败：${(e as Error).message}`);
+      toast.error(`분류 생성 실패: ${(e as Error).message}`);
     } finally {
       setCreating(false);
     }
@@ -2515,12 +2515,12 @@ function CategoryPicker({
       <ComboboxChips>
         <ComboboxValue>
           {selectedIDs.map((id) => (
-            <ComboboxChip key={id}>{byID.get(id)?.name ?? "未知分类"}</ComboboxChip>
+            <ComboboxChip key={id}>{byID.get(id)?.name ?? "알 수 없는 분류"}</ComboboxChip>
           ))}
         </ComboboxValue>
         <ComboboxChipsInput
           id="task-category"
-          placeholder={selectedIDs.length ? "" : "搜索分类，或输入新名称后回车创建"}
+          placeholder={selectedIDs.length ? "" : "분류를 검색하거나 새 이름을 입력한 뒤 Enter로 생성"}
           onKeyDown={(e) => {
             // 完全无匹配时回车 = 创建；有匹配项时保留 base-ui 的「回车选中高亮项」。
             if (e.key === "Enter" && matchCount === 0 && trimmed) {
@@ -2547,10 +2547,10 @@ function CategoryPicker({
               className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
             >
               {creating ? <Spinner className="size-4" /> : <PlusIcon className="size-4" />}
-              创建分类「{trimmed}」
+              분류 생성: 「{trimmed}」
             </button>
           ) : (
-            <div className="px-2 py-2 text-sm text-muted-foreground">输入名称以搜索或创建分类</div>
+            <div className="px-2 py-2 text-sm text-muted-foreground">이름을 입력하여 분류 검색 또는 생성</div>
           ))}
       </ComboboxContent>
     </Combobox>
@@ -2567,12 +2567,12 @@ const COMPANY_SCOPE_LABELS: Record<string, string> = {
 
 function companyScopeSummary(company: Company): string {
   const rows = company.scope ?? [];
-  if (rows.length === 0) return "未配置资产范围";
+  if (rows.length === 0) return "자산 범위가 설정되지 않았습니다";
   const preview = rows.slice(0, 3).map((row) => {
     const value = row.raw || row.value || row.domain || row.net || "";
     return `${COMPANY_SCOPE_LABELS[row.kind] ?? row.kind}：${value}`;
   });
-  return `${preview.join(" · ")}${rows.length > preview.length ? ` · 另 ${rows.length - preview.length} 건` : ""}`;
+  return `${preview.join(" · ")}${rows.length > preview.length ? ` · 추가  ${rows.length - preview.length} 건` : ""}`;
 }
 
 function CompanyPicker({
@@ -2607,13 +2607,13 @@ function CompanyPicker({
       <ComboboxChips>
         <ComboboxValue>
           {selectedIDs.map((companyID) => (
-            <ComboboxChip key={companyID}>{companiesByID.get(companyID)?.name ?? `企业 #${companyID}`}</ComboboxChip>
+            <ComboboxChip key={companyID}>{companiesByID.get(companyID)?.name ?? `기업 #${companyID}`}</ComboboxChip>
           ))}
         </ComboboxValue>
-        <ComboboxChipsInput id="task-companies" placeholder="搜索企业名称或资产范围" />
+        <ComboboxChipsInput id="task-companies" placeholder="기업 이름 또는 자산 범위 검색" />
       </ComboboxChips>
       <ComboboxContent portalContainer={portalContainer}>
-        <ComboboxEmpty>没有匹配的企业</ComboboxEmpty>
+        <ComboboxEmpty>일치하는 기업이 없습니다</ComboboxEmpty>
         <ComboboxList>
           {(companyID) => {
             const company = companiesByID.get(companyID);
@@ -2621,9 +2621,9 @@ function CompanyPicker({
               <ComboboxItem key={companyID} value={companyID}>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate font-medium">{company?.name ?? `企业 #${companyID}`}</span>
+                    <span className="min-w-0 flex-1 truncate font-medium">{company?.name ?? `기업 #${companyID}`}</span>
                     <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-                      {company?.asset_count ?? 0} 个资产
+                      {company?.asset_count ?? 0} 개의 자산
                     </span>
                   </div>
                   {company && (
@@ -2672,7 +2672,7 @@ function CategoryDropTarget({
       onClick={onSelect}
     >
       <span className="block truncate font-medium text-sm">{name}</span>
-      <span className="block truncate text-muted-foreground text-xs">{isOver ? "松开以移动" : `${count} 개의 작업`}</span>
+      <span className="block truncate text-muted-foreground text-xs">{isOver ? "놓아서 이동" : `${count} 개의 작업`}</span>
     </button>
   );
 }
@@ -2697,8 +2697,8 @@ function DraggableCategoryTask({ task, disabled, moving }: { task: Task; disable
             disabled={disabled}
             {...listeners}
             {...attributes}
-            aria-label={`拖动任务 #${task.id}`}
-            title="拖动任务"
+            aria-label={`작업 드래그 #${task.id}`}
+            title="작업 드래그"
           >
             <GripVerticalIcon />
           </Button>
@@ -2819,15 +2819,15 @@ function CategoryManagementSheet({
         const created = await api.createTaskCategory(name);
         setSelectedView(created.id);
         setDraftName(created.name);
-        toast.success("分类已创建");
+        toast.success("분류를 생성했습니다");
       } else {
         const updated = await api.renameTaskCategory(selectedView, name);
         setDraftName(updated.name);
-        toast.success("分类已更新");
+        toast.success("분류를 갱신했습니다");
       }
       onChanged();
     } catch (error) {
-      toast.error(`${selectedView === "new" ? "创建" : "更新"}分类失败：${(error as Error).message}`);
+      toast.error(`${selectedView === "new" ? "생성" : "갱신"} 분류 처리 실패: ${(error as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -2842,11 +2842,11 @@ function CategoryManagementSheet({
       const next = categories.find((category) => category.id !== deletedID);
       if (next) selectCategory(next);
       else selectUncategorized();
-      toast.success("分类已删除，关联任务已移入未分类");
+      toast.success("분류를 삭제하고 연결된 작업을 미분류로 이동했습니다");
       setDeleteOpen(false);
       onChanged();
     } catch (error) {
-      toast.error(`删除分类失败：${(error as Error).message}`);
+      toast.error(`분류 삭제 실패: ${(error as Error).message}`);
     } finally {
       setDeleting(false);
     }
@@ -2857,7 +2857,7 @@ function CategoryManagementSheet({
     const category =
       destination === "uncategorized" ? null : (categories.find((item) => item.id === Number(destination)) ?? null);
     if (destination !== "uncategorized" && !category) {
-      toast.error("目标分类不存在，请刷新后重试");
+      toast.error("대상 분류가 존재하지 않습니다. 새로고침한 뒤 다시 시도하세요");
       return;
     }
     if (task.category_id === category?.id || (task.category_id == null && category == null)) return;
@@ -2866,9 +2866,9 @@ function CategoryManagementSheet({
     try {
       await api.updateTaskCategory(task.id, category?.id);
       onTaskMoved(task.id, category);
-      toast.success(`작업 #${task.id} 已移至「${category?.name ?? "미분류"}」`);
+      toast.success(`작업 #${task.id} 이동한 분류: 「${category?.name ?? "미분류"}」`);
     } catch (error) {
-      toast.error(`移动任务失败：${(error as Error).message}`);
+      toast.error(`작업 이동 실패: ${(error as Error).message}`);
     } finally {
       setMovingTaskID(null);
     }
@@ -2891,7 +2891,7 @@ function CategoryManagementSheet({
     void moveTask(task, destination.slice("category:".length));
   }
 
-  const saveLabel = saving ? "저장 중" : selectedView === "new" ? "创建分类" : "변경 사항 저장";
+  const saveLabel = saving ? "저장 중" : selectedView === "new" ? "분류 생성" : "변경 사항 저장";
 
   return (
     <>
@@ -2899,13 +2899,13 @@ function CategoryManagementSheet({
         <SheetTrigger asChild>
           <Button size="sm" variant="outline">
             <TagsIcon data-icon="inline-start" />
-            分类管理
+            분류 관리
           </Button>
         </SheetTrigger>
         <SheetContent className="grid h-full w-full! max-w-none! grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:w-[48rem]! sm:max-w-[48rem]!">
           <SheetHeader className="border-b px-6 py-5">
-            <SheetTitle>任务分类管理</SheetTitle>
-            <SheetDescription>分类用于任务筛选与归档；修改不会影响任务执行，删除后任务会移入未分类。</SheetDescription>
+            <SheetTitle>작업 분류 관리</SheetTitle>
+            <SheetDescription>분류는 작업 필터링과 보관에 사용합니다. 수정해도 작업 실행에는 영향을 주지 않으며, 삭제하면 작업이 미분류로 이동합니다.</SheetDescription>
           </SheetHeader>
           <DndContext
             sensors={sensors}
@@ -2917,7 +2917,7 @@ function CategoryManagementSheet({
               <div className="flex min-h-0 flex-col border-b p-3 lg:border-r lg:border-b-0">
                 <Button type="button" variant="outline" className="w-full" onClick={startNew}>
                   <PlusIcon data-icon="inline-start" />
-                  新建分类
+                  새 분류
                 </Button>
                 <ScrollArea className="mt-2 max-h-44 lg:max-h-none lg:flex-1">
                   <div className="flex flex-col gap-1 pr-2">
@@ -2947,12 +2947,12 @@ function CategoryManagementSheet({
                 <FieldGroup className="p-6">
                   {selectedView !== "uncategorized" && (
                     <Field>
-                      <FieldLabel htmlFor="task-category-name">分类名称</FieldLabel>
+                      <FieldLabel htmlFor="task-category-name">분류 이름</FieldLabel>
                       <Input
                         id="task-category-name"
                         value={draftName}
                         onChange={(event) => setDraftName(event.target.value)}
-                        placeholder="例如：外网评估"
+                        placeholder="예: 외부망 평가"
                         maxLength={80}
                         onKeyDown={(event) => {
                           if (event.key === "Enter") void saveCategory();
@@ -2960,8 +2960,8 @@ function CategoryManagementSheet({
                       />
                       <FieldDescription>
                         {selectedCategory
-                          ? `当前有 ${selectedCategory.task_count} 个任务使用该分类。重命名后会同步更新任务列表。`
-                          : "创建后可在新建任务和任务列表筛选中使用。"}
+                          ? `현재  ${selectedCategory.task_count} 개의 작업이 이 분류를 사용합니다. 이름을 변경하면 작업 목록에도 반영됩니다.`
+                          : "생성 후 새 작업과 작업 목록 필터에서 사용할 수 있습니다."}
                       </FieldDescription>
                     </Field>
                   )}
@@ -2969,19 +2969,19 @@ function CategoryManagementSheet({
                     <Field>
                       <div className="flex flex-wrap items-end justify-between gap-2">
                         <div className="flex min-w-0 flex-col gap-1">
-                          <FieldLabel>{selectedCategory ? "分类任务" : "未分类任务"}</FieldLabel>
+                          <FieldLabel>{selectedCategory ? "분류된 작업" : "미분류 작업"}</FieldLabel>
                           <FieldDescription>
                             {selectedCategory
-                              ? `该分类包含 ${visibleTasks.length} 个任务。`
-                              : `当前有 ${visibleTasks.length} 个任务尚未分类。`}
+                              ? `이 분류에는  ${visibleTasks.length} 개의 작업이 있습니다.`
+                              : `현재  ${visibleTasks.length} 개의 작업이 아직 분류되지 않았습니다.`}
                           </FieldDescription>
                         </div>
                       </div>
                       {visibleTasks.length === 0 ? (
                         <Empty className="min-h-36 border">
                           <EmptyHeader>
-                            <EmptyTitle>{selectedCategory ? "该分类暂无任务" : "暂无未分类任务"}</EmptyTitle>
-                            <EmptyDescription>此处将在任务归入后显示内容。</EmptyDescription>
+                            <EmptyTitle>{selectedCategory ? "이 분류에 작업이 없습니다" : "미분류 작업이 없습니다"}</EmptyTitle>
+                            <EmptyDescription>작업이 이 분류에 추가되면 여기에 표시됩니다.</EmptyDescription>
                           </EmptyHeader>
                         </Empty>
                       ) : (
@@ -3013,7 +3013,7 @@ function CategoryManagementSheet({
                 onClick={() => setDeleteOpen(true)}
               >
                 <Trash2Icon data-icon="inline-start" />
-                删除分类
+                분류 삭제
               </Button>
             )}
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
@@ -3035,9 +3035,9 @@ function CategoryManagementSheet({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除分类「{selectedCategory?.name || "未命名分类"}」？</AlertDialogTitle>
+            <AlertDialogTitle>분류 삭제: 「{selectedCategory?.name || "이름 없는 분류"}」？</AlertDialogTitle>
             <AlertDialogDescription>
-              分类删除后，其中 {selectedCategory?.task_count ?? 0} 个任务会自动移入“未分类”，任务数据不会被删除。
+              분류를 삭제하면 그 안의  {selectedCategory?.task_count ?? 0} 개 작업이 자동으로 「미분류」로 이동하며 작업 데이터는 삭제되지 않습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -3131,11 +3131,11 @@ function CreateTaskSheet({
 
   async function createTask() {
     if (!description.trim() || !goal.trim()) {
-      toast.error("请填写描述与目标");
+      toast.error("설명과 목표를 입력하세요");
       return;
     }
     if (sourceTaskIDs.length > MAX_SOURCE_TASKS) {
-      toast.error(`最多关联 ${MAX_SOURCE_TASKS} 个来源任务`);
+      toast.error(`최대 연결 수:  ${MAX_SOURCE_TASKS} 개의 출처 작업`);
       return;
     }
     setCreating(true);
@@ -3158,7 +3158,7 @@ function CreateTaskSheet({
           .map((r) => ({ ...r, pattern: r.pattern.trim() }))
           .filter((r) => r.pattern !== ""),
       });
-      toast.success("任务已创建");
+      toast.success("작업을 생성했습니다");
       setName("");
       setCategoryID(undefined);
       setDescription("");
@@ -3187,7 +3187,7 @@ function CreateTaskSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button size="sm">
-          <PlusIcon /> 新建任务
+          <PlusIcon /> 새 작업
         </Button>
       </SheetTrigger>
       {/* 45vw 宽的右侧抽屉:整屏高度可滚动,长表单不再受弹窗高度限制。窄屏退化为全宽。
@@ -3198,8 +3198,8 @@ function CreateTaskSheet({
         className="w-full! max-w-none! gap-0 p-0 sm:w-[45vw]! sm:max-w-[45vw]!"
       >
         <SheetHeader className="border-b p-6">
-          <SheetTitle>新建任务</SheetTitle>
-          <SheetDescription>填写测试对象与目标，高级参数可按需展开。</SheetDescription>
+          <SheetTitle>새 작업</SheetTitle>
+          <SheetDescription>테스트 대상과 목표를 입력하세요. 고급 옵션은 필요할 때 펼칠 수 있습니다.</SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-6">
@@ -3221,10 +3221,10 @@ function CreateTaskSheet({
               portalContainer={sheetContentRef}
             />
             <div className="grid gap-2">
-              <Label htmlFor="name">名称（可选）</Label>
+              <Label htmlFor="name">이름(선택)</Label>
               <Input
                 id="name"
-                placeholder="给任务起个便于识别的名字，例如：Acme 官网渗透"
+                placeholder="알아보기 쉬운 작업 이름을 지정하세요. 예: Acme 공식 웹사이트 침투 테스트"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -3238,14 +3238,14 @@ function CreateTaskSheet({
                 onCategoryCreated={onCategoriesChanged}
                 portalContainer={sheetContentRef}
               />
-              <FieldDescription>可选，单个分类；用于任务列表筛选和归档，不影响 Agent 执行。</FieldDescription>
+              <FieldDescription>선택 사항이며 분류는 하나만 지정할 수 있습니다. 작업 목록 필터링과 보관에 사용하며 에이전트 실행에는 영향을 주지 않습니다.</FieldDescription>
             </Field>
             <div className="grid gap-2">
               <Label htmlFor="description">설명</Label>
               <Textarea
                 id="description"
                 className="min-h-32"
-                placeholder="测试对象与背景，例如：测试 example.com 这个站点"
+                placeholder="테스트 대상과 배경. 예: example.com 웹사이트 테스트"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -3270,8 +3270,8 @@ function CreateTaskSheet({
                 </Button>
                 <span className="text-muted-foreground text-xs">
                   {uploadCount > 0
-                    ? `已上传 ${uploadCount} 个文件，绝对路径已追加到描述末尾（可编辑）`
-                    : "可多选；上传后把文件的绝对路径追加到描述，供 worker 用 Read/Bash 打开"}
+                    ? `업로드 완료:  ${uploadCount} 개의 파일. 절대 경로를 설명 끝에 추가했습니다(편집 가능)`
+                    : "여러 파일을 선택할 수 있습니다. 업로드 후 절대 경로를 설명에 추가하여 워커가 Read/Bash로 열 수 있게 합니다"}
                 </span>
               </div>
             </div>
@@ -3280,13 +3280,13 @@ function CreateTaskSheet({
               <Textarea
                 id="goal"
                 className="min-h-32"
-                placeholder="要达成什么，例如：拿下后台管理权限、获取服务器权限"
+                placeholder="달성할 목표. 예: 관리자 권한 확보, 서버 권한 확보"
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
               />
             </div>
             <Field>
-              <FieldLabel htmlFor="source-tasks">关联任务</FieldLabel>
+              <FieldLabel htmlFor="source-tasks">연결할 작업</FieldLabel>
               <SourceTaskPicker
                 tasks={tasks}
                 value={sourceTaskIDs}
@@ -3294,12 +3294,12 @@ function CreateTaskSheet({
                 portalContainer={sheetContentRef}
               />
               <FieldDescription>
-                最多关联 {MAX_SOURCE_TASKS}{" "}
-                个任务。实时只读继承所选任务的持久化黑板、资产范围及相关流量；新任务写入独立黑板。
+                최대 연결 수:  {MAX_SOURCE_TASKS}{" "}
+                개의 작업. 선택한 작업의 영구 블랙보드, 자산 범위 및 관련 트래픽을 실시간으로 읽기 전용 상속합니다. 새 작업은 독립 블랙보드에 기록합니다.
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="task-companies">关联企业资产范围</FieldLabel>
+              <FieldLabel htmlFor="task-companies">기업 자산 범위 연결</FieldLabel>
               <CompanyPicker
                 companies={companies}
                 value={companyIDs}
@@ -3307,19 +3307,18 @@ function CreateTaskSheet({
                 portalContainer={sheetContentRef}
               />
               <FieldDescription>
-                创建任务时会将所选企业当前已有资产加入“测试资产”，并将域名、IP、CIDR、ICP 和企业关键词提供给 Agent
-                作为范围上下文；不会自动生成意图或强制改变执行目标。
+                작업 생성 시 선택한 기업의 현재 자산을 「테스트 자산」에 추가하고, 도메인, IP, CIDR, ICP 및 기업 키워드를 에이전트에 범위 컨텍스트로 제공합니다. 의도를 자동으로 생성하거나 실행 목표를 강제로 변경하지 않습니다.
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="task-intercept-rules">任务级资产拦截 / 允许规则（可选）</FieldLabel>
+              <FieldLabel htmlFor="task-intercept-rules">작업 수준 자산 차단 / 허용 규칙(선택)</FieldLabel>
               <AssetInterceptRulesEditor value={interceptRules} onChange={setInterceptRules} />
               <FieldDescription>
-                仅对本任务生效，不写入全局规则。判定顺序：先按「拦截」规则（含全局）匹配，命中即禁止测试；未命中且本任务配置了「允许」规则时，须命中某条允许规则才放行，否则同样不允许测试；未配置任何允许规则则不启用白名单。
+                이 작업에만 적용하며 전역 규칙에는 저장하지 않습니다. 판정 순서: 먼저 전역 규칙을 포함한 「차단」 규칙과 일치하면 테스트를 금지합니다. 차단 규칙과 일치하지 않고 이 작업에 「허용」 규칙이 설정되어 있다면, 허용 규칙 중 하나와 일치해야 테스트를 허용하며 그렇지 않으면 금지합니다. 허용 규칙을 하나도 설정하지 않으면 허용 목록을 적용하지 않습니다.
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="llm-profiles">LLM 配置链</FieldLabel>
+              <FieldLabel htmlFor="llm-profiles">LLM 설정 체인</FieldLabel>
               <TaskLLMProfileChain
                 profiles={profiles}
                 value={llmProfileIDs}
@@ -3327,46 +3326,45 @@ function CreateTaskSheet({
                 inputId="llm-profiles"
                 portalContainer={sheetContentRef}
               />
-              <FieldDescription>按列表顺序故障转移；第一项为当前配置，仅在明确额度不足时切换下一项。</FieldDescription>
+              <FieldDescription>목록 순서대로 장애 조치합니다. 첫 번째 항목이 현재 설정이며, 할당량 부족이 명확할 때에만 다음 항목으로 전환합니다.</FieldDescription>
             </Field>
 
             {/* 高级参数默认折叠:超时/心跳/首个意图,展开才占空间,常用路径保持清爽。 */}
             <Collapsible>
               <CollapsibleTrigger className="group flex w-full items-center gap-2 border-t pt-4 text-sm font-medium">
                 <ChevronRightIcon className="text-muted-foreground size-4 transition-transform group-data-[state=open]:rotate-90" />
-                高级设置
-                <span className="text-muted-foreground ml-auto text-xs font-normal">超时 · 心跳 · 首个意图</span>
+                고급 설정
+                <span className="text-muted-foreground ml-auto text-xs font-normal">시간 제한 · 주기적 확인 · 첫 의도</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="grid gap-5 pt-5">
                 <div className="grid gap-2">
-                  <Label htmlFor="timeout-min">任务超时（分钟，可选）</Label>
+                  <Label htmlFor="timeout-min">작업 시간 제한(분, 선택)</Label>
                   <Input
                     id="timeout-min"
                     type="number"
                     min={0}
                     className="w-40"
-                    placeholder="留空 = 不限时"
+                    placeholder="비워 두면 시간 제한 없음"
                     value={timeoutMin}
                     onChange={(e) => setTimeoutMin(e.target.value)}
                   />
                   <p className="text-muted-foreground text-xs">
-                    到点后触发优雅收尾（各 agent 写回 + planner 终局判定），任务进入 timeout 终态。
+                    제한 시간에 도달하면 정상 마무리(각 에이전트의 기록 저장 + planner의 최종 판정)를 실행하고 작업이 timeout 최종 상태로 전환됩니다.
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="heartbeat-min">planner 心跳（分钟）</Label>
+                  <Label htmlFor="heartbeat-min">planner 주기적 확인(분)</Label>
                   <Input
                     id="heartbeat-min"
                     type="number"
                     min={10}
                     className="w-40"
-                    placeholder="默认 10"
+                    placeholder="기본값 10"
                     value={heartbeatMin}
                     onChange={(e) => setHeartbeatMin(e.target.value)}
                   />
                   <p className="text-muted-foreground text-xs">
-                    距上轮规划结束/任务开始满该时长且期间无触发，自动触发一轮规划（兜底卡死 + 唤醒去监督在跑的
-                    worker）。下限 10 分钟。
+                    마지막 계획 종료 또는 작업 시작부터 지정한 시간이 지나도록 트리거가 없으면 계획을 한 차례 자동 실행합니다(정체 방지 및 실행 중인 워커 감독). 최소 10분입니다.
                   </p>
                 </div>
                 <div className="grid gap-2">
@@ -3376,11 +3374,10 @@ function CreateTaskSheet({
                       checked={seedFirstIntent}
                       onCheckedChange={(v) => setSeedFirstIntent(!!v)}
                     />
-                    直接下发首个意图（描述+目标）
+                    첫 의도 바로 전달(설명+목표)
                   </label>
                   <p className="text-muted-foreground text-xs">
-                    开启后创建即把「描述+目标」作为一条意图下发，worker 免等首轮规划直接开跑，跑完再由 planner
-                    接手判定/补充。CTF 等常一个 work 直接解决的场景推荐开启；关闭则走标准的先规划再执行。
+                    활성화하면 작업 생성 즉시 「설명+목표」를 하나의 의도로 전달하므로 워커가 첫 계획을 기다리지 않고 실행합니다. 실행이 끝나면 planner가 판정과 보완을 이어받습니다. 하나의 워커로 바로 해결되는 경우가 많은 CTF 등에 권장합니다. 비활성화하면 계획 후 실행하는 기본 흐름을 따릅니다.
                   </p>
                 </div>
                 <div className="grid gap-2">
@@ -3390,11 +3387,10 @@ function CreateTaskSheet({
                       checked={coverageEnabled}
                       onCheckedChange={(v) => setCoverageEnabled(!!v)}
                     />
-                    资产覆盖度功能
+                    자산 테스트 범위 분석 기능
                   </label>
                   <p className="text-muted-foreground text-xs">
-                    默认开启：计算并展示测试覆盖度、态势图显示测试进度、自动累积测试范围。关闭后不再计算/展示覆盖度，
-                    态势图仅展示资产不显示进度，agent 也不再获得范围类工具。关闭不影响「关联企业资产范围」。
+                    기본적으로 활성화됩니다. 테스트 범위 비율을 계산·표시하고 현황 그래프에 진행률을 표시하며 테스트 범위를 자동으로 누적합니다. 비활성화하면 범위 비율을 계산·표시하지 않고, 현황 그래프에는 진행률 없이 자산만 표시하며 에이전트에 범위 관련 도구도 제공하지 않습니다. 「기업 자산 범위 연결」에는 영향을 주지 않습니다.
                   </p>
                 </div>
               </CollapsibleContent>
@@ -3408,7 +3404,7 @@ function CreateTaskSheet({
           </SheetClose>
           <Button onClick={createTask} disabled={creating || uploading}>
             {creating && <Spinner data-icon="inline-start" />}
-            {creating ? "创建中" : "创建"}
+            {creating ? "생성 중" : "생성"}
           </Button>
         </SheetFooter>
       </SheetContent>

@@ -1,4 +1,4 @@
-package db
+﻿package db
 
 import (
 	"context"
@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	ErrEvidenceConflict = errors.New("流量证据已变更，请刷新后重试")
-	ErrFindingNotFound  = errors.New("漏洞不存在")
-	ErrEvidenceNotFound = errors.New("流量证据不存在")
+	ErrEvidenceConflict = errors.New("트래픽 증거가 변경되었습니다. 새로고침한 뒤 다시 시도하세요")
+	ErrFindingNotFound  = errors.New("취약점이 존재하지 않습니다")
+	ErrEvidenceNotFound = errors.New("트래픽 증거가 존재하지 않습니다")
 )
 
 // This lock covers the evidence filesystem as well as its SQL references. All
@@ -51,7 +51,7 @@ func NormalizeTrafficRefs(refs []TrafficRef) ([]TrafficRef, error) {
 	for _, ref := range refs {
 		ref.TrafficID = strings.TrimSpace(ref.TrafficID)
 		if ref.TrafficID == "" {
-			return nil, errors.New("traffic_id 不能为空")
+			return nil, errors.New("traffic_id는 비워 둘 수 없습니다")
 		}
 		if ref.Role == "" {
 			ref.Role = "supporting"
@@ -358,7 +358,7 @@ func RecordFindingTx(ctx context.Context, tx *sql.Tx, in RecordFindingInput, pre
 			return nil, err
 		}
 		if !ok {
-			return nil, errors.New("intent_id 必须是本任务的意图（关联任务意图只读）")
+			return nil, errors.New("intent_id는 이 작업의 의도여야 합니다(연결된 작업의 의도는 읽기 전용)")
 		}
 	}
 	payload, _ := json.Marshal(map[string]any{"vulnclass": in.VulnClass, "name": in.Name, "severity": in.Severity, "summary": in.Summary, "evidence": map[string]any{"by": in.Worker, "poc": in.Evidence}})

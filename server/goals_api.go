@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"encoding/json"
@@ -116,7 +116,7 @@ func (s *Server) editGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if node == nil || node.Kind != db.KindGoal {
-		writeErr(w, 404, "目标不存在")
+		writeErr(w, 404, "목표가 존재하지 않습니다")
 		return
 	}
 	oldText := goalDTO(node).Text
@@ -159,7 +159,7 @@ func (s *Server) deleteGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if node == nil || node.Kind != db.KindGoal {
-		writeErr(w, 404, "目标不存在")
+		writeErr(w, 404, "목표가 존재하지 않습니다")
 		return
 	}
 	text := goalDTO(node).Text

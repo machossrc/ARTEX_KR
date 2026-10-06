@@ -1,4 +1,4 @@
-package agent
+﻿package agent
 
 import (
 	"strings"
@@ -35,15 +35,15 @@ func constraintBlock(ts *db.ExplorationStore) string {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("\n\n【操作约束（最高优先级，凌驾于下方一切探索/拓面启发式；每生成一条意图、每执行一个动作前都必须先自检是否违反，违反即不得进行）】：")
+	b.WriteString("\n\n【동작 제약(최고 우선순위이며 아래의 모든 탐색/범위 확장 휴리스틱보다 우선합니다. 의도를 생성하거나 동작을 실행하기 전에 반드시 위반 여부를 스스로 확인하고, 위반하면 진행해서는 안 됩니다)】: ")
 	if len(allow) > 0 {
-		b.WriteString("\n允许的操作：\n")
+		b.WriteString("\n허용하는 동작:\n")
 		b.WriteString(strings.Join(allow, "\n"))
 	}
 	if len(deny) > 0 {
-		b.WriteString("\n禁止的操作：\n")
+		b.WriteString("\n금지하는 동작:\n")
 		b.WriteString(strings.Join(deny, "\n"))
 	}
-	b.WriteString("\n（发现约束之外的新目标/新端口/新主机，不等于获得授权：除非它落在上述允许范围内，否则记为 out-of-scope 事实并跳过，不得为其派生意图或执行动作。）")
+	b.WriteString("\n(제약 밖에서 새 대상/새 포트/새 호스트를 발견했다고 해서 승인을 받은 것은 아닙니다. 위에서 허용한 범위에 포함되지 않으면 out-of-scope 사실로 기록하고 건너뛰세요. 그 대상의 의도를 파생하거나 동작을 실행해서는 안 됩니다.)")
 	return b.String()
 }

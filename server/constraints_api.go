@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"encoding/json"
@@ -73,7 +73,7 @@ func (s *Server) addConstraint(w http.ResponseWriter, r *http.Request) {
 	}
 	kind := normalizeConstraintKind(body.Kind)
 	if kind == "" {
-		writeErr(w, 400, "kind 必须是 allow 或 deny")
+		writeErr(w, 400, "kind는 allow 또는 deny여야 합니다")
 		return
 	}
 	id, err := t.Store.AddConstraint(kind, text, "human")
@@ -117,7 +117,7 @@ func (s *Server) editConstraint(w http.ResponseWriter, r *http.Request) {
 	}
 	kind := normalizeConstraintKind(body.Kind)
 	if kind == "" {
-		writeErr(w, 400, "kind 必须是 allow 或 deny")
+		writeErr(w, 400, "kind는 allow 또는 deny여야 합니다")
 		return
 	}
 	if err := t.Store.UpdateConstraint(cid, kind, text); err != nil {

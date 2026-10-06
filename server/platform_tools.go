@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"context"
@@ -316,7 +316,7 @@ func (s *Server) toolUpdateMCP() actool.CoreTool {
 			var a mcpToolInput
 			_ = json.Unmarshal(in, &a)
 			if a.ID == 0 {
-				return actool.Errorf("id 必填"), nil
+				return actool.Errorf("id는 필수입니다"), nil
 			}
 			if _, err := s.m.pg.SaveMCP(a.toDB()); err != nil {
 				return actool.Errorf(err.Error()), nil

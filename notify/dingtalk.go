@@ -1,4 +1,4 @@
-package notify
+﻿package notify
 
 import (
 	"context"
@@ -151,7 +151,7 @@ func validateHTTPURL(raw string) error {
 		return fmt.Errorf("只支持 http/https，收到 %q", u.Scheme)
 	}
 	if u.Host == "" {
-		return errors.New("缺少主机名")
+		return errors.New("호스트 이름이 없습니다")
 	}
 	if ip := net.ParseIP(u.Hostname()); ip != nil && isBlockedDialIP(ip) && !allowLocalTargets() {
 		return fmt.Errorf("拒绝投递到本机/链路本地地址 %s（如确需投递到本机服务，设置 %s=1）", ip, AllowLocalTargetsEnv)

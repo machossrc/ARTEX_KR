@@ -1,0 +1,20 @@
+{
+  "target": "loopback test server only",
+  "requests": [
+    {
+      "path": "/korean.txt",
+      "status": 200,
+      "bytes": 45,
+      "sha256": "c17af3284680f9bd9c5719675e6cef2377cbf1de972e5306515708959e010d7a",
+      "byte_exact": true
+    },
+    {
+      "path": "/large.txt",
+      "status": 200,
+      "bytes": 558000,
+      "sha256": "130b15cffc1dc1da82352bded17631de182db465d766cf0da516b2d265df73dc",
+      "byte_exact": true
+    }
+  ],
+  "target_stopped": true
+}

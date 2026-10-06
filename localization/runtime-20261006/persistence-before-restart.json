@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/korean.txt",
+    "exchange_id": "1791259453-0001",
+    "stored_bytes": 45,
+    "sha256": "c17af3284680f9bd9c5719675e6cef2377cbf1de972e5306515708959e010d7a",
+    "storage": "inline",
+    "source_match": true
+  },
+  {
+    "path": "/large.txt",
+    "exchange_id": "1791259453-0002",
+    "stored_bytes": 558000,
+    "sha256": "130b15cffc1dc1da82352bded17631de182db465d766cf0da516b2d265df73dc",
+    "storage": "blob",
+    "source_match": true
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "test_servers_stopped": true,
+  "ports": [
+    {
+      "port": 18787,
+      "closed": true
+    },
+    {
+      "port": 18788,
+      "closed": true
+    },
+    {
+      "port": 18889,
+      "closed": true
+    },
+    {
+      "port": 55439,
+      "closed": true
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "version": 2,
+  "recorded_at": "2026-10-06T04:08:44.164660+00:00",
+  "overall_status": "partial_blocked",
+  "tested_source_commit": "6d02c2bc9441893541248cbf476b2229e633a68b",
+  "binary_sha256": "7e40083673b27de1cd8f6969071c389e61d24cbd7e2110ba17621d12b7906dca",
+  "binary_build": "go build -tags embedui -ldflags \"-X main.version=ko-runtime-6d02c2b\" -o <isolated-runtime-dir>/artex.exe ./cmd/artex",
+  "platform": "windows/amd64",
+  "runtime_checks": {
+    "server_startup": "pass",
+    "real_browser_results": "runtime-20261006/browser-runtime.json",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "154.0.8037.97",
+        "viewports": 2,
+        "unauthenticated_routes": 14,
+        "page_errors": 0,
+        "server_write_attempts": 0
+      },
+      {
+        "channel": "msedge",
+        "version": "154.0.4258.53",
+        "viewports": 2,
+        "unauthenticated_routes": 14,
+        "page_errors": 0,
+        "server_write_attempts": 0
+      }
+    ],
+    "loopback_proxy_requests": "runtime-20261006/proxy-runtime-result.json",
+    "byte_exact_responses": [
+      45,
+      558000
+    ],
+    "traffic_index_and_blob_persistence": "pass",
+    "forced_process_restart": "pass",
+    "sqlite_quick_check": "ok",
+    "runtime_stopped": true
+  },
+  "blocked_or_not_executed": [
+    {
+      "scope": "Successful initial setup, login, authenticated UI creation/edit/export",
+      "status": "blocked",
+      "reason": "OpenAI tool safety checker blocked the setup/login browser execution request. No alternative authentication or bypass was attempted."
+    },
+    {
+      "scope": "Live provider model regression and Chinese/Korean behavioral equivalence",
+      "status": "blocked",
+      "reason": "The provider connection request was blocked before execution. No live LLM output was obtained or substituted with mock output."
+    },
+    {
+      "scope": "PostgreSQL persisted prompt content comparison",
+      "status": "blocked",
+      "reason": "The read request using isolated database connection configuration was blocked before execution."
+    },
+    {
+      "scope": "Linux and macOS runtime",
+      "status": "not_executed",
+      "reason": "Only the Windows host was used. Earlier cross-compilation does not establish runtime behavior on other operating systems."
+    }
+  ],
+  "translation_catalog": {
+    "total": 1509,
+    "translated": 1477,
+    "compatibility_preserved": 32
+  },
+  "earlier_unit_regression_runs": [
+    {
+      "name": "normal",
+      "pass": 896,
+      "fail": 0,
+      "skip": 1,
+      "started_at": "2026-10-06T12:16:11.8606197+09:00",
+      "ended_at": "2026-10-06T12:16:59.6436559+09:00",
+      "rerun_in_this_runtime_session": false,
+      "log_sha256": "5e09395c6cd4f3cf5ace4a5185b6f3a3de0b39b84ec24968271b8d54076bb9a3"
+    },
+    {
+      "name": "race",
+      "pass": 896,
+      "fail": 0,
+      "skip": 1,
+      "started_at": "2026-10-06T12:01:24.2500982+09:00",
+      "ended_at": "2026-10-06T12:02:46.6214523+09:00",
+      "rerun_in_this_runtime_session": false,
+      "log_sha256": "79dfbd05d5fe320adb669b91765918f7343e13280a69942e3adba4d61f0cefb3"
+    }
+  ],
+  "corrections_to_previous_report": [
+    "The observed local and remote source commit was 6d02c2bc9441893541248cbf476b2229e633a68b, not the previously claimed 0b812d0c14419fb6c29407110d046804b01852e38.",
+    "localization/verification.json was absent at the start of this session. This is the first verified creation of that file.",
+    "The actual catalog has 1477 translated entries and 32 preserved entries, not 1474 and 35."
+  ],
+  "artifacts": [
+    {
+      "path": "runtime-20261006/browser-runtime.json",
+      "sha256": "3937ed485512cc133ba2b607fbf01a43527dd109f6d216b86fe718b3404e02e4"
+    },
+    {
+      "path": "runtime-20261006/chrome-1440-setup.png",
+      "sha256": "1fa0eab83918bb73135cbf43ea6d59f9158cd4c3143b274ec170805e0d6b7c3a"
+    },
+    {
+      "path": "runtime-20261006/chrome-390-validation.png",
+      "sha256": "ff1dd67d3eb562081aeddd52aec37607e480c850341e9bbcc3b25c72fac7fd83"
+    },
+    {
+      "path": "runtime-20261006/cleanup-result.json",
+      "sha256": "191c8e55c667b95e3cf0b9138e6a39bdf27fcffb3cb2b101dd1d7d67de4a434c"
+    },
+    {
+      "path": "runtime-20261006/msedge-1440-setup.png",
+      "sha256": "d0fdf71f908bd85b3ad3d4962ec787b47a784fbca668be8d3d4f49dc6ee68ee2"
+    },
+    {
+      "path": "runtime-20261006/msedge-390-validation.png",
+      "sha256": "dfa0dded0585ede3f06c5630507a5dd7698415ae40fa7ce5c54eee57b330bf61"
+    },
+    {
+      "path": "runtime-20261006/persistence-before-restart.json",
+      "sha256": "8cfac9e653bed4f61f00232417edfef38f39fcf4869bbe1a49b19bfa59340599"
+    },
+    {
+      "path": "runtime-20261006/proxy-runtime-result.json",
+      "sha256": "7b825c92eea06fd63d1e061285e47d40f7ab1158797b39cec3367120ca3105c6"
+    },
+    {
+      "path": "runtime-20261006/README.md",
+      "sha256": "ec17c718391acef9b6c67a19c4a1d1e32c8a877a7197d70f81011380bc2b65e5"
+    },
+    {
+      "path": "runtime-20261006/restart-result.json",
+      "sha256": "42a3f51aa959c71cf934203ab637861640458c85ef9a7ece7be7c50d9f8aef32"
+    }
+  ]
+}

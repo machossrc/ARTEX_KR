@@ -1,0 +1,251 @@
+{
+  "started_at": "2026-10-06T04:06:38.317Z",
+  "base_url": "http://127.0.0.1:18787",
+  "scope": "Fresh-instance startup, unauthenticated route guards and client-side negative validation only",
+  "authenticated_workflows_tested": false,
+  "live_llm_tested": false,
+  "http": [
+    {
+      "endpoint": "/api/health",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "service": "artex",
+        "version": "ko-runtime-6d02c2b"
+      },
+      "pass": true
+    },
+    {
+      "endpoint": "/api/auth/status",
+      "status": 200,
+      "body": {
+        "initialized": false
+      },
+      "pass": true
+    },
+    {
+      "endpoint": "/api/tasks",
+      "status": 401,
+      "body": {
+        "error": "권한 없음"
+      },
+      "pass": true
+    },
+    {
+      "endpoint": "/api/agents",
+      "status": 401,
+      "body": {
+        "error": "권한 없음"
+      },
+      "pass": true
+    },
+    {
+      "endpoint": "/api/skills",
+      "status": 401,
+      "body": {
+        "error": "권한 없음"
+      },
+      "pass": true
+    }
+  ],
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "154.0.8037.97",
+      "layouts": [
+        {
+          "width": 1440,
+          "height": 1000,
+          "lang": "ko",
+          "scrollWidth": 1440,
+          "empty_disabled": true,
+          "mismatch": "pass",
+          "short_password": "pass"
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "lang": "ko",
+          "scrollWidth": 390,
+          "empty_disabled": true,
+          "mismatch": "pass",
+          "short_password": "pass"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/dashboard",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/chat",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/tasks",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/assets",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/findings",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/traffic",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/workspace",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/agents",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/skills",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/tools",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/llm",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/settings",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/intercept",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/notify",
+          "redirected_to": "/setup",
+          "pass": true
+        }
+      ],
+      "page_errors": [],
+      "write_requests": 0
+    },
+    {
+      "channel": "msedge",
+      "version": "154.0.4258.53",
+      "layouts": [
+        {
+          "width": 1440,
+          "height": 1000,
+          "lang": "ko",
+          "scrollWidth": 1440,
+          "empty_disabled": true,
+          "mismatch": "pass",
+          "short_password": "pass"
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "lang": "ko",
+          "scrollWidth": 390,
+          "empty_disabled": true,
+          "mismatch": "pass",
+          "short_password": "pass"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/dashboard",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/chat",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/tasks",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/assets",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/findings",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/traffic",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/function/workspace",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/agents",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/skills",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/tools",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/llm",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/settings",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/intercept",
+          "redirected_to": "/setup",
+          "pass": true
+        },
+        {
+          "path": "/system/notify",
+          "redirected_to": "/setup",
+          "pass": true
+        }
+      ],
+      "page_errors": [],
+      "write_requests": 0
+    }
+  ],
+  "status": "pass",
+  "finished_at": "2026-10-06T04:06:44.611Z"
+}

@@ -1,4 +1,4 @@
-package notify
+﻿package notify
 
 import (
 	"encoding/json"
@@ -61,7 +61,7 @@ func ValidMinSeverity(s string) bool {
 // 这样历史数据里已经存在的坏值不会让渠道整个读不出来。
 func (f Filter) Validate() error {
 	if !ValidMinSeverity(f.MinSeverity) {
-		return fmt.Errorf("最低级别 %q 无效，可选：low / medium / high / critical，或留空表示不限", f.MinSeverity)
+		return fmt.Errorf("최소 심각도 %q이(가) 유효하지 않습니다. low / medium / high / critical 중 선택하거나 비워 두어 제한하지 마세요", f.MinSeverity)
 	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package db
+﻿package db
 
 import (
 	"fmt"
@@ -342,6 +342,13 @@ func TestCompanyScopeAttribution(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UpsertCompany: %v", err)
 	}
+	// Clean this fixture before the earlier connection cleanup, so a repeat
+	// run cannot attribute its IP to a stale company with the same CIDR.
+	t.Cleanup(func() {
+		if err := cs.DeleteCompany(cid); err != nil {
+			t.Errorf("cleanup company: %v", err)
+		}
+	})
 
 	// a pre-existing asset (inserted BEFORE any scope) — must be back-filled.
 	preID, err := as.UpsertSubdomain(UpsertSubdomainReq{Domain: sub})

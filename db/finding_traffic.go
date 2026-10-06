@@ -57,7 +57,7 @@ func NormalizeTrafficRefs(refs []TrafficRef) ([]TrafficRef, error) {
 			ref.Role = "supporting"
 		}
 		if !ValidTrafficRole(ref.Role) {
-			return nil, fmt.Errorf("无效的流量用途 %q", ref.Role)
+			return nil, fmt.Errorf("유효하지 않은 트래픽 용도 %q", ref.Role)
 		}
 		if !seen[ref.TrafficID] {
 			out = append(out, ref)
@@ -186,7 +186,7 @@ func LockFindingEvidenceTx(tx *sql.Tx, findingID int64, version *int64) error {
 
 func InsertEvidenceSnapshotTx(tx *sql.Tx, s TrafficEvidenceSnapshot) error {
 	if s.ID != TrafficSnapshotID(s) {
-		return errors.New("证据快照元数据哈希不匹配")
+		return errors.New("증거 스냅샷 메타데이터 해시가 일치하지 않습니다")
 	}
 	// The ID was computed over the normalized form; store those same bytes.
 	id := s.ID
@@ -275,7 +275,7 @@ func (d *DB) GetFindingTraffic(ctx context.Context, findingID int64) (out *Findi
 
 func (d *DB) EditFindingTraffic(ctx context.Context, findingID, bindingID, version int64, role, note *string, remove bool, order []int64) error {
 	if role != nil && !ValidTrafficRole(*role) {
-		return errors.New("无效的流量用途")
+		return errors.New("유효하지 않은 트래픽 용도")
 	}
 	return d.WithEvidenceTx(ctx, func(tx *sql.Tx) error {
 		if err := LockFindingEvidenceTx(tx, findingID, &version); err != nil {
@@ -349,7 +349,7 @@ func RecordFindingTx(ctx context.Context, tx *sql.Tx, in RecordFindingInput, pre
 			return nil, err
 		}
 		if expID != in.ExplorationID {
-			return nil, errors.New("漏洞所属任务与探索记录不匹配")
+			return nil, errors.New("취약점이 속한 작업과 탐색 기록이 일치하지 않습니다")
 		}
 	}
 	if in.IntentID > 0 {

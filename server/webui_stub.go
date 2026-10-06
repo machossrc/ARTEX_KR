@@ -1,4 +1,4 @@
-//go:build !embedui
+﻿//go:build !embedui
 
 package server
 
@@ -13,6 +13,6 @@ import "net/http"
 //	go build -tags embedui ./cmd/artex
 func (s *Server) webuiHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "前端未内嵌到此二进制（开发用 next dev；发布用 -tags embedui 构建）", http.StatusNotFound)
+		http.Error(w, "이 실행 파일에 프런트엔드가 내장되지 않았습니다(개발 시 next dev, 배포 시 -tags embedui로 빌드)", http.StatusNotFound)
 	})
 }

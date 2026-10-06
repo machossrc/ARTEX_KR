@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"context"
@@ -21,7 +21,10 @@ func TestTaskCategoryBatchRoute(t *testing.T) {
 	defer m.Close()
 
 	td := t.TempDir()
-	s := New(context.Background(), m, td, td, td)
+	// Category routing does not require background task execution.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, td, td, td)
 	h := s.Handler()
 	token, err := signJWT(s.jwtKey)
 	if err != nil {
@@ -45,7 +48,7 @@ func TestTaskCategoryBatchRoute(t *testing.T) {
 
 	// An empty selection is rejected before any database work.
 	if rec := post(`{"task_ids":[],"category_id":null}`); rec.Code != http.StatusBadRequest ||
-		!strings.Contains(rec.Body.String(), "task_ids 数量必须为") {
+		!strings.Contains(rec.Body.String(), "task_ids 개수는") {
 		t.Fatalf("empty task_ids: status=%d body=%s", rec.Code, rec.Body.String())
 	}
 

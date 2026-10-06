@@ -37,10 +37,43 @@ EXEC_KIND=""       # compose | docker（docker 模式下用哪种 exec；空=自
 NEWPASS=""
 ASSUME_YES=0
 
-die() { echo "错误：$*" >&2; exit 1; }
+die() { echo "오류: $*" >&2; exit 1; }
 info() { echo "· $*" >&2; }
 
-usage() { sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+usage() {
+  cat <<'EOF'
+ARTEX 관리자 비밀번호 초기화
+로그인 이름은 ARTEX이며 비밀번호는 settings.auth.password_hash에 bcrypt로 저장됩니다.
+새 비밀번호와 DB 비밀번호는 프로세스 인수가 아닌 환경 변수로 psql에 전달합니다.
+
+사용법:
+  ./reset-password.sh
+  ./reset-password.sh -p 'NewPass!'
+  ./reset-password.sh --dsn postgres://u:p@h:5432/artex
+  ./reset-password.sh -H 127.0.0.1 -P 5433 -U autopentest -W pass -d artex
+  ./reset-password.sh -m docker
+  ./reset-password.sh -m docker -c postgres --exec docker
+
+옵션:
+  -m, --mode local|docker  배포 방식(생략하면 자동 판단)
+  --dsn DSN               연결 문자열(또는 ARTEX_PG_DSN)
+  -H, --host HOST          데이터베이스 호스트
+  -P, --port PORT          데이터베이스 포트
+  -U, --user USER          데이터베이스 사용자
+  -W, --db-password PASS   데이터베이스 비밀번호
+  -d, --dbname NAME        데이터베이스 이름
+  --sslmode MODE          PostgreSQL SSL 모드
+  --config FILE           config.json 경로
+  -c, --container NAME     Docker PostgreSQL 서비스/컨테이너(기본 postgres)
+  --exec compose|docker   Docker 명령 방식(생략하면 자동 판단)
+  -p, --new-password PASS  새 비밀번호(생략하면 확인을 포함해 대화형 입력)
+  -y, --yes               대상 확인 생략
+  -h, --help              이 도움말 표시
+
+로컬 연결 설정 우선순위: 명령줄 인수 > --dsn/ARTEX_PG_DSN > config.json의 database.*
+EOF
+  exit 0
+}
 
 # ---- 参数解析 -------------------------------------------------------------
 while [[ $# -gt 0 ]]; do
@@ -59,7 +92,7 @@ while [[ $# -gt 0 ]]; do
     -p|--new-password) NEWPASS="${2:-}"; shift 2 ;;
     -y|--yes)         ASSUME_YES=1; shift ;;
     -h|--help)        usage ;;
-    *) die "未知参数：$1（-h 查看用法）" ;;
+    *) die "알 수 없는 인수: $1(-h로 사용법 확인)" ;;
   esac
 done
 
@@ -120,16 +153,16 @@ if [[ -z "$MODE" ]]; then
     MODE="local"
   fi
 fi
-info "部署模式：$MODE"
+info "배포 모드: $MODE"
 
 # ---- 采集新密码 -----------------------------------------------------------
 if [[ -z "$NEWPASS" ]]; then
-  read -r -s -p "输入新密码（用户名固定为 ARTEX）：" NEWPASS; echo >&2
-  [[ -n "$NEWPASS" ]] || die "密码不能为空"
-  read -r -s -p "再次输入以确认：" NEWPASS2; echo >&2
-  [[ "$NEWPASS" == "$NEWPASS2" ]] || die "两次输入不一致"
+  read -r -s -p "새 비밀번호 입력(사용자 이름은 ARTEX로 고정): " NEWPASS; echo >&2
+  [[ -n "$NEWPASS" ]] || die "비밀번호는 비워 둘 수 없습니다"
+  read -r -s -p "확인을 위해 다시 입력: " NEWPASS2; echo >&2
+  [[ "$NEWPASS" == "$NEWPASS2" ]] || die "두 입력값이 일치하지 않습니다"
 fi
-[[ -n "$NEWPASS" ]] || die "密码不能为空"
+[[ -n "$NEWPASS" ]] || die "비밀번호는 비워 둘 수 없습니다"
 
 # 通过环境变量把密码交给 psql（\getenv 读取，不进入 argv/ps）
 export ARTEX_RESET_NEWPASS="$NEWPASS"
@@ -155,20 +188,20 @@ if [[ "$MODE" == "local" ]]; then
   if [[ -z "$DSN" && -z "$HOST$USER$DBNAME" ]]; then
     cfg="${CONFIG:-config.json}"
     if [[ -f "$cfg" ]]; then
-      info "从 $cfg 读取数据库配置"
+      info "$cfg에서 데이터베이스 설정 읽기"
       apply_config_fields < <(read_config_json "$cfg")
     fi
   fi
 
-  command -v psql >/dev/null 2>&1 || die "本机未找到 psql（请安装 postgresql-client，或改用 -m docker）"
+  command -v psql >/dev/null 2>&1 || die "로컬에서 psql을 찾지 못했습니다(postgresql-client를 설치하거나 -m docker 사용)"
 
   declare -a PSQL_ARGS=()
   if [[ -n "$DSN" ]]; then
     PSQL_ARGS=("$DSN")
     target="$DSN"
   else
-    [[ -n "$USER"   ]] || die "缺少数据库用户（-U）或有效的 config.json/DSN"
-    [[ -n "$DBNAME" ]] || die "缺少数据库名（-d）或有效的 config.json/DSN"
+    [[ -n "$USER"   ]] || die "데이터베이스 사용자(-U) 또는 유효한 config.json/DSN이 없습니다"
+    [[ -n "$DBNAME" ]] || die "데이터베이스 이름(-d) 또는 유효한 config.json/DSN이 없습니다"
     HOST="${HOST:-127.0.0.1}"; PORT="${PORT:-5432}"; SSLMODE="${SSLMODE:-disable}"
     PSQL_ARGS=(-h "$HOST" -p "$PORT" -U "$USER" -d "$DBNAME")
     [[ -n "$SSLMODE" ]] && export PGSSLMODE="$SSLMODE"
@@ -176,19 +209,19 @@ if [[ "$MODE" == "local" ]]; then
     target="$USER@$HOST:$PORT/$DBNAME"
   fi
 
-  info "目标数据库：$target"
+  info "대상 데이터베이스: $target"
   if [[ "$ASSUME_YES" -ne 1 ]]; then
-    read -r -p "确认在该库重置 ARTEX 密码？[y/N] " ans
-    [[ "$ans" == "y" || "$ans" == "Y" ]] || die "已取消"
+    read -r -p "이 데이터베이스에서 ARTEX 비밀번호를 초기화하시겠습니까? [y/N] " ans
+    [[ "$ans" == "y" || "$ans" == "Y" ]] || die "취소됨"
   fi
 
   if ! printf '%s\n' "$SQL" | psql "${PSQL_ARGS[@]}" -v ON_ERROR_STOP=1 -q >/dev/null; then
-    die "写入失败。若报 pgcrypto 权限/缺失，请用具备建扩展权限的角色，或先手动执行 CREATE EXTENSION pgcrypto。"
+    die "쓰기 실패. pgcrypto 권한 또는 미설치 오류라면 확장 생성 권한이 있는 역할을 사용하거나 먼저 CREATE EXTENSION pgcrypto를 직접 실행하세요."
   fi
 
 else
   # ---- docker ----
-  command -v docker >/dev/null 2>&1 || die "未找到 docker"
+  command -v docker >/dev/null 2>&1 || die "docker를 찾지 못했습니다"
   CONTAINER="${CONTAINER:-postgres}"
 
   # 选择 exec 方式：优先 docker compose exec（服务名），否则 docker exec（容器名）
@@ -210,10 +243,10 @@ else
   [[ -n "$DBPASS" ]] && export PGPASSWORD="$DBPASS"
   [[ -z "${PGPASSWORD:-}" && -n "${POSTGRES_PASSWORD:-}" ]] && export PGPASSWORD="$POSTGRES_PASSWORD"
 
-  info "目标：容器 $CONTAINER 内 psql -U $DUSER -d $DNAME（exec=$EXEC_KIND）"
+  info "대상: 컨테이너 $CONTAINER 내부의 psql -U $DUSER -d $DNAME(exec=$EXEC_KIND)"
   if [[ "$ASSUME_YES" -ne 1 ]]; then
-    read -r -p "确认在该容器数据库重置 ARTEX 密码？[y/N] " ans
-    [[ "$ans" == "y" || "$ans" == "Y" ]] || die "已取消"
+    read -r -p "이 컨테이너 데이터베이스에서 ARTEX 비밀번호를 초기화하시겠습니까? [y/N] " ans
+    [[ "$ans" == "y" || "$ans" == "Y" ]] || die "취소됨"
   fi
 
   # -e 只带名字不带值 → 从当前环境继承，密码不出现在 docker 命令 argv 里。
@@ -227,9 +260,9 @@ else
   fi
 
   if ! printf '%s\n' "$SQL" | "${EXEC_CMD[@]}" >/dev/null; then
-    die "写入失败。请确认容器名（-c）、数据库账号（.env 的 POSTGRES_*），以及角色有 pgcrypto 权限。"
+    die "쓰기 실패. 컨테이너 이름(-c), 데이터베이스 계정(.env의 POSTGRES_*), 역할의 pgcrypto 권한을 확인하세요."
   fi
 fi
 
 unset ARTEX_RESET_NEWPASS
-echo "✓ 已重置 ARTEX 管理员密码。请用用户名 ARTEX + 新密码登录（无需重启服务）。"
+echo "✓ ARTEX 관리자 비밀번호를 초기화했습니다. 사용자 이름 ARTEX와 새 비밀번호로 로그인하세요(서비스 재시작 불필요)."

@@ -1,4 +1,4 @@
-package notify
+﻿package notify
 
 // Snapshot 是 notification_events.snapshot 这一 JSONB 列的契约。写方是 db 层的
 // 漏洞落库事务，读方是 server 层的投递引擎与过滤匹配。定义放在本包是因为它是
@@ -51,7 +51,7 @@ func (i Item) Title() string {
 	if i.VulnClass != "" {
 		return i.VulnClass
 	}
-	return "(未命名漏洞)"
+	return "(이름 없는 취약점)"
 }
 
 // Message 是一次渠道发送的完整内容。

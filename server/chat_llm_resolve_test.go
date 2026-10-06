@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"context"
@@ -18,7 +18,10 @@ func TestChatUnavailableReasonDistinguishesStates(t *testing.T) {
 	}
 	defer m.Close()
 	td := t.TempDir()
-	s := New(context.Background(), m, td, td, td)
+	// Configuration resolution does not require restarting persisted tasks.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, td, td, td)
 
 	// Start from a clean profile table; other tests in the shared DB may have left rows.
 	existing, _ := m.pg.ListProfiles()
@@ -30,7 +33,7 @@ func TestChatUnavailableReasonDistinguishesStates(t *testing.T) {
 		_ = m.pg.DeleteProfile(p.ID)
 	}
 
-	if reason := s.chatUnavailableReason(); !strings.Contains(reason, "尚未配置") {
+	if reason := s.chatUnavailableReason(); !strings.Contains(reason, "아직 설정되지") {
 		t.Fatalf("no-profile reason=%q, want 尚未配置", reason)
 	}
 
@@ -44,7 +47,7 @@ func TestChatUnavailableReasonDistinguishesStates(t *testing.T) {
 	})
 
 	// Profile exists but is not activated.
-	if reason := s.chatUnavailableReason(); !strings.Contains(reason, "没有已激活") {
+	if reason := s.chatUnavailableReason(); !strings.Contains(reason, "활성화된 LLM 설정이 없습니다") {
 		t.Fatalf("inactive reason=%q, want 没有已激活", reason)
 	}
 
@@ -52,7 +55,7 @@ func TestChatUnavailableReasonDistinguishesStates(t *testing.T) {
 	if err := m.pg.SetActiveProfile(id); err != nil {
 		t.Fatal(err)
 	}
-	if reason := s.chatUnavailableReason(); strings.Contains(reason, "尚未配置") || strings.Contains(reason, "没有已激活") {
+	if reason := s.chatUnavailableReason(); strings.Contains(reason, "아직 설정되지") || strings.Contains(reason, "활성화된 LLM 설정이 없습니다") {
 		t.Fatalf("active reason=%q should not report missing/inactive", reason)
 	}
 }
@@ -68,7 +71,10 @@ func TestResolveChatAgentHonoursConversationProfile(t *testing.T) {
 	}
 	defer m.Close()
 	td := t.TempDir()
-	s := New(context.Background(), m, td, td, td)
+	// Configuration resolution does not require restarting persisted tasks.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, td, td, td)
 
 	// Force the global fallback to nil so a non-nil result can ONLY come from the
 	// conversation's own profile — this is exactly the situation the user hit

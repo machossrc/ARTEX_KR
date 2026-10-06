@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"bytes"
@@ -24,7 +24,10 @@ func TestCoreTaskLifecyclePG(t *testing.T) {
 	}
 	defer m.Close()
 	td := t.TempDir()
-	s := New(context.Background(), m, td, td, td)
+	// Keep a live context for asynchronous goal seeding, but own its lifetime.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s := New(ctx, m, td, td, td)
 	h := s.Handler()
 	tok, err := signJWT(s.jwtKey)
 	if err != nil {

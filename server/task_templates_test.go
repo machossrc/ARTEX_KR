@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"bytes"
@@ -20,7 +20,10 @@ func TestTaskTemplateHTTPCRUD(t *testing.T) {
 		t.Skipf("postgres unavailable (%v) — skipping", err)
 	}
 	defer m.Close()
-	s := New(context.Background(), m, t.TempDir(), t.TempDir(), t.TempDir())
+	// Metadata-only fixture: do not restart unrelated stored tasks.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, t.TempDir(), t.TempDir(), t.TempDir())
 	h := s.Handler()
 	token, err := signJWT(s.jwtKey)
 	if err != nil {
@@ -90,7 +93,10 @@ func TestConversationPatchReturnsPinState(t *testing.T) {
 		t.Skipf("postgres unavailable (%v) — skipping", err)
 	}
 	defer m.Close()
-	s := New(context.Background(), m, t.TempDir(), t.TempDir(), t.TempDir())
+	// Metadata-only fixture: do not restart unrelated stored tasks.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, t.TempDir(), t.TempDir(), t.TempDir())
 	conversation, err := m.pg.CreateConversation("mainagent", "pin through http", nil)
 	if err != nil {
 		t.Fatal(err)

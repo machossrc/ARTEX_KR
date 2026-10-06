@@ -1,4 +1,4 @@
-package server
+﻿package server
 
 import (
 	"context"
@@ -16,7 +16,11 @@ func TestWorkerControlRoutes(t *testing.T) {
 	defer m.Close()
 
 	td := t.TempDir()
-	s := New(context.Background(), m, td, td, td)
+	// This fixture tests route registration, not task execution. Do not resume
+	// other integration fixtures' persisted tasks or outlive the temp dirs.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	s := New(ctx, m, td, td, td)
 	h := s.Handler()
 	token, err := signJWT(s.jwtKey)
 	if err != nil {

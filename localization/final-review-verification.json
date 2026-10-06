@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "checked_at": "2026-10-06T06:05:09.056933+00:00",
+  "scope": "마지막 검토에서 확인한 미번역 부분의 보완 및 관련 회귀·빌드 검사",
+  "status": "passed_for_reviewed_scope",
+  "baseline_commit": "d0761866b04117766ee21798008b0fd936c4cb48",
+  "tested_source_commit": "0ac14d739e6895855b9c7f531bec8fba43181372",
+  "source_commit_file_count": 27,
+  "reviewed_edit_groups": 59,
+  "edited_source_and_document_files": 19,
+  "protected_protocol_files": 17,
+  "tests": {
+    "python_mutation_and_contracts": {
+      "pass": 9,
+      "fail": 0,
+      "skip": 0
+    },
+    "frontend": {
+      "pass": 14,
+      "fail": 0,
+      "skip": 0,
+      "new_component_and_locale_tests": 5
+    },
+    "targeted_go": {
+      "pass": 15,
+      "fail": 0,
+      "skip": 0,
+      "scope": [
+        "cmd/artex",
+        "server: BOM skill metadata/instructions only"
+      ],
+      "counts_include_subtests": true
+    }
+  },
+  "build": {
+    "typescript": "passed",
+    "next_export": "passed",
+    "reported_static_page_progress": "31/31",
+    "generated_html_files": 30,
+    "go_vet": "passed",
+    "go_build": "passed",
+    "windows_embedui": {
+      "command": "go build -tags embedui -o <isolated-directory>/artex-polish-embed.exe ./cmd/artex",
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:02:45.706842+00:00",
+      "finished_at": "2026-10-06T06:02:47.807819+00:00",
+      "binary_sha256": "5c7c1c0889ef309c2dcd06f085111763732da78fac0d98a4cad562711d12ea2a",
+      "help_exit_code": 0,
+      "help_korean": true,
+      "server_started": false,
+      "active_binary_replaced": false
+    }
+  },
+  "audit_checks": {
+    "readme_and_1509_catalog_entries": "passed",
+    "core_prompt_variables": 24,
+    "final_review_examples_and_references": "passed",
+    "upstream_update_removed": "passed",
+    "upstream_update_scan_files": 350,
+    "source_edit_replay_exact": true
+  },
+  "checks_with_log_hashes": [
+    {
+      "name": "python-regressions",
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_translation_review.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:00:21.192869+00:00",
+      "log_sha256": "d6aa92e3057a50b0add6c498cc6c818697a835c4a3e437cd6abaaf38f85dd806"
+    },
+    {
+      "name": "web-regressions",
+      "command": [
+        "node",
+        "--test",
+        "web/src/lib/activity-merge.test.mjs",
+        "web/src/lib/chat-mentions.test.mjs",
+        "web/src/lib/localization-polish.test.mjs"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:00:21.476100+00:00",
+      "log_sha256": "a0323b21964e9255db9fef5323dd14a7e2e8335dae9925c497e621792ee35c73"
+    },
+    {
+      "name": "localization",
+      "command": [
+        "python",
+        "-B",
+        "tools/check_localization.py",
+        "--go",
+        "../ARTEX_tools/go/bin/go.exe",
+        "--check"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:00:21.813379+00:00",
+      "log_sha256": "c6e8e801096799193e2c736395e0b352cf2d56e0b2df73701dcba1c0bc2ae106"
+    },
+    {
+      "name": "upstream-update",
+      "command": [
+        "python",
+        "-B",
+        "tools/check_no_upstream_update.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:00:22.165830+00:00",
+      "log_sha256": "dca21d68135cf9deda924bffc65c0b9cf427aca9c87d2ab8c21f879ef021e0ed"
+    },
+    {
+      "name": "typescript",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:00.414122+00:00",
+      "finished_at": "2026-10-06T06:01:06.554155+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "static-build",
+      "command": [
+        "node",
+        "node_modules/next/dist/bin/next",
+        "build",
+        "--webpack"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:06.554494+00:00",
+      "finished_at": "2026-10-06T06:01:44.873789+00:00",
+      "log_sha256": "12b2ed2f506e461d3014b6c925fc6f73348c4277ea495e5e5351ea6a371a5e5e"
+    },
+    {
+      "name": "go-cli-tests",
+      "command": [
+        "test",
+        "-json",
+        "-count=1",
+        "./cmd/artex"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:24.296736+00:00",
+      "finished_at": "2026-10-06T06:01:27.287124+00:00",
+      "log_sha256": "8590c03173c8d498df967482675659c9e52c27b4cb9ebbff2054278138f6f90c",
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    },
+    {
+      "name": "go-skill-tests",
+      "command": [
+        "test",
+        "-json",
+        "-count=1",
+        "-run",
+        "^(TestBOMSkillLoaderMatchesNormaMetadata|TestShippedKoreanSkillMetadataAndInstructions)$",
+        "./server"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:27.287466+00:00",
+      "finished_at": "2026-10-06T06:01:29.673326+00:00",
+      "log_sha256": "a80c8060be73f21aa05a71b8a07cfb3bf8bafce042c8e49c470ffdd284c846f8",
+      "pass": 14,
+      "fail": 0,
+      "skip": 0
+    },
+    {
+      "name": "go-vet",
+      "command": [
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:29.673809+00:00",
+      "finished_at": "2026-10-06T06:01:30.736045+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go-build",
+      "command": [
+        "build",
+        "-o",
+        "C:\\Users\\Admin\\Desktop\\ChatGPT_MCP_Server\\Work\\ARTEX_tools\\translation-polish-20261006\\artex-help-check.exe",
+        "./cmd/artex"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-06T06:01:30.736316+00:00",
+      "finished_at": "2026-10-06T06:01:31.972938+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cli-help",
+      "command": "artex-help-check.exe -h",
+      "exit_code": 0,
+      "korean_descriptions": true,
+      "server_started": false,
+      "log_sha256": "0124d921c745342643d0c32d7235814c10a8e82bb6b4f795cefbb95a792e6aa7"
+    }
+  ],
+  "candidate_manifest_sha256": "1d11ef4e719e7212026050a217fdb6a2b78e48a484f1dcb273c24915cb1659e7",
+  "runtime_changes": {
+    "user_database_modified": false,
+    "live_config_modified": false,
+    "running_service_restarted": false,
+    "running_binary_replaced": false,
+    "new_application_server_started": false,
+    "external_llm_called": false
+  },
+  "warnings": [
+    "Node.js는 기존 package.json의 module type 미지정에 따른 자동 ES-module 판별 경고를 출력했습니다. 기존 의존성·설정은 변경하지 않았습니다.",
+    "Next.js는 정적 내보내기가 Next API/middleware를 비활성화한다는 안내를 출력했습니다. ARTEX의 Go API를 검증하거나 비활성화한 결과가 아닙니다."
+  ],
+  "limitations": [
+    "이번에는 전체 896건 PostgreSQL 통합 테스트나 외부 모델 행동 동등성을 다시 수행하지 않았습니다. 앞선 실행 기록은 기존 verification.json에 보존됩니다.",
+    "사용자가 정상 동작한다고 보고한 운영 인스턴스는 다시 로그인·재시작하지 않았습니다. 변경 UI는 새 실행 파일/정적 자원을 배포할 때 반영됩니다.",
+    "기존 중국어 인용·공급자 오류·입력 인식 패턴, 외부 API/도구/모델명, 과거 원문 기록 및 개발자 주석은 의도적으로 보존합니다."
+  ]
+}

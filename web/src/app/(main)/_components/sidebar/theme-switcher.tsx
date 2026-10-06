@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Monitor, Moon, Sun } from "lucide-react";
 
@@ -7,6 +7,11 @@ import { persistPreference } from "@/lib/preferences/preferences-storage";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 const THEME_CYCLE = ["light", "dark", "system"] as const;
+const THEME_LABELS: Record<(typeof THEME_CYCLE)[number], string> = {
+  light: "라이트 모드",
+  dark: "다크 모드",
+  system: "시스템 설정",
+};
 
 export function ThemeSwitcher() {
   const themeMode = usePreferencesStore((s) => s.themeMode);
@@ -21,7 +26,7 @@ export function ThemeSwitcher() {
   };
 
   return (
-    <Button size="icon" onClick={cycleTheme} aria-label={`Current theme: ${themeMode}. Click to cycle themes`}>
+    <Button size="icon" onClick={cycleTheme} aria-label={`현재 테마: ${THEME_LABELS[themeMode]}. 클릭하여 다음 테마로 전환`}>
       {/* SYSTEM */}
       <Monitor className="hidden [html[data-theme-mode=system]_&]:block" />
 

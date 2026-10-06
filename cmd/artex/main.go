@@ -48,9 +48,9 @@ func main() {
 
 func run() int {
 	var (
-		addr    = flag.String("addr", ":8787", "HTTP listen address")
-		dataDir = flag.String("data", filepath.Join(config.BaseDir(), "data"), "data directory for SQLite stores (default: data/ next to the executable)")
-		proxy   = flag.String("proxy", "127.0.0.1:8788", "traffic recording proxy address (empty to disable)")
+		addr    = flag.String("addr", ":8787", "HTTP 수신 주소")
+		dataDir = flag.String("data", filepath.Join(config.BaseDir(), "data"), "SQLite 저장소의 데이터 디렉터리(기본값: 실행 파일과 같은 위치의 data/)")
+		proxy   = flag.String("proxy", "127.0.0.1:8788", "트래픽 기록 프록시 주소(비워 두면 비활성화)")
 	)
 	flag.Parse()
 
@@ -83,7 +83,7 @@ func run() int {
 
 	mgr, err := server.NewManager(*dataDir, *proxy)
 	if err != nil {
-		log.Fatalf("open stores: %v", err)
+		log.Fatalf("저장소 열기 실패: %v", err)
 	}
 	defer mgr.Close()
 
@@ -100,16 +100,16 @@ func run() int {
 	}
 
 	go func() {
-		log.Printf("ARTEX %s backend listening on %s (data=%s, workers=%d)", version, *addr, *dataDir, mgr.Workers())
+		log.Printf("ARTEX %s 백엔드 수신 주소 %s (데이터=%s, 워커=%d)", version, *addr, *dataDir, mgr.Workers())
 		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("serve: %v", err)
+			log.Fatalf("서버 실행 실패: %v", err)
 		}
 	}()
 
 	// The Korean build does not download or replace its executable.
 	<-ctx.Done()
 
-	log.Println("shutting down...")
+	log.Println("종료 중…")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = httpSrv.Shutdown(shutdownCtx)

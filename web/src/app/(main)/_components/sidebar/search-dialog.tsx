@@ -33,7 +33,7 @@ type SearchItem = {
 const sidebarGroupLabels = new Set(sidebarItems.flatMap((group) => (group.label ? [group.label] : [])));
 
 function getSubItemGroup(groupLabel: string | undefined, itemTitle: string) {
-  return sidebarGroupLabels.has(itemTitle) ? (groupLabel ?? "Other") : itemTitle;
+  return sidebarGroupLabels.has(itemTitle) ? (groupLabel ?? "기타") : itemTitle;
 }
 
 const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
@@ -52,7 +52,7 @@ const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
     return [
       {
         id: item.id,
-        group: group.label ?? "Other",
+        group: group.label ?? "기타",
         label: item.title,
         url: item.url,
         icon: item.icon,

@@ -453,7 +453,7 @@ function SyncWorkbench() {
 
 function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>> }) {
   const synced = result.synced ?? {};
-  const labels: Record<string, string> = { subdomain: "하위 도메인", service: "서비스", app: "App", ip: "IP" };
+  const labels: Record<string, string> = { subdomain: "하위 도메인", service: "서비스", app: "앱", ip: "IP" };
   return (
     <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-sm">
       <div className="flex flex-wrap gap-3">

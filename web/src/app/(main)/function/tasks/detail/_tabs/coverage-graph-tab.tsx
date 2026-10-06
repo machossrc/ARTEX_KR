@@ -367,7 +367,7 @@ function AssetSheet({
                   </DetailRow>
                   <DetailRow label="제목">{node.page_title}</DetailRow>
                   <DetailRow label="상태 코드">{node.status_code ? node.status_code : undefined}</DetailRow>
-                  <DetailRow label="App">{node.app_name}</DetailRow>
+                  <DetailRow label="앱">{node.app_name}</DetailRow>
                   <DetailRow label="자산 ID">
                     {node.asset_id ? <span className="font-mono text-xs">{node.asset_id}</span> : undefined}
                   </DetailRow>

@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 
 // Mock demo：无后端 SSE，塞几行示例日志。
 const MOCK_LOGS: LogLine[] = [
-  { seq: 1, ts: "2026-07-26T03:55:00Z", level: "info", tag: "engine", text: "ARTEX v0.1.0 backend listening on :8787 (workers=3)" },
-  { seq: 2, ts: "2026-07-26T03:55:01Z", level: "info", tag: "config", text: "LLM configured from DB: anthropic / claude-opus-4-8" },
+  { seq: 1, ts: "2026-07-26T03:55:00Z", level: "info", tag: "engine", text: "ARTEX v0.1.0 백엔드 수신 주소 :8787 (워커=3)" },
+  { seq: 2, ts: "2026-07-26T03:55:01Z", level: "info", tag: "config", text: "DB에서 LLM 설정 적용: anthropic / claude-opus-4-8" },
   { seq: 3, ts: "2026-07-26T03:56:10Z", level: "info", tag: "planner", text: "task t-acme-web: 3번째 계획, 의도 i-4 생성" },
   { seq: 4, ts: "2026-07-26T03:57:00Z", level: "warn", tag: "guard", text: "block bash: 범위 이탈, out.evil.example은 scope에 포함되지 않음" },
   { seq: 5, ts: "2026-07-26T03:57:30Z", level: "info", tag: "work#1", text: "report_finding: Default Credentials (high) 저장 완료" },

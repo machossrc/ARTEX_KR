@@ -75,7 +75,7 @@ const SCOPE_KIND_LABELS: Record<TaskScopeRow["kind"], string> = {
 
 const SCOPE_SOURCE_LABELS: Record<TaskScopeRow["source"], string> = {
   auto: "자동",
-  agent: "Agent",
+  agent: "에이전트",
   manual: "수동",
 };
 

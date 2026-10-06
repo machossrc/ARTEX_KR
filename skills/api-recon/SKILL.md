@@ -118,13 +118,13 @@ description: 웹사이트 API 인터페이스를 수집할 때 이 스킬을 호
 ## 실행 순서
 
 ```
-Phase 0 分类 + OUTDIR
-  → 门禁 A → Phase 1 harvest（★ 立刻运行 ★）
-  → Phase 1b 参数逆向
-  → Phase 2 鉴权三道门 → config.json
-  → 门禁 B → Phase 3 运行时 + 参数矩阵
-  → Phase 4 权限树（必要时）→ 重跑 Phase 3
-  → Phase 5 合并报告 + insert_assets批量插入所有发现的服务、端点api资产，无论如何插入时不允许漏掉已发现的资产
+Phase 0 분류 + OUTDIR
+  → 관문 A → Phase 1 harvest(★ 즉시 실행 ★)
+  → Phase 1b 매개변수 역분석
+  → Phase 2 인증의 세 관문 → config.json
+  → 관문 B → Phase 3 런타임 + 매개변수 행렬
+  → Phase 4 권한 트리(필요 시) → Phase 3 재실행
+  → Phase 5 보고서 병합 + insert_assets로 발견한 모든 서비스·API 엔드포인트 자산을 일괄 등록. 어떤 경우에도 발견한 자산을 등록에서 누락하면 안 됨
 ```
 
 순서대로 확인하며 **앞 항목을 완료하지 않으면 다음 Phase로 넘어가지 마세요**.

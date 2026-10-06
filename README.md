@@ -4439,7 +4439,7 @@ finding 트리거 · task#%d
 
 ### 스킬 프롬프트 전체 번역 전·후
 
-스킬은 모델이 읽는 실행 지침이므로 아래에 세 문서의 전체 원문과 적용 본문을 함께 기록합니다. 코드 블록과 인식용 예시는 보존하고 설명을 번역했습니다.
+스킬은 모델이 읽는 실행 지침이므로 아래에 세 문서의 전체 원문과 적용 본문을 함께 기록합니다. 실행 명령·API 키·인식용 정규식은 보존하며, 코드 블록 안의 자연어 실행 순서·도식 레이블·사람이 입력할 자리표시자도 번역했습니다. 예시의 작업 이름과 이를 참조하는 검색식은 함께 변경하여 일치시켰습니다.
 
 <details>
 <summary>skills/api-recon/SKILL.md</summary>
@@ -5000,13 +5000,13 @@ description: 웹사이트 API 인터페이스를 수집할 때 이 스킬을 호
 ## 실행 순서
 
 ```
-Phase 0 分类 + OUTDIR
-  → 门禁 A → Phase 1 harvest（★ 立刻运行 ★）
-  → Phase 1b 参数逆向
-  → Phase 2 鉴权三道门 → config.json
-  → 门禁 B → Phase 3 运行时 + 参数矩阵
-  → Phase 4 权限树（必要时）→ 重跑 Phase 3
-  → Phase 5 合并报告 + insert_assets批量插入所有发现的服务、端点api资产，无论如何插入时不允许漏掉已发现的资产
+Phase 0 분류 + OUTDIR
+  → 관문 A → Phase 1 harvest(★ 즉시 실행 ★)
+  → Phase 1b 매개변수 역분석
+  → Phase 2 인증의 세 관문 → config.json
+  → 관문 B → Phase 3 런타임 + 매개변수 행렬
+  → Phase 4 권한 트리(필요 시) → Phase 3 재실행
+  → Phase 5 보고서 병합 + insert_assets로 발견한 모든 서비스·API 엔드포인트 자산을 일괄 등록. 어떤 경우에도 발견한 자산을 등록에서 누락하면 안 됨
 ```
 
 순서대로 확인하며 **앞 항목을 완료하지 않으면 다음 Phase로 넘어가지 마세요**.
@@ -6038,7 +6038,7 @@ const CONFIG = {
   neutralizeVueRouter: true,
   observe: { storageReads: false, cookieReads: false, xhrHeaders: true },
   neutralize: { fields: ['response_code', 'code'], success: 0 },
-  stubs: [ /* 同 config.json stubs */ ],
+  stubs: [ /* config.json의 stubs와 동일 */ ],
   apiPattern: /\/(api|apis|v\d+|dev|internal|graphql)\//i,
 };
 ```
@@ -6154,7 +6154,7 @@ grep -rhoaE 'getResultTree|role_permissions|permissions/all' js | head
 
 ```bash
 python3 scripts/extract_route_map.py recon/js recon/
-# 产出 recon/route_map.json
+# 출력: recon/route_map.json
 ```
 
 `[!] no routeMap pattern found`이면 `extract_route_map.py`의 정규식을 넓히거나 수동 grep합니다.
@@ -6184,9 +6184,9 @@ python3 scripts/build_perm_tree.py recon/js recon/ --config recon/config.json
 ### I4. stub 일관성 검증
 
 ```bash
-# permissions 数量应 ≈ userRouteAuth 条目数
+# permissions 수는 userRouteAuth 항목 수와 대략 같아야 함
 wc -l recon/perm_codes_all.txt
-# routes 应覆盖 route_map 全部 link
+# routes는 route_map의 모든 link를 포함해야 함
 python3 -c "import json; m=json.load(open('recon/route_map.json')); r=set(json.load(open('recon/config.json'))['routes']); print('missing', [v['link'] for v in m.values() if v['link'] not in r])"
 ```
 
@@ -6194,7 +6194,7 @@ python3 -c "import json; m=json.load(open('recon/route_map.json')); r=set(json.l
 
 ```bash
 node recon/runtime_harvest.js recon/config.json
-# 对比 forge 前后 runtime_api.json 条数；检查 /attack、/asset 等是否出现模块 API
+# forge 전후 runtime_api.json의 항목 수를 비교하고 /attack, /asset 등에 모듈 API가 나타나는지 확인
 ```
 
 | forge 전 | forge 후(성공) |
@@ -6219,7 +6219,7 @@ node recon/runtime_harvest.js recon/config.json
 ### J1. 기준점 주변 확장 — path로 요청 구성 객체 찾기
 
 ```bash
-# 以 Phase 1 已知 path 为锚
+# Phase 1에서 확인한 path를 기준점으로 사용
 grep -n '"/api/user/list"' js/*.js
 grep -rhoaE '.{0,120}("/api[^"]+").{0,200}' js | head
 grep -rhoaE '(params|data|body|payload)\s*:\s*\{' js | head
@@ -6229,7 +6229,7 @@ grep -rhoaE '(get|post|put|delete|patch)\([^,]+,\s*\{' js | head
 ### J2. 래퍼 계층과 전송 형태
 
 ```bash
-# axios / 统一 request
+# axios / 공통 request
 grep -rhoaE '(axios|request)\.(get|post|put|delete|patch)\(' js | head
 grep -rhoaE 'interceptors\.(request|response)' js | head
 
@@ -6240,7 +6240,7 @@ grep -rhoaE '\$[a-zA-Z_]+\s*:\s*(Int|String|Boolean|\[)' js | head
 # FormData / multipart
 grep -rhoaE 'FormData|\.append\(' js | head
 
-# 路径参数
+# 경로 매개변수
 grep -rhoaE 'path:\s*"/[^"]*:[^"]+"' js | head
 grep -rhoaE 'useParams|route\.params|\$route\.params' js | head
 ```
@@ -6741,9 +6741,9 @@ Cursor → Settings → MCP → 서버 추가:
 {
   "mcpServers": {
     "scopesentry": {
-      "url": "http://<你的主机>:8082/mcp",
+      "url": "http://<호스트>:8082/mcp",
       "headers": {
-        "X-API-Key": "ssk_你的密钥"
+        "X-API-Key": "ssk_사용자키"
       }
     }
   }
@@ -6802,7 +6802,7 @@ Cursor → Settings → MCP → 서버 추가:
   "pageSize": 20,
   "search": "domain=^example.com",
   "filter": {
-    "project": ["<项目ObjectID>"]
+    "project": ["<프로젝트ObjectID>"]
   }
 }
 ```
@@ -6829,12 +6829,12 @@ Cursor → Settings → MCP → 서버 추가:
 
 ```json
 {
-  "name": "example-子域名收集",
+  "name": "example-하위도메인수집",
   "node": ["node-1"],
-  "template": "<模板ObjectID>",
+  "template": "<템플릿ObjectID>",
   "targetSource": "general",
   "target": "example.com\nfoo.com",
-  "project": ["<项目ObjectID>"]
+  "project": ["<프로젝트ObjectID>"]
 }
 ```
 
@@ -6842,12 +6842,12 @@ Cursor → Settings → MCP → 서버 추가:
 
 ```json
 {
-  "name": "example-端口与漏洞",
+  "name": "example-포트와취약점",
   "node": ["node-1"],
-  "template": "<后续模块模板ObjectID>",
+  "template": "<후속모듈템플릿ObjectID>",
   "targetSource": "subdomain",
-  "search": "task==\"example-子域名收集\"",
-  "project": ["<项目ObjectID>"]
+  "search": "task==\"example-하위도메인수집\"",
+  "project": ["<프로젝트ObjectID>"]
 }
 ```
 
@@ -6876,10 +6876,10 @@ Cursor → Settings → MCP → 서버 추가:
 
 ```mermaid
 flowchart LR
-  A[根域名列表] --> B[阶段1: general + SubdomainScan]
-  B --> C[子域名入库]
-  C --> D[阶段2: subdomain + task==阶段1任务名]
-  D --> E[端口/资产/漏洞等模块]
+  A[루트 도메인 목록] --> B[1단계: general + SubdomainScan]
+  B --> C[하위 도메인 저장]
+  C --> D[2단계: subdomain + task==1단계작업이름]
+  D --> E[포트/자산/취약점 등의 모듈]
 ```
 
 ### 3.4 스캔 템플릿 생성
@@ -6897,8 +6897,8 @@ flowchart LR
 ```json
 {
   "asset_type": "subdomain",
-  "search": "task==\"某任务名\"",
-  "filter": {"project": ["<项目ObjectID>"]}
+  "search": "task==\"작업이름\"",
+  "filter": {"project": ["<프로젝트ObjectID>"]}
 }
 ```
 
@@ -7022,7 +7022,7 @@ JSON 객체에서 같은 key의 여러 값은 **OR**, 서로 다른 key는 **AND
 **filter 예시:**
 
 ```json
-{"project": ["<项目ObjectID>"], "port": ["443"]}
+{"project": ["<프로젝트ObjectID>"], "port": ["443"]}
 ```
 
 **조합 조회 예시:**
@@ -7031,7 +7031,7 @@ JSON 객체에서 같은 key의 여러 값은 **OR**, 서로 다른 key는 **AND
 {
   "asset_type": "asset",
   "search": "domain=^baidu && port==443",
-  "filter": {"project": ["<项目ObjectID>"]},
+  "filter": {"project": ["<프로젝트ObjectID>"]},
   "pageIndex": 1,
   "pageSize": 10
 }
@@ -7088,6 +7088,1196 @@ JSON 객체에서 같은 key의 여러 값은 **OR**, 서로 다른 key는 **AND
 
 
 도구 설명·메시지 외에도 [스킬 지침](localization/skill-translations.json), [설치·빌드 스크립트](localization/script-translations.json), [SQL 표시 문구](localization/schema-translations.json), [운영 문서](localization/document-translations.json), [변경 이력](localization/changelog-translations.json)의 전체 전후 기록을 보존합니다. 개발자 주석, 외부 API 식별자 및 과거 검증 JSON의 실제 응답은 번역 대상으로 바꾸지 않았습니다.
+
+
+### 최종 검토에서 보완한 번역 전·후
+
+기준 `d076186`에서 발견한 누락 59개 변경 항목을 보완했습니다. 이 수치는 원래 Go 카탈로그 1,509개와 별도로 관리합니다. 스킬 지침 변경은 위 전체 본문에도 반영되어 있습니다. 운영 DB나 실행 중인 서비스, 사용자 지정 프롬프트를 변경하지 않았습니다.
+
+<details>
+<summary>보완 #1 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+Phase 0 分类 + OUTDIR
+````
+
+
+**보완 후**
+
+````text
+Phase 0 분류 + OUTDIR
+````
+
+
+</details>
+
+<details>
+<summary>보완 #2 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ 门禁 A → Phase 1 harvest（★ 立刻运行 ★）
+````
+
+
+**보완 후**
+
+````text
+→ 관문 A → Phase 1 harvest(★ 즉시 실행 ★)
+````
+
+
+</details>
+
+<details>
+<summary>보완 #3 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ Phase 1b 参数逆向
+````
+
+
+**보완 후**
+
+````text
+→ Phase 1b 매개변수 역분석
+````
+
+
+</details>
+
+<details>
+<summary>보완 #4 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ Phase 2 鉴权三道门 → config.json
+````
+
+
+**보완 후**
+
+````text
+→ Phase 2 인증의 세 관문 → config.json
+````
+
+
+</details>
+
+<details>
+<summary>보완 #5 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ 门禁 B → Phase 3 运行时 + 参数矩阵
+````
+
+
+**보완 후**
+
+````text
+→ 관문 B → Phase 3 런타임 + 매개변수 행렬
+````
+
+
+</details>
+
+<details>
+<summary>보완 #6 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ Phase 4 权限树（必要时）→ 重跑 Phase 3
+````
+
+
+**보완 후**
+
+````text
+→ Phase 4 권한 트리(필요 시) → Phase 3 재실행
+````
+
+
+</details>
+
+<details>
+<summary>보완 #7 · skills/api-recon/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+→ Phase 5 合并报告 + insert_assets批量插入所有发现的服务、端点api资产，无论如何插入时不允许漏掉已发现的资产
+````
+
+
+**보완 후**
+
+````text
+→ Phase 5 보고서 병합 + insert_assets로 발견한 모든 서비스·API 엔드포인트 자산을 일괄 등록. 어떤 경우에도 발견한 자산을 등록에서 누락하면 안 됨
+````
+
+
+</details>
+
+<details>
+<summary>보완 #8 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+你的主机
+````
+
+
+**보완 후**
+
+````text
+호스트
+````
+
+
+</details>
+
+<details>
+<summary>보완 #9 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+你的密钥
+````
+
+
+**보완 후**
+
+````text
+사용자키
+````
+
+
+</details>
+
+<details>
+<summary>보완 #10 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+<项目ObjectID>
+````
+
+
+**보완 후**
+
+````text
+<프로젝트ObjectID>
+````
+
+
+</details>
+
+<details>
+<summary>보완 #11 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+<模板ObjectID>
+````
+
+
+**보완 후**
+
+````text
+<템플릿ObjectID>
+````
+
+
+</details>
+
+<details>
+<summary>보완 #12 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+<后续模块模板ObjectID>
+````
+
+
+**보완 후**
+
+````text
+<후속모듈템플릿ObjectID>
+````
+
+
+</details>
+
+<details>
+<summary>보완 #13 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+example-子域名收集
+````
+
+
+**보완 후**
+
+````text
+example-하위도메인수집
+````
+
+
+</details>
+
+<details>
+<summary>보완 #14 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+example-端口与漏洞
+````
+
+
+**보완 후**
+
+````text
+example-포트와취약점
+````
+
+
+</details>
+
+<details>
+<summary>보완 #15 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+某任务名
+````
+
+
+**보완 후**
+
+````text
+작업이름
+````
+
+
+</details>
+
+<details>
+<summary>보완 #16 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+A[根域名列表] --> B[阶段1: general + SubdomainScan]
+````
+
+
+**보완 후**
+
+````text
+A[루트 도메인 목록] --> B[1단계: general + SubdomainScan]
+````
+
+
+</details>
+
+<details>
+<summary>보완 #17 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+B --> C[子域名入库]
+````
+
+
+**보완 후**
+
+````text
+B --> C[하위 도메인 저장]
+````
+
+
+</details>
+
+<details>
+<summary>보완 #18 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+C --> D[阶段2: subdomain + task==阶段1任务名]
+````
+
+
+**보완 후**
+
+````text
+C --> D[2단계: subdomain + task==1단계작업이름]
+````
+
+
+</details>
+
+<details>
+<summary>보완 #19 · skills/scopesentry/SKILL.md</summary>
+
+
+**보완 전**
+
+````text
+D --> E[端口/资产/漏洞等模块]
+````
+
+
+**보완 후**
+
+````text
+D --> E[포트/자산/취약점 등의 모듈]
+````
+
+
+</details>
+
+<details>
+<summary>보완 #20 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+/* 同 config.json stubs */
+````
+
+
+**보완 후**
+
+````text
+/* config.json의 stubs와 동일 */
+````
+
+
+</details>
+
+<details>
+<summary>보완 #21 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# 产出 recon/route_map.json
+````
+
+
+**보완 후**
+
+````text
+# 출력: recon/route_map.json
+````
+
+
+</details>
+
+<details>
+<summary>보완 #22 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# permissions 数量应 ≈ userRouteAuth 条目数
+````
+
+
+**보완 후**
+
+````text
+# permissions 수는 userRouteAuth 항목 수와 대략 같아야 함
+````
+
+
+</details>
+
+<details>
+<summary>보완 #23 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# routes 应覆盖 route_map 全部 link
+````
+
+
+**보완 후**
+
+````text
+# routes는 route_map의 모든 link를 포함해야 함
+````
+
+
+</details>
+
+<details>
+<summary>보완 #24 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# 对比 forge 前后 runtime_api.json 条数；检查 /attack、/asset 等是否出现模块 API
+````
+
+
+**보완 후**
+
+````text
+# forge 전후 runtime_api.json의 항목 수를 비교하고 /attack, /asset 등에 모듈 API가 나타나는지 확인
+````
+
+
+</details>
+
+<details>
+<summary>보완 #25 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# 以 Phase 1 已知 path 为锚
+````
+
+
+**보완 후**
+
+````text
+# Phase 1에서 확인한 path를 기준점으로 사용
+````
+
+
+</details>
+
+<details>
+<summary>보완 #26 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# axios / 统一 request
+````
+
+
+**보완 후**
+
+````text
+# axios / 공통 request
+````
+
+
+</details>
+
+<details>
+<summary>보완 #27 · skills/api-recon/reference.md</summary>
+
+
+**보완 전**
+
+````text
+# 路径参数
+````
+
+
+**보완 후**
+
+````text
+# 경로 매개변수
+````
+
+
+</details>
+
+<details>
+<summary>보완 #28 · docs/漏洞流量证据.md</summary>
+
+
+**보완 전**
+
+````text
+# 每个包运行前将 ARTEX_PG_DSN 设为对应的独立测试库；显式配置失败必须报错。
+````
+
+
+**보완 후**
+
+````text
+# 각 패키지 실행 전 ARTEX_PG_DSN을 해당 독립 테스트 DB로 설정하세요. 명시한 설정의 연결 실패는 반드시 오류로 처리합니다.
+````
+
+
+</details>
+
+<details>
+<summary>보완 #29 · config.example.json</summary>
+
+
+**보완 전**
+
+````text
+"复制为 config.json（或用环境变量 ARTEX_CONFIG 指定其它路径）。本文件仅含 database 与 skill_dir 两项；LLM 等其余配置走环境变量或应用内设置，不在此文件。"
+````
+
+
+**보완 후**
+
+````text
+"config.json으로 복사하세요(또는 환경 변수 ARTEX_CONFIG로 다른 경로 지정). 이 파일에는 database와 skill_dir만 있습니다. LLM 등의 나머지 설정은 이 파일이 아니라 환경 변수나 애플리케이션 내 설정을 사용합니다."
+````
+
+
+</details>
+
+<details>
+<summary>보완 #30 · config.example.json</summary>
+
+
+**보완 전**
+
+````text
+"PostgreSQL 连接。优先级：环境变量 ARTEX_PG_DSN > 本文件 database。两种写法二选一：(A) 填下面的分字段；(B) 只填 database.dsn 一个完整连接串。"
+````
+
+
+**보완 후**
+
+````text
+"PostgreSQL 연결. 우선순위: 환경 변수 ARTEX_PG_DSN > 이 파일의 database. 두 방식 중 하나만 사용하세요. (A) 아래 개별 필드를 입력하거나 (B) database.dsn에 완전한 연결 문자열만 입력합니다."
+````
+
+
+</details>
+
+<details>
+<summary>보완 #31 · config.example.json</summary>
+
+
+**보완 전**
+
+````text
+"写法 (B)：删掉上面的 database，改用完整 DSN。dsn 非空时会忽略分字段。"
+````
+
+
+**보완 후**
+
+````text
+"방식 (B): 위의 database를 삭제하고 완전한 DSN을 사용하세요. dsn이 비어 있지 않으면 개별 필드는 무시됩니다."
+````
+
+
+</details>
+
+<details>
+<summary>보완 #32 · config.example.json</summary>
+
+
+**보완 전**
+
+````text
+"skill 根目录（每个子目录一个 skill，含 SKILL.md）。优先级：环境变量 ARTEX_SKILL_DIR > 本字段 > 默认（可执行文件同级的 skills/）。留空或删除本字段即用默认。相对路径相对当前工作目录解析。"
+````
+
+
+**보완 후**
+
+````text
+"스킬 루트 디렉터리(각 하위 디렉터리에 SKILL.md가 있는 스킬 하나). 우선순위: 환경 변수 ARTEX_SKILL_DIR > 이 필드 > 기본값(실행 파일과 같은 위치의 skills/). 비우거나 필드를 삭제하면 기본값을 사용합니다. 상대 경로는 현재 작업 디렉터리를 기준으로 해석합니다."
+````
+
+
+</details>
+
+<details>
+<summary>보완 #33 · web/src/app/(main)/_components/sidebar/theme-switcher.tsx</summary>
+
+
+**보완 전**
+
+````text
+const THEME_CYCLE = ["light", "dark", "system"] as const;
+````
+
+
+**보완 후**
+
+````text
+const THEME_CYCLE = ["light", "dark", "system"] as const;
+const THEME_LABELS: Record<(typeof THEME_CYCLE)[number], string> = {
+  light: "라이트 모드",
+  dark: "다크 모드",
+  system: "시스템 설정",
+};
+````
+
+
+</details>
+
+<details>
+<summary>보완 #34 · web/src/app/(main)/_components/sidebar/theme-switcher.tsx</summary>
+
+
+**보완 전**
+
+````text
+`Current theme: ${themeMode}. Click to cycle themes`
+````
+
+
+**보완 후**
+
+````text
+`현재 테마: ${THEME_LABELS[themeMode]}. 클릭하여 다음 테마로 전환`
+````
+
+
+</details>
+
+<details>
+<summary>보완 #35 · web/src/components/ui/command.tsx</summary>
+
+
+**보완 전**
+
+````text
+"Command Palette"
+````
+
+
+**보완 후**
+
+````text
+"명령 팔레트"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #36 · web/src/components/ui/command.tsx</summary>
+
+
+**보완 전**
+
+````text
+"Search for a command to run..."
+````
+
+
+**보완 후**
+
+````text
+"실행할 명령을 검색하세요…"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #37 · web/src/components/ui/message-scroller.tsx</summary>
+
+
+**보완 전**
+
+````text
+"Scroll to end"
+````
+
+
+**보완 후**
+
+````text
+"끝으로 스크롤"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #38 · web/src/components/ui/message-scroller.tsx</summary>
+
+
+**보완 전**
+
+````text
+"Scroll to start"
+````
+
+
+**보완 후**
+
+````text
+"처음으로 스크롤"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #39 · web/src/components/ui/pagination.tsx</summary>
+
+
+**보완 전**
+
+````text
+text = "Previous"
+````
+
+
+**보완 후**
+
+````text
+text = "이전"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #40 · web/src/components/ui/pagination.tsx</summary>
+
+
+**보완 전**
+
+````text
+text = "Next"
+````
+
+
+**보완 후**
+
+````text
+text = "다음"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #41 · web/src/app/(main)/chat/page.tsx</summary>
+
+
+**보완 전**
+
+````text
+agent?.name ?? "Agent"
+````
+
+
+**보완 후**
+
+````text
+agent?.name ?? "에이전트"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #42 · web/src/components/approval-records.tsx</summary>
+
+
+**보완 전**
+
+````text
+current.conv_agent_key || "Agent"
+````
+
+
+**보완 후**
+
+````text
+current.conv_agent_key || "에이전트"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #43 · web/src/app/(main)/function/tasks/detail/_tabs/overview-tab.tsx</summary>
+
+
+**보완 전**
+
+````text
+agent: "Agent",
+````
+
+
+**보완 후**
+
+````text
+agent: "에이전트",
+````
+
+
+</details>
+
+<details>
+<summary>보완 #44 · web/src/app/(main)/function/sync/page.tsx</summary>
+
+
+**보완 전**
+
+````text
+app: "App",
+````
+
+
+**보완 후**
+
+````text
+app: "앱",
+````
+
+
+</details>
+
+<details>
+<summary>보완 #45 · web/src/app/(main)/function/tasks/detail/_tabs/coverage-graph-tab.tsx</summary>
+
+
+**보완 전**
+
+````text
+label="App"
+````
+
+
+**보완 후**
+
+````text
+label="앱"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #46 · web/src/app/(main)/system/logs/page.tsx</summary>
+
+
+**보완 전**
+
+````text
+ARTEX v0.1.0 backend listening on :8787 (workers=3)
+````
+
+
+**보완 후**
+
+````text
+ARTEX v0.1.0 백엔드 수신 주소 :8787 (워커=3)
+````
+
+
+</details>
+
+<details>
+<summary>보완 #47 · web/src/app/(main)/system/logs/page.tsx</summary>
+
+
+**보완 전**
+
+````text
+LLM configured from DB: anthropic / claude-opus-4-8
+````
+
+
+**보완 후**
+
+````text
+DB에서 LLM 설정 적용: anthropic / claude-opus-4-8
+````
+
+
+</details>
+
+<details>
+<summary>보완 #48 · web/src/app/(main)/_components/sidebar/search-dialog.tsx</summary>
+
+
+**보완 전**
+
+````text
+group.label ?? "Other"
+````
+
+
+**보완 후**
+
+````text
+group.label ?? "기타"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #49 · web/src/app/(main)/_components/sidebar/search-dialog.tsx</summary>
+
+
+**보완 전**
+
+````text
+groupLabel ?? "Other"
+````
+
+
+**보완 후**
+
+````text
+groupLabel ?? "기타"
+````
+
+
+</details>
+
+<details>
+<summary>보완 #50 · web/src/components/side-question-workspace.tsx</summary>
+
+
+**보완 전**
+
+````text
+.toLocaleString()
+````
+
+
+**보완 후**
+
+````text
+.toLocaleString("ko-KR")
+````
+
+
+</details>
+
+<details>
+<summary>보완 #51 · web/src/components/side-question-workspace.tsx</summary>
+
+
+**보완 전**
+
+````text
+.toLocaleTimeString()
+````
+
+
+**보완 후**
+
+````text
+.toLocaleTimeString("ko-KR")
+````
+
+
+</details>
+
+<details>
+<summary>보완 #52 · web/src/app/(main)/function/tasks/page.tsx</summary>
+
+
+**보완 전**
+
+````text
+return date.toLocaleString();
+````
+
+
+**보완 후**
+
+````text
+return date.toLocaleString("ko-KR");
+````
+
+
+</details>
+
+<details>
+<summary>보완 #53 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+HTTP listen address
+````
+
+
+**보완 후**
+
+````text
+HTTP 수신 주소
+````
+
+
+</details>
+
+<details>
+<summary>보완 #54 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+data directory for SQLite stores (default: data/ next to the executable)
+````
+
+
+**보완 후**
+
+````text
+SQLite 저장소의 데이터 디렉터리(기본값: 실행 파일과 같은 위치의 data/)
+````
+
+
+</details>
+
+<details>
+<summary>보완 #55 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+traffic recording proxy address (empty to disable)
+````
+
+
+**보완 후**
+
+````text
+트래픽 기록 프록시 주소(비워 두면 비활성화)
+````
+
+
+</details>
+
+<details>
+<summary>보완 #56 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+open stores: %v
+````
+
+
+**보완 후**
+
+````text
+저장소 열기 실패: %v
+````
+
+
+</details>
+
+<details>
+<summary>보완 #57 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+ARTEX %s backend listening on %s (data=%s, workers=%d)
+````
+
+
+**보완 후**
+
+````text
+ARTEX %s 백엔드 수신 주소 %s (데이터=%s, 워커=%d)
+````
+
+
+</details>
+
+<details>
+<summary>보완 #58 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+serve: %v
+````
+
+
+**보완 후**
+
+````text
+서버 실행 실패: %v
+````
+
+
+</details>
+
+<details>
+<summary>보완 #59 · cmd/artex/main.go</summary>
+
+
+**보완 전**
+
+````text
+shutting down...
+````
+
+
+**보완 후**
+
+````text
+종료 중…
+````
+
+
+</details>
 
 
 ### 재검증 방법

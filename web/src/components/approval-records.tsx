@@ -341,7 +341,7 @@ export function ApprovalDetail({
       <div className="grid min-w-0 gap-5 rounded-xl border bg-muted/20 p-4 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-3">
           <CodeBlock
-            label={`${current.agent_name || current.conv_agent_key || "Agent"} · 도구 요청`}
+            label={`${current.agent_name || current.conv_agent_key || "에이전트"} · 도구 요청`}
             text={JSON.stringify(row.tool_input ?? {}, null, 2)}
           />
           {command ? (

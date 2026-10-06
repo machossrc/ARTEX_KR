@@ -16,6 +16,8 @@ import shutil
 import subprocess
 import tempfile
 
+from check_translation_review import validate_review
+
 ROOT = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- BEGIN GENERATED PROMPT TRANSLATIONS -->"
 END = "<!-- END GENERATED PROMPT TRANSLATIONS -->"
@@ -72,7 +74,7 @@ def appendix(catalog: dict) -> str:
     out.append("\n### 스킬 프롬프트 전체 번역 전·후\n")
     skill_path = ROOT / "localization/skill-translations.json"
     skill_audit = json.loads(skill_path.read_text(encoding="utf-8"))
-    out.append("스킬은 모델이 읽는 실행 지침이므로 아래에 세 문서의 전체 원문과 적용 본문을 함께 기록합니다. 코드 블록과 인식용 예시는 보존하고 설명을 번역했습니다.\n")
+    out.append("스킬은 모델이 읽는 실행 지침이므로 아래에 세 문서의 전체 원문과 적용 본문을 함께 기록합니다. 실행 명령·API 키·인식용 정규식은 보존하며, 코드 블록 안의 자연어 실행 순서·도식 레이블·사람이 입력할 자리표시자도 번역했습니다. 예시의 작업 이름과 이를 참조하는 검색식은 함께 변경하여 일치시켰습니다.\n")
     for v in skill_audit["files"]:
         out.extend([f"<details>\n<summary>{html.escape(v['file'])}</summary>\n",
                     "\n**번역 전 — 원문**\n", fenced(v["before"]),
@@ -86,6 +88,15 @@ def appendix(catalog: dict) -> str:
                "[운영 문서](localization/document-translations.json), "
                "[변경 이력](localization/changelog-translations.json)의 전체 전후 기록을 보존합니다. "
                "개발자 주석, 외부 API 식별자 및 과거 검증 JSON의 실제 응답은 번역 대상으로 바꾸지 않았습니다.\n")
+    review = json.loads((ROOT / "localization/final-review-translations.json").read_text(encoding="utf-8"))
+    out.append("\n### 최종 검토에서 보완한 번역 전·후\n")
+    out.append(f"기준 `{review['baseline_commit'][:7]}`에서 발견한 누락 {len(review['entries'])}개 변경 항목을 보완했습니다. "
+               "이 수치는 원래 Go 카탈로그 1,509개와 별도로 관리합니다. 스킬 지침 변경은 위 전체 본문에도 반영되어 있습니다. "
+               "운영 DB나 실행 중인 서비스, 사용자 지정 프롬프트를 변경하지 않았습니다.\n")
+    for e in review["entries"]:
+        label = html.escape(f"보완 #{e['id']} · {e['file']}")
+        out.extend([f"<details>\n<summary>{label}</summary>\n", "\n**보완 전**\n", fenced(e["before"]),
+                    "\n**보완 후**\n", fenced(e["after"]), "\n</details>\n"])
     out.extend(["\n### 재검증 방법\n",
                 "`python tools/check_localization.py --check`는 현재 소스에서 Go AST를 새로 추출하여 "
                 "번역 문자열·핵심 프롬프트·서식·템플릿·이 README 부록이 서로 일치하는지 확인합니다. "
@@ -149,6 +160,7 @@ def main() -> None:
     for name in ["build.sh", "dev.sh", "install.sh", "reset-password.sh"]:
         if not (ROOT / name).read_bytes().startswith(b"#!"):
             problems.append(f"shell shebang must be first bytes: {name}")
+    problems.extend(validate_review(ROOT))
     if problems:
         raise SystemExit('\n'.join(problems))
     readme = ROOT / 'README.md'

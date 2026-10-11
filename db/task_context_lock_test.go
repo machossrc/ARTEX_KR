@@ -178,7 +178,7 @@ func TestDeleteProfileLocksNonTaskReferencesBeforeProfile(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		conversation, err := d.CreateConversation("planner", "lock conversation", &profileID)
+		conversation, err := d.CreateConversation("planner", "lock conversation", &profileID, "")
 		if err != nil {
 			_ = d.DeleteProfile(profileID)
 			t.Fatal(err)
@@ -282,7 +282,7 @@ func TestNonTaskProfileMutationsLockReferenceBeforeProfile(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		conversation, err := d.CreateConversation("planner", "write lock conversation", nil)
+		conversation, err := d.CreateConversation("planner", "write lock conversation", nil, "")
 		if err != nil {
 			_ = d.DeleteProfile(profileID)
 			t.Fatal(err)
@@ -355,7 +355,7 @@ func TestCreateConversationAndDeleteProfileDoNotDeadlock(t *testing.T) {
 	createDone := make(chan createResult, 1)
 	createStatus := make(chan error, 1)
 	go func() {
-		conversation, err := createDB.CreateConversation("planner", title, &profileID)
+		conversation, err := createDB.CreateConversation("planner", title, &profileID, "")
 		createDone <- createResult{conversation: conversation, err: err}
 		createStatus <- err
 	}()

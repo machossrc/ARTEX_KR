@@ -79,6 +79,7 @@ func (s *Server) pgCreateConversation(w http.ResponseWriter, r *http.Request) {
 		AgentKey     string `json:"agent_key"`
 		Title        string `json:"title"`
 		LLMProfileID *int64 `json:"llm_profile_id"`
+		Mode         string `json:"mode"` // "security"(기본) | "general"; 비우면 서버 기본값 사용
 	}
 	if !decodeConversationRequest(w, r, &req) {
 		return
@@ -115,7 +116,17 @@ func (s *Server) pgCreateConversation(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, fmt.Sprintf("제목은 최대 %d자입니다", maxConversationTitleRunes))
 		return
 	}
-	c, err := pg.CreateConversation(req.AgentKey, title, req.LLMProfileID)
+	mode := strings.TrimSpace(req.Mode)
+	switch mode {
+	case "security", "general":
+		// explicit, valid
+	case "":
+		mode = pg.GetDefaultConversationMode()
+	default:
+		writeErr(w, 400, "mode는 security 또는 general이어야 합니다")
+		return
+	}
+	c, err := pg.CreateConversation(req.AgentKey, title, req.LLMProfileID, mode)
 	if err != nil {
 		writeErr(w, 500, err.Error())
 		return
@@ -178,13 +189,22 @@ func (s *Server) pgRenameConversation(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Title  *string `json:"title"`
 		Pinned *bool   `json:"pinned"`
+		Mode   *string `json:"mode"`
 	}
 	if !decodeConversationRequest(w, r, &req) {
 		return
 	}
-	if req.Title == nil && req.Pinned == nil {
-		writeErr(w, 400, "title 또는 pinned 중 하나 이상을 제공해야 합니다")
+	if req.Title == nil && req.Pinned == nil && req.Mode == nil {
+		writeErr(w, 400, "title, pinned, mode 중 하나 이상을 제공해야 합니다")
 		return
+	}
+	if req.Mode != nil {
+		m := strings.TrimSpace(*req.Mode)
+		if m != "security" && m != "general" {
+			writeErr(w, 400, "mode는 security 또는 general이어야 합니다")
+			return
+		}
+		req.Mode = &m
 	}
 	if req.Title != nil {
 		title := strings.TrimSpace(*req.Title)
@@ -198,7 +218,7 @@ func (s *Server) pgRenameConversation(w http.ResponseWriter, r *http.Request) {
 		}
 		req.Title = &title
 	}
-	updated, err := pg.UpdateConversation(c.ID, db.ConversationPatch{Title: req.Title, Pinned: req.Pinned})
+	updated, err := pg.UpdateConversation(c.ID, db.ConversationPatch{Title: req.Title, Pinned: req.Pinned, Mode: req.Mode})
 	if err != nil {
 		writeErr(w, 500, err.Error())
 		return
@@ -560,7 +580,7 @@ func (s *Server) runConversationTurn(ctx context.Context, cancel context.CancelC
 	}
 	// On a manual stop ctx is cancelled; Chat already emits a clean "已手动停止"
 	// step, so skip the raw-error entry — only surface genuine failures.
-	if _, err := ca.Chat(ctx, c.AgentKey, sessionID, msg, maxTurns, maxDuration, webSearch, emit); err != nil {
+	if _, err := ca.Chat(ctx, c.AgentKey, sessionID, msg, maxTurns, maxDuration, webSearch, c.Mode, emit); err != nil {
 		finishReason = err.Error()
 		if ctx.Err() == nil {
 			_, _ = pg.AppendConvActivity(c.ID, db.Activity{Worker: c.AgentKey, Kind: "text", IsError: true,
@@ -802,7 +822,9 @@ func (s *Server) runTriggeredRun(item triggeredRun) {
 		}
 	}()
 	pg := s.m.pg
-	c, err := pg.CreateConversation(item.agentKey, firstLine(item.title, 60), nil)
+	// Task-triggered runs are always security-domain work (they originate from
+	// the pentest task graph), regardless of the global default-mode setting.
+	c, err := pg.CreateConversation(item.agentKey, firstLine(item.title, 60), nil, "security")
 	if err != nil {
 		log.Printf("[trigger] create conversation for %s failed: %v", item.agentKey, err)
 		return

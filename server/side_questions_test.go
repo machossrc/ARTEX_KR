@@ -184,7 +184,7 @@ func (f *sideHTTPFixture) call(t *testing.T, method, path string, body any, want
 }
 func (f *sideHTTPFixture) conversation(t *testing.T) (sidequestion.Parent, string) {
 	t.Helper()
-	c, err := f.m.pg.CreateConversation("mainagent", "side HTTP", nil)
+	c, err := f.m.pg.CreateConversation("mainagent", "side HTTP", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -27,7 +27,7 @@ func TestInterceptExecutionNavigation(t *testing.T) {
 	}
 	conv := func() int64 {
 		t.Helper()
-		c, err := d.CreateConversation("test", "navigation", nil)
+		c, err := d.CreateConversation("test", "navigation", nil, "")
 		if err != nil {
 			t.Fatal(err)
 		}

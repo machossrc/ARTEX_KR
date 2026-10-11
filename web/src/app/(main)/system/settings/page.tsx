@@ -2,7 +2,15 @@
 
 import * as React from "react";
 
-import { CpuIcon, FlaskConicalIcon, KeyboardIcon, RadioTowerIcon, SearchIcon, ShieldAlertIcon } from "lucide-react";
+import {
+  CpuIcon,
+  FlaskConicalIcon,
+  KeyboardIcon,
+  RadioTowerIcon,
+  SearchIcon,
+  ShieldAlertIcon,
+  ShieldQuestionIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/lib/api";
 import { CHAT_SEND_MODE_OPTIONS, type ChatSendMode, setChatSendMode, useChatSendMode } from "@/lib/chat-send-mode";
-import type { Settings } from "@/lib/types";
+import type { ConversationMode, Settings } from "@/lib/types";
 
 
 export default function SystemSettingsPage() {
@@ -42,6 +50,8 @@ export default function SystemSettingsPage() {
   const [injectWorker, setInjectWorker] = React.useState(true);
   // 实验功能:noa 上下文压缩(默认关)。
   const [noaCompaction, setNoaCompaction] = React.useState(false);
+  // 새 대화의 기본 모드(默认 "security").
+  const [defaultConvMode, setDefaultConvMode] = React.useState<ConversationMode>("security");
   // 纯前端偏好：不走 /api/settings，直接读写 localStorage。
   const sendMode = useChatSendMode();
 
@@ -59,6 +69,7 @@ export default function SystemSettingsPage() {
     setInjectPlanner(s.constraints_inject_planner !== false);
     setInjectWorker(s.constraints_inject_worker !== false);
     setNoaCompaction(!!s.noa_compaction);
+    setDefaultConvMode(s.default_conversation_mode === "general" ? "general" : "security");
   }, []);
 
   const saveWorkers = () => {
@@ -158,6 +169,20 @@ export default function SystemSettingsPage() {
       })
       .catch((e) => {
         setNoaCompaction(!v); // revert on failure
+        toast.error(`저장 실패: ${(e as Error).message}`);
+      });
+  };
+
+  const saveDefaultConvMode = (v: ConversationMode) => {
+    setDefaultConvMode(v); // optimistic
+    api
+      .setSettings({ default_conversation_mode: v })
+      .then((s) => {
+        apply(s);
+        toast.success(v === "general" ? "새 대화 기본 모드를 범용 AI로 저장했습니다" : "새 대화 기본 모드를 보안 분석으로 저장했습니다");
+      })
+      .catch((e) => {
+        setDefaultConvMode(v === "general" ? "security" : "general"); // revert on failure
         toast.error(`저장 실패: ${(e as Error).message}`);
       });
   };
@@ -265,6 +290,37 @@ export default function SystemSettingsPage() {
           多列则自动按内容高度平衡填充。卡片间距靠 mb 而非 gap——多列布局下
           column-gap 只管列间距，行间距要由子元素自己给。 */}
       <div className="columns-1 gap-4 md:gap-6 lg:columns-2">
+
+        <Card className="mb-4 break-inside-avoid md:mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShieldQuestionIcon className="size-4" />
+              새 대화 기본 모드
+            </CardTitle>
+            <CardDescription>
+              대화 생성 시 모드를 지정하지 않으면 이 값을 사용합니다. <b>보안 분석</b>은 취약점 분석/침투 테스트에 특화된 프롬프트와 도구(스킬·MCP)를 쓰고,{" "}
+              <b>범용 AI</b>는 프로그래밍·글쓰기 등 일반 용도의 어시스턴트로 동작하며 보안 전용 스킬/MCP를 노출하지 않습니다. 대화마다 생성 시 또는 「⋯」 메뉴에서 개별적으로 바꿀 수 있습니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between gap-4">
+            <Label htmlFor="default-conv-mode" className="text-sm font-normal text-muted-foreground">
+              {defaultConvMode === "general" ? "범용 AI" : "보안 분석"}
+            </Label>
+            <Select
+              value={defaultConvMode}
+              onValueChange={(v) => saveDefaultConvMode(v as ConversationMode)}
+              disabled={!loaded || saving}
+            >
+              <SelectTrigger id="default-conv-mode" className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="security">보안 분석</SelectItem>
+                <SelectItem value="general">범용 AI</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
 
         <Card className="mb-4 break-inside-avoid md:mb-6">
           <CardHeader>

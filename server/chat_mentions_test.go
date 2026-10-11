@@ -309,7 +309,7 @@ func TestChatMentionConversationReceivesServerDetails(t *testing.T) {
 		}
 		return llm.Message{Role: llm.RoleAssistant, Content: []llm.ContentBlock{llm.TextBlock("已读取引用")}}, "end_turn", llm.Usage{}, nil
 	}})
-	c, err := s.m.pg.CreateConversation("auto", "引用测试", nil)
+	c, err := s.m.pg.CreateConversation("auto", "引用测试", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}

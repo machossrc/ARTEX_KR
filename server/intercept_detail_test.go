@@ -65,7 +65,7 @@ func TestInterceptDetailHTTP(t *testing.T) {
 		}
 	}
 
-	conv, err := d.CreateConversation("test", "approval navigation", nil)
+	conv, err := d.CreateConversation("test", "approval navigation", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}

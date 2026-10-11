@@ -956,11 +956,20 @@ CREATE TABLE IF NOT EXISTS conversations (
     agent_key      TEXT NOT NULL,
     title          TEXT NOT NULL DEFAULT '',
     llm_profile_id BIGINT REFERENCES llm_profiles(id) ON DELETE SET NULL,
+    mode           TEXT NOT NULL DEFAULT 'security' CHECK (mode IN ('security','general')),
     pinned_at      TIMESTAMPTZ,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ALTER TABLE conversations ADD COLUMN IF NOT EXISTS pinned_at TIMESTAMPTZ;
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS mode TEXT NOT NULL DEFAULT 'security';
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'conversations_mode_check'
+    ) THEN
+        ALTER TABLE conversations ADD CONSTRAINT conversations_mode_check CHECK (mode IN ('security','general'));
+    END IF;
+END $$;
 CREATE INDEX IF NOT EXISTS idx_conversations_llm_profile ON conversations(llm_profile_id) WHERE llm_profile_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_conversations_pinned ON conversations(pinned_at DESC) WHERE pinned_at IS NOT NULL;
 DROP TRIGGER IF EXISTS trg_conversations_upd ON conversations;

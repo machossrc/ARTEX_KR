@@ -14,11 +14,11 @@ func TestConversationPinOrderingAndPatch(t *testing.T) {
 	defer d.Close()
 
 	suffix := time.Now().UnixNano()
-	first, err := d.CreateConversation("mainagent", fmt.Sprintf("pin-first-%d", suffix), nil)
+	first, err := d.CreateConversation("mainagent", fmt.Sprintf("pin-first-%d", suffix), nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := d.CreateConversation("mainagent", fmt.Sprintf("pin-second-%d", suffix), nil)
+	second, err := d.CreateConversation("mainagent", fmt.Sprintf("pin-second-%d", suffix), nil, "")
 	if err != nil {
 		_ = d.DeleteConversation(first.ID)
 		t.Fatal(err)

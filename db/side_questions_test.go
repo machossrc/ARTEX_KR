@@ -20,7 +20,7 @@ func sideFixture(t *testing.T) (*DB, sidequestion.Snapshot) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { d.Close() })
-	c, err := d.CreateConversation("mainagent", "side persistence", nil)
+	c, err := d.CreateConversation("mainagent", "side persistence", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}

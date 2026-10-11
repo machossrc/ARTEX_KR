@@ -41,3 +41,27 @@ func (d *DB) SetBool(key string, val bool) error {
 	}
 	return d.SetSetting(key, "false")
 }
+
+// defaultConversationModeKey is the settings-table key holding the app-wide
+// default conversation mode ("security" | "general") used when a new
+// conversation's create request omits mode.
+const defaultConversationModeKey = "default_conversation_mode"
+
+// GetDefaultConversationMode returns the app-wide default mode for new
+// conversations, falling back to "security" when unset/unrecognized.
+func (d *DB) GetDefaultConversationMode() string {
+	v, ok, err := d.GetSetting(defaultConversationModeKey)
+	if err != nil || !ok || v != "general" {
+		return "security"
+	}
+	return "general"
+}
+
+// SetDefaultConversationMode stores the app-wide default mode for new
+// conversations. mode must be "security" or "general".
+func (d *DB) SetDefaultConversationMode(mode string) error {
+	if mode != "general" {
+		mode = "security"
+	}
+	return d.SetSetting(defaultConversationModeKey, mode)
+}

@@ -82,16 +82,25 @@ func chatWorkDirSpec(workDir string) string {
 }
 
 // chatSystem renders the DB-managed prompt body for agentKey. Custom agents have
-// no per-key in-code default, so DefaultAssistantPrompt is the render fallback.
-func chatSystem(agentKey, dataDir, workDir string) string {
-	return renderSystem(agentKey, DefaultAssistantPrompt, chatVars{DataDir: dataDir, Now: nowStr()}) + chatWorkDirSpec(workDir)
+// no per-key in-code default, so the render fallback depends on the
+// conversation's mode: "general" falls back to DefaultAssistantPrompt (generic
+// AI helper), anything else (including "" and "security") falls back to
+// DefaultSecurityPrompt (pentest/security-flavored helper) — preserving the
+// platform's original behavior for existing conversations with no mode set.
+func chatSystem(agentKey, dataDir, workDir, mode string) string {
+	fallback := DefaultSecurityPrompt
+	if mode == "general" {
+		fallback = DefaultAssistantPrompt
+	}
+	return renderSystem(agentKey, fallback, chatVars{DataDir: dataDir, Now: nowStr(), Mode: mode}) + chatWorkDirSpec(workDir)
 }
 
 // chatVars carries the runtime variables a custom agent's prompt may reference.
-// DataDir (server data root) + Now (server wall-clock, refreshed each turn) are the
-// universal ones; any other {{.X}} fails to render and falls back to
-// DefaultAssistantPrompt.
-type chatVars struct{ DataDir, Now string }
+// DataDir (server data root) + Now (server wall-clock, refreshed each turn) are
+// universal; Mode ("security"|"general") lets a custom prompt branch on the
+// conversation's mode. Any other {{.X}} fails to render and falls back to the
+// mode-appropriate default prompt.
+type chatVars struct{ DataDir, Now, Mode string }
 
 // Chat runs ONE turn of a conversation with the agent identified by agentKey,
 // resuming prior history keyed by sessionID. maxTurns is the per-turn agent step
@@ -102,7 +111,10 @@ type chatVars struct{ DataDir, Now string }
 // but each agent decides on/off). emit receives each execution step (thinking /
 // tool_use / tool_result / text / result), tagged with the agent key as the
 // worker lane.
-func (c *ChatAgent) Chat(ctx context.Context, agentKey, sessionID, message string, maxTurns int, maxDuration time.Duration, webSearch bool, emit func(db.Activity)) (string, error) {
+// mode selects the conversation's prompt/tool family: "security" (default;
+// pentest-flavored prompt fallback + full skill/MCP tooling) or "general"
+// (generic assistant prompt fallback, no security-domain skills/MCP added).
+func (c *ChatAgent) Chat(ctx context.Context, agentKey, sessionID, message string, maxTurns int, maxDuration time.Duration, webSearch bool, mode string, emit func(db.Activity)) (string, error) {
 	// gate the global web-search opts by this agent's own flag.
 	ws := c.webSearch
 	if !webSearch {
@@ -120,10 +132,10 @@ func (c *ChatAgent) Chat(ctx context.Context, agentKey, sessionID, message strin
 	// have no tools-table rows, so they always pass through.
 	base := actool.DefaultTools()
 	ctx = WithRunInfo(ctx, RunInfo{SessionID: sessionID})
-	tools, def, cleanup := AugmentTools(ctx, agentKey, base)
+	tools, def, cleanup := AugmentToolsChat(ctx, agentKey, mode, base)
 	defer cleanup()
 
-	system, boundary := deferredSystem(chatSystem(agentKey, c.workDir, sessionWorkDir), def)
+	system, boundary := deferredSystem(chatSystem(agentKey, c.workDir, sessionWorkDir, mode), def)
 	opts := agentcore.Options{
 		Provider:        c.prov,
 		SystemPrompt:    system,

@@ -97,7 +97,7 @@ func TestConversationPatchReturnsPinState(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	s := New(ctx, m, t.TempDir(), t.TempDir(), t.TempDir())
-	conversation, err := m.pg.CreateConversation("mainagent", "pin through http", nil)
+	conversation, err := m.pg.CreateConversation("mainagent", "pin through http", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}

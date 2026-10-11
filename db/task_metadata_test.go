@@ -75,11 +75,11 @@ func TestDeleteConversationsReturnsExistingIDs(t *testing.T) {
 	}
 	defer d.Close()
 
-	first, err := d.CreateConversation("mainagent", "batch-delete-first", nil)
+	first, err := d.CreateConversation("mainagent", "batch-delete-first", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := d.CreateConversation("mainagent", "batch-delete-second", nil)
+	second, err := d.CreateConversation("mainagent", "batch-delete-second", nil, "")
 	if err != nil {
 		_ = d.DeleteConversation(first.ID)
 		t.Fatal(err)

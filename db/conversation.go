@@ -54,6 +54,10 @@ type Conversation struct {
 	AgentKey     string     `json:"agent_key"`
 	Title        string     `json:"title"`
 	LLMProfileID *int64     `json:"llm_profile_id,omitempty"`
+	// Mode selects which system-prompt/tool family this thread runs with:
+	// "security" (default; pentest-flavored prompts + domain tools/skills) or
+	// "general" (generic assistant prompt, no security domain tools/skills).
+	Mode         string     `json:"mode"`
 	Pinned       bool       `json:"pinned"`
 	PinnedAt     *time.Time `json:"pinned_at,omitempty"`
 	CreatedAt    time.Time  `json:"created_at"`
@@ -64,14 +68,15 @@ type Conversation struct {
 type ConversationPatch struct {
 	Title  *string
 	Pinned *bool
+	Mode   *string
 }
 
-const convCols = `id, agent_key, title, llm_profile_id, pinned_at, created_at, updated_at`
+const convCols = `id, agent_key, title, llm_profile_id, mode, pinned_at, created_at, updated_at`
 
 func scanConv(row interface{ Scan(...any) error }) (Conversation, error) {
 	var c Conversation
 	var pinnedAt sql.NullTime
-	err := row.Scan(&c.ID, &c.AgentKey, &c.Title, &c.LLMProfileID, &pinnedAt, &c.CreatedAt, &c.UpdatedAt)
+	err := row.Scan(&c.ID, &c.AgentKey, &c.Title, &c.LLMProfileID, &c.Mode, &pinnedAt, &c.CreatedAt, &c.UpdatedAt)
 	if pinnedAt.Valid {
 		c.Pinned = true
 		c.PinnedAt = &pinnedAt.Time
@@ -80,8 +85,12 @@ func scanConv(row interface{ Scan(...any) error }) (Conversation, error) {
 }
 
 // CreateConversation opens a new chat thread for agentKey with an initial title.
-// llmProfileID may be nil to use the globally active profile.
-func (d *DB) CreateConversation(agentKey, title string, llmProfileID *int64) (*Conversation, error) {
+// llmProfileID may be nil to use the globally active profile. mode selects
+// "security" or "general"; an empty/unrecognized value falls back to "security".
+func (d *DB) CreateConversation(agentKey, title string, llmProfileID *int64, mode string) (*Conversation, error) {
+	if mode != "general" {
+		mode = "security"
+	}
 	tx, err := d.Begin()
 	if err != nil {
 		return nil, err
@@ -92,8 +101,8 @@ func (d *DB) CreateConversation(agentKey, title string, llmProfileID *int64) (*C
 	// by this transaction before it takes a profile lock, matching DeleteProfile's
 	// child-row -> profile-row protocol.
 	c, err := scanConv(tx.QueryRow(`
-INSERT INTO conversations(agent_key, title, llm_profile_id) VALUES ($1, $2, NULL)
-RETURNING `+convCols, agentKey, title))
+INSERT INTO conversations(agent_key, title, llm_profile_id, mode) VALUES ($1, $2, NULL, $3)
+RETURNING `+convCols, agentKey, title, mode))
 	if err != nil {
 		return nil, err
 	}
@@ -178,9 +187,10 @@ func (d *DB) UpdateConversation(id int64, patch ConversationPatch) (*Conversatio
 		WHEN $4::boolean IS NULL THEN pinned_at
 		WHEN $4::boolean THEN COALESCE(pinned_at, now())
 		ELSE NULL
-	END
+	END,
+	mode = CASE WHEN $5::boolean THEN $6 ELSE mode END
 WHERE id=$1
-RETURNING `+convCols, id, patch.Title != nil, patch.Title, patch.Pinned))
+RETURNING `+convCols, id, patch.Title != nil, patch.Title, patch.Pinned, patch.Mode != nil, patch.Mode))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

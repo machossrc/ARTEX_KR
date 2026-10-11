@@ -3311,6 +3311,9 @@ func (s *Server) settingsPayload() map[string]any {
 		"notify_enabled":             s.m.pg.GetBool(settingNotifyEnabled, true),
 		"notify_public_base_url":     notifyPublicBaseURL(s.m.pg),
 		"notify_digest_interval_min": notifyDigestIntervalMin(s.m.pg),
+		// 새 대화의 기본 모드: "security"(취약점 분석, 기본값) | "general"(범용 AI 도우미).
+		// 대화 생성 요청이 mode를 비우면 이 값을 사용한다.
+		"default_conversation_mode": s.m.pg.GetDefaultConversationMode(),
 	}
 }
 
@@ -3383,6 +3386,8 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 		NotifyEnabled    *bool   `json:"notify_enabled"`
 		NotifyBaseURL    *string `json:"notify_public_base_url"`
 		NotifyDigestMins *int    `json:"notify_digest_interval_min"`
+		// 새 대화의 기본 모드. "security" | "general".
+		DefaultConversationMode *string `json:"default_conversation_mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeErr(w, 400, err.Error())
@@ -3423,6 +3428,17 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := s.m.pg.SetSetting(settingNotifyPublicBaseURL, base); err != nil {
+			writeErr(w, 500, err.Error())
+			return
+		}
+	}
+	if req.DefaultConversationMode != nil {
+		m := strings.TrimSpace(*req.DefaultConversationMode)
+		if m != "security" && m != "general" {
+			writeErr(w, 400, "default_conversation_mode는 security 또는 general이어야 합니다")
+			return
+		}
+		if err := s.m.pg.SetDefaultConversationMode(m); err != nil {
 			writeErr(w, 500, err.Error())
 			return
 		}

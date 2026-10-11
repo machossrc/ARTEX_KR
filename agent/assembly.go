@@ -67,6 +67,28 @@ func AugmentTools(ctx context.Context, agentKey string, base []actool.CoreTool) 
 	return out, def, cleanup
 }
 
+// AugmentToolsChat is AugmentTools specialized for ChatAgent, where the caller
+// also knows the conversation's mode. In "general" mode it skips ToolAugment
+// entirely — no visible skills (api-recon, scopesentry, ...) or MCP servers are
+// added — so a general-purpose chat never gains security-domain tooling just
+// because the underlying agent key happens to have some assigned. Any other
+// mode (including "security"/"") behaves exactly like AugmentTools.
+func AugmentToolsChat(ctx context.Context, agentKey, mode string, base []actool.CoreTool) ([]actool.CoreTool, DeferredInfo, func()) {
+	if mode == "general" {
+		var def DeferredInfo
+		out := base
+		if ToolResolve != nil {
+			out = ToolResolve(ctx, agentKey, out)
+		}
+		out, def.FindingGuidance = findingWorkflowTools(agentKey, out)
+		for i, t := range out {
+			out[i] = guardPanic(t)
+		}
+		return out, def, func() {}
+	}
+	return AugmentTools(ctx, agentKey, base)
+}
+
 // guardPanic turns a panicking tool handler into an ordinary tool error. The
 // harness runs each tool on its own goroutine, so a panic inside a handler can't
 // be recovered by the caller that started the run — it takes the whole process

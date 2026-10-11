@@ -73,11 +73,11 @@ func TestConversationBatchDeleteReportsMissing(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	s := New(ctx, m, t.TempDir(), t.TempDir(), t.TempDir())
-	first, err := m.pg.CreateConversation("mainagent", "batch-http-first", nil)
+	first, err := m.pg.CreateConversation("mainagent", "batch-http-first", nil, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := m.pg.CreateConversation("mainagent", "batch-http-second", nil)
+	second, err := m.pg.CreateConversation("mainagent", "batch-http-second", nil, "")
 	if err != nil {
 		_ = m.pg.DeleteConversation(first.ID)
 		t.Fatal(err)

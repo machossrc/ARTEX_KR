@@ -735,12 +735,19 @@ export interface FindingRetest {
   finished_at: string | null;
 }
 
+// ConversationMode selects the thread's prompt/tool family: "security" (default;
+// vulnerability-analysis/pentest-flavored system prompt + full skill/MCP tooling)
+// or "general" (generic AI assistant — programming, writing, general use; no
+// security-domain skills/MCP exposed).
+export type ConversationMode = "security" | "general";
+
 export interface Conversation {
   id: number;
   running?: boolean; // live server state, returned with the conversation list
   agent_key: string;
   title: string;
   llm_profile_id?: number;
+  mode: ConversationMode;
   pinned?: boolean;
   pinned_at?: string | null;
   created_at: string;
@@ -947,6 +954,9 @@ export interface Settings {
   notify_enabled?: boolean; // 推送总开关，默认开；用于维护期一键止血
   notify_public_base_url?: string; // 漏洞详情回链的外部访问地址；空=消息不带回链
   notify_digest_interval_min?: number; // 汇总模式周期（分钟），默认 30
+  // 새 대화의 기본 모드: "security"(보안/취약점 분석, 기본값) | "general"(범용 AI 도우미).
+  // 대화 생성 시 mode를 지정하지 않으면 이 값이 쓰인다.
+  default_conversation_mode?: ConversationMode;
 }
 
 // ---- 漏洞 IM 推送 ----

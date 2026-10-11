@@ -25,6 +25,7 @@ import type {
   CompanyScopeMutation,
   CompanyScopeRule,
   Conversation,
+  ConversationMode,
   ConvTokenSummary,
   CoverageAssetRefs,
   CoverageGraphData,
@@ -1004,9 +1005,13 @@ export const api = {
 
   // ---- conversations (chat page) ----
   conversations: () => get<{ conversations: Conversation[] }>("/conversations").then((r) => arr(r.conversations)),
-  createConversation: (agent_key: string, title = "", llm_profile_id?: number | null) =>
-    post<Conversation>("/conversations", { agent_key, title, llm_profile_id: llm_profile_id ?? null }),
-  updateConversation: (id: number, input: { title?: string; pinned?: boolean }) =>
+  createConversation: (
+    agent_key: string,
+    title = "",
+    llm_profile_id?: number | null,
+    mode?: ConversationMode,
+  ) => post<Conversation>("/conversations", { agent_key, title, llm_profile_id: llm_profile_id ?? null, mode }),
+  updateConversation: (id: number, input: { title?: string; pinned?: boolean; mode?: ConversationMode }) =>
     patch<Conversation>(`/conversations/${id}`, input),
   renameConversation: (id: number, title: string) => patch<Conversation>(`/conversations/${id}`, { title }),
   pinConversation: (id: number, pinned: boolean) => patch<Conversation>(`/conversations/${id}`, { pinned }),

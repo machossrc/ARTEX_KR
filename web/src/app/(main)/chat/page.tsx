@@ -15,6 +15,8 @@ import {
   PinIcon,
   PinOffIcon,
   PlusIcon,
+  ShieldIcon,
+  SparklesIcon,
   Square,
   Trash2Icon,
   XIcon,
@@ -58,7 +60,7 @@ import { api } from "@/lib/api";
 import { shouldSubmitOnKey, useChatSendMode } from "@/lib/chat-send-mode";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { isBtwCommand } from "@/lib/side-questions";
-import type { Activity, Agent, ChatAttachment, Conversation, LLMProfile } from "@/lib/types";
+import type { Activity, Agent, ChatAttachment, Conversation, ConversationMode, LLMProfile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // fmtBytes renders a human file size for attachment chips (mirrors transcript.tsx).
@@ -67,6 +69,28 @@ function fmtBytes(n: number): string {
   if (n >= 1 << 10) return `${(n / (1 << 10)).toFixed(1)} KB`;
   return `${n} B`;
 }
+
+// ModeBadge is a small pill marking a conversation's mode: security(보안/취약점
+// 분석) uses a shield, general(범용 AI) uses a sparkle. Used in the sidebar list
+// and the draft/active chat headers so the active mode is always visible.
+function ModeBadge({ mode, className }: { mode: ConversationMode; className?: string }) {
+  const isGeneral = mode === "general";
+  return (
+    <Badge
+      variant="outline"
+      className={cn("shrink-0 gap-1 px-1 py-0 text-[9px]", className)}
+      title={isGeneral ? "범용 AI 모드: 프로그래밍·글쓰기 등 일반 용도" : "보안 분석 모드: 취약점 분석·침투 테스트 전용"}
+    >
+      {isGeneral ? <SparklesIcon className="size-2.5" /> : <ShieldIcon className="size-2.5" />}
+      {isGeneral ? "범용" : "보안"}
+    </Badge>
+  );
+}
+
+const MODE_OPTIONS: { value: ConversationMode; label: string; desc: string }[] = [
+  { value: "security", label: "보안 분석", desc: "취약점 분석·침투 테스트 전용 어시스턴트" },
+  { value: "general", label: "범용 AI", desc: "프로그래밍·글쓰기 등 일반 용도 어시스턴트" },
+];
 
 // fmtTokens renders a compact token count (1234 → 1.2k, 2_000_000 → 2M).
 function fmtTokens(n: number): string {
@@ -374,6 +398,7 @@ function DraftChat({
   onStarted: (c: Conversation, pending?: { input?: string; attachments?: ChatAttachment[] }) => void;
 }) {
   const [agentKey, setAgentKey] = React.useState("");
+  const [mode, setMode] = React.useState<ConversationMode>("security");
   const [llmProfileId, setLlmProfileId] = React.useState<number | null>(null);
   const [input, setInput] = React.useState("");
   const [sending, setSending] = React.useState(false);
@@ -384,6 +409,17 @@ function DraftChat({
     if (!agentKey && agents.some((a) => a.key === "auto")) setAgentKey("auto");
   }, [agentKey, agents]);
 
+  // seed the mode picker from the app-wide default so a fresh draft matches the
+  // operator's usual workflow without an extra click.
+  React.useEffect(() => {
+    api
+      .settings()
+      .then((s) => {
+        if (s.default_conversation_mode) setMode(s.default_conversation_mode);
+      })
+      .catch(() => {});
+  }, []);
+
   const agent = agents.find((a) => a.key === agentKey);
 
   async function send() {
@@ -391,7 +427,7 @@ function DraftChat({
     if (!msg || !agentKey || sending) return;
     setSending(true);
     try {
-      const c = await api.createConversation(agentKey, "", llmProfileId);
+      const c = await api.createConversation(agentKey, "", llmProfileId, mode);
       await api.sendConversationMessage(c.id, msg);
       onStarted(c);
     } catch (e) {
@@ -409,7 +445,7 @@ function DraftChat({
     if (files.length === 0 || !agentKey || uploading || sending) return;
     setUploading(true);
     try {
-      const c = await api.createConversation(agentKey, "", llmProfileId);
+      const c = await api.createConversation(agentKey, "", llmProfileId, mode);
       const r = await api.chatUpload("session", `conv-${c.id}`, files);
       onStarted(c, { input, attachments: r.attachments });
     } catch (e) {
@@ -443,6 +479,33 @@ function DraftChat({
     </Select>
   );
 
+  // mode picker: "보안 분석"(vulnerability analysis/pentest) vs "범용 AI"(general
+  // programming/writing/etc). Selects which system prompt + tool/skill set the
+  // new conversation starts with (see ModeBadge for the at-a-glance pill).
+  const modePicker = (
+    <Select value={mode} onValueChange={(v) => setMode(v as ConversationMode)}>
+      <SelectTrigger className="w-full sm:w-36">
+        <SelectValue placeholder="모드 선택…" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {MODE_OPTIONS.map((m) => (
+            <SelectItem key={m.value} value={m.value}>
+              <span className="flex items-center gap-2">
+                {m.value === "general" ? (
+                  <SparklesIcon className="size-3.5" />
+                ) : (
+                  <ShieldIcon className="size-3.5" />
+                )}
+                {m.label}
+              </span>
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+
   return (
     <>
       {/* empty / landing state fills the panel */}
@@ -450,7 +513,10 @@ function DraftChat({
         <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
           <Bot className="text-primary size-6" />
         </div>
-        <div className="text-sm font-medium">대화 시작: 「{agent?.name ?? "에이전트"}」</div>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          대화 시작: 「{agent?.name ?? "에이전트"}」
+          <ModeBadge mode={mode} />
+        </div>
         {agent?.description && <p className="text-muted-foreground max-w-md text-xs">{agent.description}</p>}
       </div>
 
@@ -460,7 +526,12 @@ function DraftChat({
         onSend={send}
         disabled={sending || uploading || !agentKey}
         placeholder="메시지를 입력하세요. @로 기록 인용, Enter로 전송"
-        leftSlot={agentPicker}
+        leftSlot={
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row">
+            {agentPicker}
+            {modePicker}
+          </div>
+        }
         onPickFiles={pickFiles}
         uploading={uploading}
       />
@@ -771,6 +842,7 @@ function ChatView({
             사용자 지정
           </Badge>
         )}
+        <ModeBadge mode={conv.mode} />
         {agent?.description && (
           <span className="text-muted-foreground min-w-0 truncate text-xs">{agent.description}</span>
         )}
@@ -852,6 +924,7 @@ const ConversationItem = React.memo(function ConversationItem({
   onCommitRename,
   onCancelRename,
   onTogglePinned,
+  onToggleMode,
   onDelete,
   selectionMode,
   selectedForDelete,
@@ -869,6 +942,7 @@ const ConversationItem = React.memo(function ConversationItem({
   onCommitRename: (id: number, title: string) => void;
   onCancelRename: () => void;
   onTogglePinned: (conversation: Conversation) => void;
+  onToggleMode: (conversation: Conversation) => void;
   onDelete: (id: number) => void;
   selectionMode: boolean;
   selectedForDelete: boolean;
@@ -930,6 +1004,7 @@ const ConversationItem = React.memo(function ConversationItem({
           <div className="flex min-w-0 items-center gap-1.5">
             {pinned && <PinIcon className="text-primary size-3 shrink-0" aria-label="상단 고정됨" />}
             <div className="truncate text-sm">{conv.title || "새 대화"}</div>
+            <ModeBadge mode={conv.mode} />
             {conv.running ? (
               <Badge variant="secondary" className="shrink-0 gap-1" title="에이전트 실행 중">
                 <Spinner className="size-3" aria-hidden="true" />
@@ -977,6 +1052,10 @@ const ConversationItem = React.memo(function ConversationItem({
             <DropdownMenuItem onSelect={() => onTogglePinned(conv)}>
               {pinned ? <PinOffIcon /> : <PinIcon />}
               {pinned ? "상단 고정 해제" : "상단 고정"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => onToggleMode(conv)}>
+              {conv.mode === "general" ? <ShieldIcon /> : <SparklesIcon />}
+              {conv.mode === "general" ? "보안 분석 모드로 전환" : "범용 AI 모드로 전환"}
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
@@ -1325,6 +1404,21 @@ export default function ChatPage() {
     [reloadConvs],
   );
 
+  // toggleMode flips a conversation between "security"(보안/취약점 분석) and
+  // "general"(범용 AI) — mirrors togglePinned above.
+  const toggleMode = React.useCallback(
+    async (conversation: Conversation) => {
+      const next: ConversationMode = conversation.mode === "general" ? "security" : "general";
+      try {
+        await api.updateConversation(conversation.id, { mode: next });
+        void reloadConvs();
+      } catch (e) {
+        toast.error(`모드 전환 실패: ${(e as Error).message}`);
+      }
+    },
+    [reloadConvs],
+  );
+
   const startRename = React.useCallback((c: Conversation) => {
     setRenamingId(c.id);
     setRenameText(c.title || "");
@@ -1447,6 +1541,7 @@ export default function ChatPage() {
                   onCommitRename={commitRename}
                   onCancelRename={cancelRename}
                   onTogglePinned={togglePinned}
+                  onToggleMode={toggleMode}
                   onDelete={del}
                   selectionMode={selectionMode}
                   selectedForDelete={selectedConversationIds.has(c.id)}
@@ -1479,6 +1574,7 @@ export default function ChatPage() {
                           onCommitRename={commitRename}
                           onCancelRename={cancelRename}
                           onTogglePinned={togglePinned}
+                          onToggleMode={toggleMode}
                           onDelete={del}
                           selectionMode={selectionMode}
                           selectedForDelete={selectedConversationIds.has(c.id)}

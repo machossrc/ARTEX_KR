@@ -35,7 +35,9 @@ import {
   PlusIcon,
   SaveIcon,
   SearchIcon,
+  ShieldIcon,
   SlidersHorizontalIcon,
+  SparklesIcon,
   StarIcon,
   TagsIcon,
   Trash2Icon,
@@ -132,6 +134,7 @@ import type {
   TaskArchive,
   TaskArchiveState,
   TaskCategory,
+  TaskMode,
   TaskStatus,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -1194,6 +1197,11 @@ const TaskRow = React.memo(function TaskRow({
           <TaskNameEditor task={task} onRename={onRename} />
           {task.active && <StarIcon className="size-4 shrink-0 fill-amber-400 text-amber-400" />}
           {taskIsPinned(task) && <PinIcon className="text-primary size-4 shrink-0" aria-label="상단 고정됨" />}
+          {task.mode === "general" ? (
+            <SparklesIcon className="text-muted-foreground size-3.5 shrink-0" aria-label="범용 작업" />
+          ) : (
+            <ShieldIcon className="text-muted-foreground size-3.5 shrink-0" aria-label="보안 분석" />
+          )}
         </div>
       </TableCell>
       <TableCell className="text-muted-foreground max-w-40">
@@ -3076,6 +3084,7 @@ function CreateTaskSheet({
   const [categoryID, setCategoryID] = React.useState<number | undefined>(undefined);
   const [description, setDescription] = React.useState("");
   const [goal, setGoal] = React.useState("");
+  const [mode, setMode] = React.useState<TaskMode>("security");
   const [selectedTemplateID, setSelectedTemplateID] = React.useState<number | null>(null);
   const [profiles, setProfiles] = React.useState<LLMProfile[]>([]);
   const [companies, setCompanies] = React.useState<Company[]>([]);
@@ -3105,6 +3114,17 @@ function CreateTaskSheet({
       .companies()
       .then(setCompanies)
       .catch(() => setCompanies([]));
+  }, []);
+
+  // seed the mode picker from the app-wide default so a fresh task matches the
+  // operator's usual workflow without an extra click.
+  React.useEffect(() => {
+    api
+      .settings()
+      .then((s) => {
+        if (s.default_task_mode) setMode(s.default_task_mode);
+      })
+      .catch(() => {});
   }, []);
 
   // pickFiles uploads the chosen files into this draft's staging dir and appends their
@@ -3157,6 +3177,7 @@ function CreateTaskSheet({
         interceptRules: interceptRules
           .map((r) => ({ ...r, pattern: r.pattern.trim() }))
           .filter((r) => r.pattern !== ""),
+        mode,
       });
       toast.success("작업을 생성했습니다");
       setName("");
@@ -3229,6 +3250,32 @@ function CreateTaskSheet({
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
+            <Field>
+              <FieldLabel htmlFor="task-mode">작업 모드</FieldLabel>
+              <Select value={mode} onValueChange={(v) => setMode(v as TaskMode)}>
+                <SelectTrigger id="task-mode" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="security">
+                    <span className="flex items-center gap-2">
+                      <ShieldIcon className="size-3.5" />
+                      보안 분석(침투 테스트)
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="general">
+                    <span className="flex items-center gap-2">
+                      <SparklesIcon className="size-3.5" />
+                      범용 작업
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldDescription>
+                보안 분석은 취약점 분석/침투 테스트에 특화된 프롬프트와 자산·취약점 도구를 사용합니다(기본값). 범용 작업은 일반적인 목표
+                달성용 프롬프트를 사용하며 자산·취약점 도구를 노출하지 않습니다. 생성 후에는 변경할 수 없습니다.
+              </FieldDescription>
+            </Field>
             <Field>
               <FieldLabel htmlFor="task-category">작업 분류</FieldLabel>
               <CategoryPicker

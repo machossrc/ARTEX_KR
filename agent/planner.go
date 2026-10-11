@@ -339,8 +339,29 @@ const plannerDefaultTmpl = `당신은 사이버 보안 플랫폼의 승인된 �
 
 중복하거나 억지로 채우지 마세요. 그러나 목표 미달성이며 더 깊고 아직 다루지 않은 방법이 있으면 배정해야 합니다. 간결하고 집중적이며 효율적으로 행동하세요.`
 
-func plannerSystem(goal, dataDir, workDir string) string {
-	body := renderSystem("planner", plannerDefaultTmpl, PlannerVars{Goal: goal, DataDir: dataDir, Now: nowStr()})
+// generalPlannerDefaultTmpl is the "general" task-mode counterpart of
+// plannerDefaultTmpl: same intent-generation/goal-judging role, worded for a
+// general-purpose autonomous task instead of a pentest engagement. Used ONLY
+// when the task's mode is "general"; "security" mode (the default) always
+// renders plannerDefaultTmpl, unchanged.
+const generalPlannerDefaultTmpl = `당신은 범용 자율 작업 플랫폼에서 "계획자" 역할을 하며 자주 호출됩니다(그래프가 바뀔 때마다 호출). 역할: 상황 읽기 → 목표 판정 → 아직 다루지 않은 새로운 방향이 있을 때만 작업 의도 보완. 당신은 계획자이지 실행자가 아닙니다.
+
+작업 목표: {{.Goal}}
+
+**호출될 때마다 수행할 판단 절차**:
+1. graph_overview(이번 호출 하단에 첨부됨)로 전체 상황(목표 상태, open/running/완료된 의도, 최근 사실)을 파악하세요. 더 깊은 정보가 필요하면 list_facts / node_detail / get_worker_trace를 호출하세요.
+2. **목표 판정**: 사실/작업 결과로 입증된 미달성 목표에는 prove_goal(goal_id, evidence_id, reason)을 호출하여 met로 표시하세요. 마지막 목표가 met가 되면 전체 작업이 완료됩니다.
+3. **보완할 새 방향 결정**: 기존 open/running 의도가 이미 다루는 방향은 다시 생성하지 마세요. 아직 다루지 않았고 목표 달성에 필요한 새로운 방향이 있으면 add_intent로 제출하세요(한 번에 최대 4개). 의도가 서로 의존한다면(한 결과가 다음 단계의 입력이 되는 경우) 선행 단계만 먼저 배정하세요.
+4. 목표가 미달성이고 열린/진행 중인 의도가 전혀 없으면 반드시 새 의도를 하나 이상 생성하세요(작업 정지를 방지).
+
+중복하거나 억지로 채우지 마세요. 간결하고 집중적으로 행동하세요.`
+
+func plannerSystem(goal, dataDir, workDir, mode string) string {
+	tmpl := plannerDefaultTmpl
+	if mode == "general" {
+		tmpl = generalPlannerDefaultTmpl
+	}
+	body := renderSystem("planner", tmpl, PlannerVars{Goal: goal, DataDir: dataDir, Now: nowStr()})
 	return body + artifactSpec(workDir)
 }
 
@@ -352,7 +373,10 @@ func plannerSystem(goal, dataDir, workDir string) string {
 // and/or finding(s) reported (may be several — the engine debounces a burst; empty
 // for time/heartbeat wakes). They are spelled out at the top of the prompt so the
 // planner looks first at the actual change (which intent, its output/finding).
-func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, goal string, triggers []TriggerEvent, emit func(db.Activity)) (met bool, reason string, err error) {
+// mode selects "security" (default; EXACTLY the platform's original prompt +
+// full asset/finding domain tools) or "general" (generic prompt + reduced tool
+// set with no asset/finding tools).
+func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, goal string, triggers []TriggerEvent, emit func(db.Activity), mode string) (met bool, reason string, err error) {
 	// cold-digest §2.3/§7: advance this task's planner-round counter, maintain the
 	// cold_since_round stamps, and (if a threshold is hit) kick off background
 	// compaction. Synchronous part is cheap (a few queries); the LLM compaction
@@ -370,11 +394,19 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	if origin, _ := ts.OriginFactID(); origin > 0 {
 		tsx.SetOwnerNode(origin) // planner-side anchors default to the task root (origin fact)
 	}
-	// 领域工具 + 基础默认工具集（Read/Write/Edit/MultiEdit/LS/Glob/Grep/Bash）
-	// 资产覆盖度功能关闭时剔除 add_task_scope/list_untested_assets（不入 prompt）。
-	base := append(tsx.DropCoverageTools(tsx.PlannerTools()), actool.DefaultTools()...)
+	// 领域工具 + 基础默认工具集（Read/Write/Edit/MultiEdit/LS/Glob/Grep/Bash）。
+	// "security"(기본)는 원본과 100% 동일한 경로; "general"만 자산/취약점 도구를 뺀
+	// 축소 도구 집합(GeneralPlannerTools)을 쓴다.
+	var domainTools []actool.CoreTool
+	if mode == "general" {
+		domainTools = tsx.GeneralPlannerTools()
+	} else {
+		// 资产覆盖度功能关闭时剔除 add_task_scope/list_untested_assets（不入 prompt）。
+		domainTools = tsx.DropCoverageTools(tsx.PlannerTools())
+	}
+	base := append(domainTools, actool.DefaultTools()...)
 	ctx = WithRunInfo(ctx, RunInfo{TaskID: taskID, ExplorationID: explorationID(ts)})
-	tools, def, cleanup := AugmentTools(ctx, "planner", base)
+	tools, def, cleanup := AugmentToolsChat(ctx, "planner", mode, base)
 	defer cleanup()
 	// 关键态势（刚完成的意图 + 预取的完整图）改放【本轮 user 输入】(见下方 input)，system
 	// 只留静态规划正文。move-out 让 system 每轮稳定、更利于缓存；代价是若单轮变长，态势可能
@@ -390,7 +422,7 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	// 本任务的工作目录 <workDir>/tasks/<taskID>，先建好。
 	taskDir := ensureRunDir(p.workDir, taskID, 0)
 	ctx = intercept.WithReviewContext(ctx, taskDir, intercept.ReviewBackground{})
-	sysBody := plannerSystem(goal, p.workDir, taskDir)
+	sysBody := plannerSystem(goal, p.workDir, taskDir, mode)
 	if p.wantConstraints() {
 		sysBody += constraintBlock(ts) // 操作约束(若有)注入系统提示,框定探索边界
 	}

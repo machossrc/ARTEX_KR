@@ -285,12 +285,35 @@ func ensureRunDir(base string, taskID, intentID int64) string {
 // cmdOutDir is the SDK large-tool-output spill dir under an agent's run dir.
 func cmdOutDir(dir string) string { return filepath.Join(dir, "cmd-output") }
 
-func workerSystem(proxyAddr, caCert, dataDir, runDir string) string {
-	body := renderSystem("worker", workerDefaultTmpl, WorkerVars{ProxyAddr: proxyAddr, DataDir: dataDir, Now: nowStr()})
+// generalWorkerDefaultTmpl is the "general" task-mode counterpart of
+// workerDefaultTmpl: same single-intent executor role, worded for a
+// general-purpose autonomous task instead of a pentest engagement, and without
+// the asset/finding tool references (general mode doesn't expose them). Used
+// ONLY when the task's mode is "general"; "security" mode (the default) always
+// renders workerDefaultTmpl, unchanged.
+const generalWorkerDefaultTmpl = `당신은 범용 자율 작업 플랫폼의 "실행자"(work agent)입니다. 【의도 하나】(한 문장으로 표현한 작업 방향)를 할당받았으며 유일한 역할은 **이 의도를 완료하고 결과를 지식 그래프에 기록한 뒤 중지하여 반환하는 것**입니다.
+
+**경계(절대 준수)**:
+1. **할당받은 의도 하나만 수행하세요**. 의도 밖에서 다룰 만한 단서를 보았다면 record_fact의 summary에 한 문장으로 기록하여 계획자에게 전달하세요.
+2. 처음 막히면 충분히 탐색했다는 뜻이 아닙니다. 이 의도에 해당하는 합리적인 방법을 시도한 뒤 결론을 내리세요.
+3. 시스템 프롬프트 맨 위에 【동작 제약】이 있으면 그것이 최고 우선순위의 경계입니다.
+
+**발견하는 즉시 기록하세요**(그래프에 저장한 것만 유효합니다). record_fact(탐색 그래프, intent_id 전달)로 결론/사실을 기록하세요. 여러 관찰을 하나의 사실로 종합하고(summary 한 문장 + detail), 실제로 완전히 독립적인 결론만 나누어 기록하세요. evidence(근거)와 confidence(observed/inferred)를 표시하세요.
+
+의도를 완료하면 무엇을 했고 어떤 사실을 기록했는지 한 문장으로 요약하세요.`
+
+func workerSystem(proxyAddr, caCert, dataDir, runDir, mode string) string {
+	tmpl := workerDefaultTmpl
+	if mode == "general" {
+		tmpl = generalWorkerDefaultTmpl
+	}
+	body := renderSystem("worker", tmpl, WorkerVars{ProxyAddr: proxyAddr, DataDir: dataDir, Now: nowStr()})
 	// caCert is present only when the recording MITM is on, which is exactly when
 	// the traffic_* tools are registered — so it gates the traffic-tool note.
 	// Optional finding guidance is added for every role after tool resolution.
-	return body + workerTrafficBlock(caCert != "") + workerArtifactSpec(runDir)
+	// general mode's reduced tool set has no traffic_* tools either way, but the
+	// gate stays identical for "security" (byte-for-byte original behavior).
+	return body + workerTrafficBlock(caCert != "" && mode != "general") + workerArtifactSpec(runDir)
 }
 
 // renderIntentTask formats the claimed intent for the worker's launch USER message:
@@ -346,19 +369,22 @@ func renderWorkerGraphOverview(data map[string]any) string {
 // max_turns) and a per-kind breakdown of what was written back (so an intent that
 // explored but persisted nothing isn't mistaken for done, and the engine can log
 // facts/assets/findings separately instead of lumping them under "facts").
-func (w *Worker) Execute(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string)) (harness.TerminalReason, WriteCounts, error) {
-	return w.execute(ctx, name, taskID, as, ts, intent, hooks, emit, enr, notifyFinding, "", "")
+func (w *Worker) Execute(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string), mode string) (harness.TerminalReason, WriteCounts, error) {
+	return w.execute(ctx, name, taskID, as, ts, intent, hooks, emit, enr, notifyFinding, "", "", mode)
 }
 
 // ExecuteWithMessage runs the next turn in the same intent conversation with a
 // human-authored message. The HTTP handler does not edit the transcript;
 // agentcore records the message as a normal user turn when this Worker starts.
 // This keeps Worker continuation identical to the regular agent chat flow.
-func (w *Worker) ExecuteWithMessage(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string), requestID, message string) (harness.TerminalReason, WriteCounts, error) {
-	return w.execute(ctx, name, taskID, as, ts, intent, hooks, emit, enr, notifyFinding, strings.TrimSpace(requestID), strings.TrimSpace(message))
+func (w *Worker) ExecuteWithMessage(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string), requestID, message, mode string) (harness.TerminalReason, WriteCounts, error) {
+	return w.execute(ctx, name, taskID, as, ts, intent, hooks, emit, enr, notifyFinding, strings.TrimSpace(requestID), strings.TrimSpace(message), mode)
 }
 
-func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string), requestID, message string) (harness.TerminalReason, WriteCounts, error) {
+// mode selects "security" (default; EXACTLY the platform's original prompt +
+// full asset/finding domain tools) or "general" (generic prompt + reduced tool
+// set with no asset/finding tools).
+func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.AssetStore, ts *db.ExplorationStore, intent *db.Node, hooks harness.HookRunner, emit func(db.Activity), enr EnrichTrigger, notifyFinding func(int64, string), requestID, message, mode string) (harness.TerminalReason, WriteCounts, error) {
 	tsx := NewToolSet(ts, name)
 	tsx.SetFindingRecorder(w.findingRecorder)
 	tsx.SetTaskID(taskID)
@@ -373,12 +399,20 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 	// base = built-in worker tools ∪ host tools (traffic) ∪ default tools (incl. Bash);
 	// then augment with the agent's visible skills/MCP. During the SDK settlement
 	// phase, Bash is hidden via Settlement.DisabledTools (no local gating needed).
-	base := append(tsx.WorkerTools(), w.extraTools...)
+	// "security"(기본)는 원본과 100% 동일한 경로; "general"만 자산/취약점 도구를 뺀
+	// 축소 도구 집합(GeneralWorkerTools)을 쓴다.
+	var domainTools []actool.CoreTool
+	if mode == "general" {
+		domainTools = tsx.GeneralWorkerTools()
+	} else {
+		domainTools = tsx.WorkerTools()
+	}
+	base := append(domainTools, w.extraTools...)
 	// worker 刻意不给 MultiEdit/Glob/Grep：文件精改用 Edit、检索走 Bash(grep/find)，
 	// 收敛工具面、减少低价值调用。其余 SDK 默认工具(Read/Write/Edit/LS/Bash/Sleep)照常。
 	base = append(base, defaultToolsExcept("MultiEdit", "Glob", "Grep")...)
 	ctx = WithRunInfo(ctx, RunInfo{TaskID: taskID, ExplorationID: explorationID(ts), IntentID: intent.ID})
-	tools, def, cleanup := AugmentTools(ctx, "worker", base)
+	tools, def, cleanup := AugmentToolsChat(ctx, "worker", mode, base)
 	defer cleanup()
 
 	// 意图是 worker 的【唯一职责、贯穿整个 run 的不变量】→ 连同启动指令、意图锚定的目标资产
@@ -393,7 +427,7 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 	// inherit a parent run's background into the action reviewer.
 	ctx = intercept.WithReviewContext(ctx, runDir, intercept.ReviewBackground{})
 	overview := renderWorkerGraphOverview(tsx.graphOverviewData())
-	sysBody := workerSystem(w.proxyAddr, w.proxyCACert, w.workDir, runDir)
+	sysBody := workerSystem(w.proxyAddr, w.proxyCACert, w.workDir, runDir, mode)
 	if w.wantConstraints() {
 		sysBody += constraintBlock(ts) // 操作约束(若有)注入系统提示,worker 执行时严格遵守
 	}

@@ -100,8 +100,32 @@ const mainAgentDefaultTmpl = `당신은 승인된 침투 테스트 시스템의 
 
 발견 사항을 지어내지 말고 도구가 반환한 실제 데이터만을 근거로 답하세요.`
 
-func mainAgentSystem(goal, dataDir, workDir string) string {
-	body := renderSystem("mainagent", mainAgentDefaultTmpl, MainVars{Goal: goal, DataDir: dataDir, Now: nowStr()})
+// generalMainAgentDefaultTmpl is the "general" task-mode counterpart of
+// mainAgentDefaultTmpl — same human-interface role (observe + steer via
+// hints/intents/goals/constraints), worded for a general-purpose autonomous task
+// instead of a pentest engagement. Used ONLY when the task's mode is "general";
+// "security" mode (the default) always renders mainAgentDefaultTmpl, unchanged.
+const generalMainAgentDefaultTmpl = `당신은 범용 작업 플랫폼의 "주 에이전트"이며 사람 운영자와의 접점입니다. 직접 작업을 수행하거나 자율적으로 하위 작업을 계속 생성하지 않습니다(그것은 계획자의 일입니다). 역할은 다음과 같습니다.
+
+1. 관찰: graph_overview / list_facts / get_worker_output으로 현재 진행 상황에 대한 사람의 질문에 답하세요.
+2. 방향 조정(사람의 의도를 시스템에 반영):
+   - 사람이 "방향 변경/특정 사항 강조/특정 영역 집중"을 원하면 add_hint로 힌트를 작성하세요(계획자가 다음에 읽습니다).
+   - 사람이 "구체적인 하위 작업 하나를 즉시 실행"하길 원하면 add_intent로 높은 우선순위의 의도 하나(priority 8-10)를 직접 삽입하세요.
+   - 사람이 "실행 중인 작업(work)의 방향을 실시간으로 바로잡기"를 원하면 steer_work를 사용하세요.
+   - 사람이 "새로 달성할 최종 목표 추가"를 원하면 set_goals로 목표를 보완하세요.
+   - 사람이 "작업 제약 추가/변경(특정 동작 허용/금지)"을 원하면 set_constraints로 등록하세요.
+3. 사람이 이해할 수 있게 간결하게 답하고 무엇을 했는지 설명하세요.
+
+현재 작업 목표: {{.Goal}}
+
+산출물을 지어내지 말고 도구가 반환한 실제 데이터만을 근거로 답하세요.`
+
+func mainAgentSystem(goal, dataDir, workDir, mode string) string {
+	tmpl := mainAgentDefaultTmpl
+	if mode == "general" {
+		tmpl = generalMainAgentDefaultTmpl
+	}
+	body := renderSystem("mainagent", tmpl, MainVars{Goal: goal, DataDir: dataDir, Now: nowStr()})
 	return body + artifactSpec(workDir)
 }
 
@@ -109,7 +133,11 @@ func mainAgentSystem(goal, dataDir, workDir string) string {
 // non-nil, receives each execution step (thinking / tool_use / tool_result /
 // text / result) so the main-agent session shows its work — exactly like the
 // worker/planner sessions — not just the final answer.
-func (m *MainAgent) Chat(ctx context.Context, taskID int64, mainSeg int, as *db.AssetStore, ts *db.ExplorationStore, goal, message string, emit func(db.Activity), notify, resume func(), notifyGoal, notifyHint func([]string)) (string, error) {
+// mode selects the task's prompt/tool family: "security" (default; pentest-
+// flavored prompt + full asset/finding domain tools, EXACTLY the platform's
+// original behavior) or "general" (generic task-management prompt + reduced
+// tool set with no asset/finding tools).
+func (m *MainAgent) Chat(ctx context.Context, taskID int64, mainSeg int, as *db.AssetStore, ts *db.ExplorationStore, goal, message string, emit func(db.Activity), notify, resume func(), notifyGoal, notifyHint func([]string), mode string) (string, error) {
 	tsx := NewToolSet(ts, "human")
 	tsx.SetFindingRecorder(m.findingRecorder)
 	if as != nil {
@@ -122,16 +150,24 @@ func (m *MainAgent) Chat(ctx context.Context, taskID int64, mainSeg int, as *db.
 	tsx.SetNotifyGoal(notifyGoal) // set_goals 新增目标 → 给 planner 记一条「人新增了目标：…」触发
 	tsx.SetNotifyHint(notifyHint) // add_hint 新增提示 → 给 planner 记一条「人新增了 N 条战略提示：…」触发
 	tsx.steerWork = m.steerWork   // enable steer_work tool (nil = unavailable)
-	// 领域工具 + 基础默认工具集（Read/Write/Edit/MultiEdit/LS/Glob/Grep/Bash）
-	// 资产覆盖度功能关闭时剔除 add_task_scope/list_untested_assets（不入 prompt）。
-	base := append(tsx.DropCoverageTools(tsx.MainAgentTools()), actool.DefaultTools()...)
+	// 领域工具 + 基础默认工具集（Read/Write/Edit/MultiEdit/LS/Glob/Grep/Bash）。
+	// "security"(기본)는 원본과 100% 동일한 경로; "general"만 자산/취약점 도구를 뺀
+	// 축소 도구 집합(GeneralMainAgentTools)을 쓴다.
+	var domainTools []actool.CoreTool
+	if mode == "general" {
+		domainTools = tsx.GeneralMainAgentTools()
+	} else {
+		// 资产覆盖度功能关闭时剔除 add_task_scope/list_untested_assets（不入 prompt）。
+		domainTools = tsx.DropCoverageTools(tsx.MainAgentTools())
+	}
+	base := append(domainTools, actool.DefaultTools()...)
 	ctx = WithRunInfo(ctx, RunInfo{TaskID: taskID, ExplorationID: explorationID(ts)})
-	tools, def, cleanup := AugmentTools(ctx, "mainagent", base)
+	tools, def, cleanup := AugmentToolsChat(ctx, "mainagent", mode, base)
 	defer cleanup()
 	// 本任务的工作目录 <workDir>/tasks/<taskID>，先建好。
 	mainDir := ensureRunDir(m.workDir, taskID, 0)
 	ctx = intercept.WithReviewWorkingDirectory(ctx, mainDir)
-	system, boundary := deferredSystem(mainAgentSystem(goal, m.workDir, mainDir), def)
+	system, boundary := deferredSystem(mainAgentSystem(goal, m.workDir, mainDir, mode), def)
 	opts := agentcore.Options{
 		Provider:        m.prov,
 		SystemPrompt:    system,

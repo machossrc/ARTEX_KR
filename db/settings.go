@@ -65,3 +65,26 @@ func (d *DB) SetDefaultConversationMode(mode string) error {
 	}
 	return d.SetSetting(defaultConversationModeKey, mode)
 }
+
+// defaultTaskModeKey is the settings-table key holding the app-wide default
+// task mode ("security" | "general") used when a task-create request omits mode.
+const defaultTaskModeKey = "default_task_mode"
+
+// GetDefaultTaskMode returns the app-wide default mode for new tasks, falling
+// back to "security" when unset/unrecognized.
+func (d *DB) GetDefaultTaskMode() string {
+	v, ok, err := d.GetSetting(defaultTaskModeKey)
+	if err != nil || !ok || v != "general" {
+		return "security"
+	}
+	return "general"
+}
+
+// SetDefaultTaskMode stores the app-wide default mode for new tasks. mode must
+// be "security" or "general".
+func (d *DB) SetDefaultTaskMode(mode string) error {
+	if mode != "general" {
+		mode = "security"
+	}
+	return d.SetSetting(defaultTaskModeKey, mode)
+}

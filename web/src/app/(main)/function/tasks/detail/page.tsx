@@ -5,12 +5,23 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { ArchiveIcon, ArrowLeftIcon, BrainIcon, CheckIcon, CircleAlertIcon, PauseIcon, PlayIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  ArrowLeftIcon,
+  BrainIcon,
+  CheckIcon,
+  CircleAlertIcon,
+  PauseIcon,
+  PlayIcon,
+  ShieldIcon,
+  SparklesIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/status-badge";
 import { TaskLLMProfileChain } from "@/components/task-llm-profile-chain";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -364,6 +375,18 @@ function TaskDetailInner() {
           <code className="hidden rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground sm:inline">
             {task.id}
           </code>
+          <Badge
+            variant="outline"
+            className="hidden shrink-0 gap-1 px-1.5 py-0 text-[10px] sm:inline-flex"
+            title={
+              task.mode === "general"
+                ? "범용 작업 모드: 일반 프롬프트, 자산·취약점 도구 미노출"
+                : "보안 분석 모드: 취약점 분석·침투 테스트 전용"
+            }
+          >
+            {task.mode === "general" ? <SparklesIcon className="size-2.5" /> : <ShieldIcon className="size-2.5" />}
+            {task.mode === "general" ? "범용" : "보안"}
+          </Badge>
           <Separator orientation="vertical" className="mx-1 hidden h-4 sm:block" />
           <TaskLLMControl task={task} profiles={profiles} onUpdated={load} />
           <StatusBadge domain={terminal ? "task" : "engine"} value={terminal ? task.status : engineMode} dot />

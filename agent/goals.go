@@ -45,6 +45,27 @@ const goalsDefaultTmpl = `당신은 침투 테스트 목표 분해기입니다. 
 
 set_goals를 호출하여 결과를 제출하세요.`
 
+// generalGoalsDefaultTmpl is the "general" task-mode counterpart of
+// goalsDefaultTmpl: same decomposition role (final-outcome extraction, not
+// a plan of steps), worded for a general-purpose task instead of a pentest
+// engagement, and without the vulnclass/asset-scope framing (not applicable to
+// general tasks — goalsScopeTail/add_task_scope stay off in general mode, see
+// DecomposeGoalsWithProvider). Used ONLY when the task's mode is "general";
+// "security" mode (the default) always renders goalsDefaultTmpl, unchanged.
+const generalGoalsDefaultTmpl = `당신은 작업 목표 분해기입니다. 사용자 입력에서 **최종적으로 달성할 결과**를 식별하는 것이 역할이며 실행 단계를 계획하는 것은 아닙니다.
+
+**첫 단계(목표를 나누기 전에 먼저 수행): 동작 제약 추출**
+「작업 목표 / 작업 설명」에서 운영자가 【할 수 있는 동작과 해서는 안 되는 동작】을 명시한 내용을 식별하고 set_constraints로 하나씩 등록하세요(설명과 목표에 동작 제약이 없으면 추출하지 않아도 됩니다).
+
+**목표 = 최종적으로 전달하거나 검증할 수 있는 결과**(정보 수집/과정/단계는 목표가 아님)
+
+**분해 원칙**:
+- 사용자가 설명한 최종 목표가 하나이면 하나만 출력
+- **서로 독립적인** 최종 산출물이 여러 개면 각각 나열
+- 사용자가 언급하지 않은 목표를 절대 지어내지 않음
+
+set_goals를 호출하여 결과를 제출하세요.`
+
 // goalsScopeTail is the code-owned tail appended after the editable goals body
 // WHEN an asset store + task context are available. It teaches the decomposer to
 // also lift the explicit asset scope out of the goal/description and register it
@@ -96,18 +117,20 @@ type GoalSpec struct {
 // straight into it (the same managed tool the main agent uses to add goals at
 // runtime). The returned specs are read back from the store so callers can emit
 // per-goal activity and detect the "LLM produced nothing" case for their fallback.
-func DecomposeGoals(ctx context.Context, prov llm.Provider, dataDir, goalText, desc string, as *db.AssetStore, ts *db.ExplorationStore, taskID int64, emit func(db.Activity)) []GoalSpec {
+func DecomposeGoals(ctx context.Context, prov llm.Provider, dataDir, goalText, desc string, as *db.AssetStore, ts *db.ExplorationStore, taskID int64, emit func(db.Activity), mode string) []GoalSpec {
 	if prov == nil {
 		return nil
 	}
-	return DecomposeGoalsWithProvider(ctx, prov, dataDir, goalText, desc, as, ts, taskID, false, 0, emit)
+	return DecomposeGoalsWithProvider(ctx, prov, dataDir, goalText, desc, as, ts, taskID, false, 0, emit, mode)
 }
 
 // DecomposeGoalsWithProvider is the task-runtime variant used when a task has an
 // ordered provider chain. It preserves the same tools and write behavior while
 // letting the caller own provider selection/failover. maxTokens is the profile's
-// per-reply output cap (0 = send none).
-func DecomposeGoalsWithProvider(ctx context.Context, prov llm.Provider, dataDir, goalText, desc string, as *db.AssetStore, ts *db.ExplorationStore, taskID int64, nonStreaming bool, maxTokens int, emit func(db.Activity)) []GoalSpec {
+// per-reply output cap (0 = send none). mode selects "security" (default; EXACTLY
+// the platform's original prompt + asset-scope extraction) or "general" (generic
+// prompt, no asset-scope extraction — add_task_scope is a pentest/asset concept).
+func DecomposeGoalsWithProvider(ctx context.Context, prov llm.Provider, dataDir, goalText, desc string, as *db.AssetStore, ts *db.ExplorationStore, taskID int64, nonStreaming bool, maxTokens int, emit func(db.Activity), mode string) []GoalSpec {
 	if prov == nil {
 		return nil
 	}
@@ -127,14 +150,20 @@ func DecomposeGoalsWithProvider(ctx context.Context, prov llm.Provider, dataDir,
 	// Description rides in the user message (same channel as the goal), NOT via the
 	// {{.EngagementDescription}} template var — else a prompt that references the var
 	// would inject the description twice. System prompt stays pure static instructions.
-	sys := renderSystem("goals", goalsDefaultTmpl, GoalsVars{DataDir: dataDir, Now: nowStr()})
+	goalsTmpl := goalsDefaultTmpl
+	if mode == "general" {
+		goalsTmpl = generalGoalsDefaultTmpl
+	}
+	sys := renderSystem("goals", goalsTmpl, GoalsVars{DataDir: dataDir, Now: nowStr()})
 	// set_constraints 始终可用(不依赖 asset store):正文已含「先抽操作约束再拆目标」这步
 	// (可在 agent 编辑页改措辞),这里只需接上工具。
 	tools := []actool.CoreTool{tsx.setGoals(), tsx.setConstraints()}
-	// Wire add_task_scope only when we have a real asset store + task to write to.
-	// The scope-extraction tail is appended in lockstep so the prompt never asks for
-	// a tool that isn't present.
-	if as != nil && taskID > 0 {
+	// Wire add_task_scope only when we have a real asset store + task to write to
+	// AND the task is in "security" mode — asset scope is a pentest concept and
+	// general-mode tasks never get it, regardless of as/taskID. The scope-extraction
+	// tail is appended in lockstep so the prompt never asks for a tool that isn't
+	// present. "security" (default) keeps the exact original condition/behavior.
+	if as != nil && taskID > 0 && mode != "general" {
 		tools = append(tools, tsx.addTaskScope())
 		sys += goalsScopeTail
 	}

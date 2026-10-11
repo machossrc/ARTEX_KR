@@ -1448,6 +1448,10 @@ type createTaskReq struct {
 	PlanHeartbeatSeconds int      `json:"plan_heartbeat_seconds"`      // planner 心跳触发间隔(秒);0/省略=默认600(10min);下限=默认=600,低于自动抬到600
 	SeedFirstIntent      *bool    `json:"seed_first_intent,omitempty"` // 创建时直接下发一条种子意图(内容=描述+目标),让 worker 免等首轮 planner 直接开跑;省略/null=默认关闭,走标准先规划再执行。显式传 true 才开(CTF 常一 work 解决时可省掉开跑前的 planner 轮)。
 	CoverageEnabled      *bool    `json:"coverage_enabled,omitempty"`  // 资产覆盖度功能;省略/null=默认开(true)。false=关闭覆盖度计算/展示/自动累积范围+隐藏 add_task_scope/list_untested_assets。company 关联不受影响。
+	// Mode selects the task's prompt/tool family: "security"(기본, 침투 테스트
+	// 원본 동작과 100% 동일) | "general"(범용 작업). 비우면 서버 기본값(설정의
+	// default_task_mode)을 사용한다.
+	Mode string `json:"mode,omitempty"`
 	// InterceptRules 任务级资产拦截/允许规则(创建时录入,存 task_intercept_rules,不进全局表)。
 	InterceptRules []taskInterceptRuleReq `json:"intercept_rules,omitempty"`
 }
@@ -1501,12 +1505,22 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, "작업 수준 차단 규칙이 유효하지 않습니다: "+err.Error())
 		return
 	}
+	mode := strings.TrimSpace(req.Mode)
+	switch mode {
+	case "security", "general":
+		// explicit, valid
+	case "":
+		mode = s.m.pg.GetDefaultTaskMode()
+	default:
+		writeErr(w, 400, "mode는 security 또는 general이어야 합니다")
+		return
+	}
 	t, err := s.m.CreateTaskWithOptions(req.Description, req.Goal, db.TaskCreateOptions{
 		Name: strings.TrimSpace(req.Name), CategoryID: req.CategoryID,
 		SourceTaskIDs: sourceIDs, CompanyIDs: req.CompanyIDs, LLMProfileIDs: req.LLMProfileIDs,
 		TimeoutSeconds: req.TimeoutSeconds, PlanHeartbeatSeconds: req.PlanHeartbeatSeconds,
-		CoverageEnabled: req.CoverageEnabled,
-		InterceptRules:  interceptRules,
+		CoverageEnabled: req.CoverageEnabled, Mode: mode,
+		InterceptRules: interceptRules,
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrTaskCategoryInvalid) || errors.Is(err, db.ErrTaskCategoryNotFound) {
@@ -3314,6 +3328,8 @@ func (s *Server) settingsPayload() map[string]any {
 		// 새 대화의 기본 모드: "security"(취약점 분석, 기본값) | "general"(범용 AI 도우미).
 		// 대화 생성 요청이 mode를 비우면 이 값을 사용한다.
 		"default_conversation_mode": s.m.pg.GetDefaultConversationMode(),
+		// 새 작업(task)의 기본 모드. 작업 생성 요청이 mode를 비우면 이 값을 사용한다.
+		"default_task_mode": s.m.pg.GetDefaultTaskMode(),
 	}
 }
 
@@ -3388,6 +3404,8 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 		NotifyDigestMins *int    `json:"notify_digest_interval_min"`
 		// 새 대화의 기본 모드. "security" | "general".
 		DefaultConversationMode *string `json:"default_conversation_mode"`
+		// 새 작업(task)의 기본 모드. "security" | "general".
+		DefaultTaskMode *string `json:"default_task_mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeErr(w, 400, err.Error())
@@ -3439,6 +3457,17 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := s.m.pg.SetDefaultConversationMode(m); err != nil {
+			writeErr(w, 500, err.Error())
+			return
+		}
+	}
+	if req.DefaultTaskMode != nil {
+		m := strings.TrimSpace(*req.DefaultTaskMode)
+		if m != "security" && m != "general" {
+			writeErr(w, 400, "default_task_mode는 security 또는 general이어야 합니다")
+			return
+		}
+		if err := s.m.pg.SetDefaultTaskMode(m); err != nil {
 			writeErr(w, 500, err.Error())
 			return
 		}
@@ -3758,7 +3787,7 @@ func (s *Server) chat(w http.ResponseWriter, r *http.Request) {
 			taskDir := filepath.Join(s.m.dir, "tasks", t.ID)
 			agentMsg := composeAgentMessage(agentMessage, req.Attachments, taskDir)
 			s.engine.BeginLLMCall(t.ID)
-			_, err := ma.Chat(ctx, maTaskID, mainSeg, s.m.Assets(), t.Store, t.Goal, agentMsg, emit, t.Notify, resume, t.NotifyGoal, t.NotifyHint)
+			_, err := ma.Chat(ctx, maTaskID, mainSeg, s.m.Assets(), t.Store, t.Goal, agentMsg, emit, t.Notify, resume, t.NotifyGoal, t.NotifyHint, t.Mode)
 			s.engine.EndLLMCall(t.ID)
 			if err != nil && ctx.Err() == nil {
 				s.engine.emitActivity(t, db.Activity{Worker: "mainagent", Kind: "text", IsError: true, Summary: "(메인 에이전트 오류: " + err.Error() + "）", MainSeg: segPtr})

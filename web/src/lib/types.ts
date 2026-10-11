@@ -4,6 +4,12 @@
 export type TaskStatus = "created" | "queued" | "running" | "paused" | "done" | "failed" | "timeout";
 export type EngineMode = "exploring" | "paused" | "stalled" | "idle";
 
+// TaskMode selects the task's prompt/tool family: "security" (default;
+// vulnerability-analysis/pentest prompts + full asset/finding domain tools) or
+// "general" (generic task prompts, no asset/finding tools). Set at creation,
+// immutable afterward.
+export type TaskMode = "security" | "general";
+
 export interface Task {
   id: string;
   name?: string; // 可选任务名称;空/缺省=未命名,展示时回退到描述
@@ -13,6 +19,7 @@ export interface Task {
   pinned_at?: string | null;
   description: string;
   goal: string;
+  mode: TaskMode;
   status: TaskStatus;
   created_at: string;
   created_unix?: number; // created_at as unix seconds (run-duration calc)
@@ -957,6 +964,8 @@ export interface Settings {
   // 새 대화의 기본 모드: "security"(보안/취약점 분석, 기본값) | "general"(범용 AI 도우미).
   // 대화 생성 시 mode를 지정하지 않으면 이 값이 쓰인다.
   default_conversation_mode?: ConversationMode;
+  // 새 작업(task)의 기본 모드. 작업 생성 시 mode를 지정하지 않으면 이 값이 쓰인다.
+  default_task_mode?: TaskMode;
 }
 
 // ---- 漏洞 IM 推送 ----

@@ -66,16 +66,16 @@ const pentestDefaultTmpl = `당신은 승인된 침투 테스트 시스템의 "�
 // DefaultAssistantPrompt is the starter/fallback body for CUSTOM conversational
 // agents — they have no per-key in-code default. It is seeded into agent_prompts
 // when a custom agent is created (so the editor isn't blank) and used as the
-// render fallback in RunChat when the DB prompt is somehow missing. This is also
-// the body used by chat conversations in "general" mode (일반 AI 도우미).
-const DefaultAssistantPrompt = `당신은 도움을 주는 AI 도우미입니다. 프로그래밍, 글쓰기, 분석, 일반 지식 등 다양한 주제로 사용자를 돕습니다. 사용자의 질문에 간결하고 정확하게 답하고 필요하면 사용 가능한 도구로 작업을 완료하세요. 사용자가 요청한 일만 수행하고 정보를 지어내지 마세요.`
+// render fallback in RunChat when the DB prompt is somehow missing. UNCHANGED
+// from the platform's original text — this is also the "security"-mode (default)
+// chat fallback, and conversation mode must not alter that path's behavior.
+const DefaultAssistantPrompt = `당신은 도움을 주는 AI 도우미입니다. 사용자의 질문에 간결하고 정확한 중국어로 답하고 필요하면 사용 가능한 도구로 작업을 완료하세요. 사용자가 요청한 일만 수행하고 정보를 지어내지 마세요.`
 
-// DefaultSecurityPrompt is the body used by chat conversations in "security"
-// mode — the platform's original pentest-oriented default for freeform chat
-// (the pentest/보안 분석에 특화된 어시스턴트 어조). Kept separate from
-// DefaultAssistantPrompt so toggling a conversation's mode swaps tone/wording
-// without touching DB-stored per-agent prompt overrides.
-const DefaultSecurityPrompt = `당신은 승인된 보안 테스트/취약점 분석 업무를 돕는 AI 어시스턴트입니다. 정찰, 공격 표면 분석, 취약점 검증, PoC 작성, 보안 리포트 등 보안 관련 작업을 간결하고 정확하게 지원하며 필요하면 사용 가능한 도구로 작업을 완료하세요. **승인된 범위에서만 조작**하고, 사용자가 요청한 일만 수행하며 결과를 지어내지 마세요.`
+// GeneralAssistantPrompt is the body used by chat conversations in "general"
+// mode only (일반 AI 도우미 — programming/writing/general use, not security). It
+// never affects "security"-mode behavior, which keeps DefaultAssistantPrompt
+// verbatim as its fallback.
+const GeneralAssistantPrompt = `당신은 도움을 주는 AI 도우미입니다. 프로그래밍, 글쓰기, 분석, 일반 지식 등 다양한 주제로 사용자를 돕습니다. 사용자의 질문에 간결하고 정확하게 답하고 필요하면 사용 가능한 도구로 작업을 완료하세요. 사용자가 요청한 일만 수행하고 정보를 지어내지 마세요.`
 
 // ReporterDefaultPrompt is the seeded prompt for the "报告撰写"(reporter) custom
 // agent — triggered when report_finding fires. It gathers the finding's full

@@ -57,7 +57,7 @@ func TestChatUnknownVarFallsBack(t *testing.T) {
 		return "引用了不存在的变量：{{.Bogus}}", true
 	}
 
-	out := chatSystem("whatever", "/app/data", "/tmp/x", "general")
+	out := chatSystem("whatever", "/app/data", "/tmp/x", "")
 	if strings.Contains(out, "引用了不存在的变量") {
 		t.Fatalf("broken template should have fallen back, got custom body: %q", out)
 	}

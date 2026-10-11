@@ -82,15 +82,15 @@ func chatWorkDirSpec(workDir string) string {
 }
 
 // chatSystem renders the DB-managed prompt body for agentKey. Custom agents have
-// no per-key in-code default, so the render fallback depends on the
-// conversation's mode: "general" falls back to DefaultAssistantPrompt (generic
-// AI helper), anything else (including "" and "security") falls back to
-// DefaultSecurityPrompt (pentest/security-flavored helper) — preserving the
-// platform's original behavior for existing conversations with no mode set.
+// no per-key in-code default, so the render fallback is DefaultAssistantPrompt —
+// EXACTLY the platform's original, unmodified fallback — for every mode except
+// "general", which uses GeneralAssistantPrompt instead. This keeps "security"
+// mode (the default, matching all pre-existing conversations) byte-identical to
+// the platform's original chat behavior; only "general" mode may differ.
 func chatSystem(agentKey, dataDir, workDir, mode string) string {
-	fallback := DefaultSecurityPrompt
+	fallback := DefaultAssistantPrompt
 	if mode == "general" {
-		fallback = DefaultAssistantPrompt
+		fallback = GeneralAssistantPrompt
 	}
 	return renderSystem(agentKey, fallback, chatVars{DataDir: dataDir, Now: nowStr(), Mode: mode}) + chatWorkDirSpec(workDir)
 }

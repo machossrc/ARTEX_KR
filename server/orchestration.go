@@ -305,11 +305,21 @@ func (s *Server) toolSpawnTask() actool.CoreTool {
 			if pin != nil {
 				llmIDs = []int64{*pin}
 			}
+			// mode inherits the parent task's (spawn_task has no mode param of its
+			// own); no parent_ref → zero-value "" normalizes to "security" in
+			// CreateTaskWithOptions, exactly the platform's original behavior.
+			var mode string
+			if a.ParentRef != "" {
+				if pt, ok := s.m.Task(a.ParentRef); ok {
+					mode = pt.Mode
+				}
+			}
 			t, err := s.m.CreateTaskWithOptions(a.Description, a.Goal, db.TaskCreateOptions{
 				SourceTaskIDs:        sourceIDs,
 				LLMProfileIDs:        llmIDs,
 				TimeoutSeconds:       a.TimeoutSeconds,
 				PlanHeartbeatSeconds: a.PlanHeartbeatSeconds,
+				Mode:                 mode,
 			})
 			if err != nil {
 				return actool.Errorf(err.Error()), nil

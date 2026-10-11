@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/lib/api";
 import { CHAT_SEND_MODE_OPTIONS, type ChatSendMode, setChatSendMode, useChatSendMode } from "@/lib/chat-send-mode";
-import type { ConversationMode, Settings } from "@/lib/types";
+import type { ConversationMode, Settings, TaskMode } from "@/lib/types";
 
 
 export default function SystemSettingsPage() {
@@ -52,6 +52,8 @@ export default function SystemSettingsPage() {
   const [noaCompaction, setNoaCompaction] = React.useState(false);
   // 새 대화의 기본 모드(默认 "security").
   const [defaultConvMode, setDefaultConvMode] = React.useState<ConversationMode>("security");
+  // 새 작업(task)의 기본 모드(默认 "security").
+  const [defaultTaskMode, setDefaultTaskMode] = React.useState<TaskMode>("security");
   // 纯前端偏好：不走 /api/settings，直接读写 localStorage。
   const sendMode = useChatSendMode();
 
@@ -70,6 +72,7 @@ export default function SystemSettingsPage() {
     setInjectWorker(s.constraints_inject_worker !== false);
     setNoaCompaction(!!s.noa_compaction);
     setDefaultConvMode(s.default_conversation_mode === "general" ? "general" : "security");
+    setDefaultTaskMode(s.default_task_mode === "general" ? "general" : "security");
   }, []);
 
   const saveWorkers = () => {
@@ -183,6 +186,20 @@ export default function SystemSettingsPage() {
       })
       .catch((e) => {
         setDefaultConvMode(v === "general" ? "security" : "general"); // revert on failure
+        toast.error(`저장 실패: ${(e as Error).message}`);
+      });
+  };
+
+  const saveDefaultTaskMode = (v: TaskMode) => {
+    setDefaultTaskMode(v); // optimistic
+    api
+      .setSettings({ default_task_mode: v })
+      .then((s) => {
+        apply(s);
+        toast.success(v === "general" ? "새 작업 기본 모드를 범용으로 저장했습니다" : "새 작업 기본 모드를 보안 분석으로 저장했습니다");
+      })
+      .catch((e) => {
+        setDefaultTaskMode(v === "general" ? "security" : "general"); // revert on failure
         toast.error(`저장 실패: ${(e as Error).message}`);
       });
   };
@@ -317,6 +334,37 @@ export default function SystemSettingsPage() {
               <SelectContent>
                 <SelectItem value="security">보안 분석</SelectItem>
                 <SelectItem value="general">범용 AI</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-4 break-inside-avoid md:mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShieldQuestionIcon className="size-4" />
+              새 작업 기본 모드
+            </CardTitle>
+            <CardDescription>
+              작업(Task) 생성 시 모드를 지정하지 않으면 이 값을 사용합니다. <b>보안 분석</b>은 원본과 동일한 침투 테스트 프롬프트와 자산·취약점 도구를 쓰고,{" "}
+              <b>범용</b>은 일반적인 목표 달성용 프롬프트를 사용하며 자산·취약점 도구를 노출하지 않습니다. 작업 생성 시 개별적으로 바꿀 수 있으며, 생성 후에는 변경할 수 없습니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between gap-4">
+            <Label htmlFor="default-task-mode" className="text-sm font-normal text-muted-foreground">
+              {defaultTaskMode === "general" ? "범용" : "보안 분석"}
+            </Label>
+            <Select
+              value={defaultTaskMode}
+              onValueChange={(v) => saveDefaultTaskMode(v as TaskMode)}
+              disabled={!loaded || saving}
+            >
+              <SelectTrigger id="default-task-mode" className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="security">보안 분석</SelectItem>
+                <SelectItem value="general">범용</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>

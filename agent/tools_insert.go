@@ -681,6 +681,35 @@ func (t *ToolSet) MainAgentTools() []actool.CoreTool {
 	}
 }
 
+// GeneralWorkerTools is the "general" task-mode equivalent of WorkerTools: the
+// generic goal/intent/fact graph tools stay (the orchestration engine itself is
+// mode-agnostic — goals/intents/facts are just a planning scratchpad), but the
+// pentest-only nouns (findings, asset inventory) are dropped so a general-purpose
+// task never exposes report_finding/insert_assets/list_assets. Used ONLY when the
+// owning task's mode is "general"; WorkerTools (unchanged) stays the default.
+func (t *ToolSet) GeneralWorkerTools() []actool.CoreTool {
+	return []actool.CoreTool{
+		t.recordFact(),
+		t.searchAllWorkerTraces(), t.getWorkerTrace(),
+		t.nodeDetail(),
+	}
+}
+
+// GeneralMainAgentTools is the "general" task-mode equivalent of MainAgentTools —
+// see GeneralWorkerTools for the rationale. Keeps the human-interface controls
+// (hints/intents/goals/constraints/steer) and drops the pentest asset/finding tools.
+func (t *ToolSet) GeneralMainAgentTools() []actool.CoreTool {
+	return []actool.CoreTool{
+		t.graphOverview(), t.listFacts(), t.nodeDetail(),
+		t.expandDigest(),
+		t.getWorkerOutput(), t.getWorkerTrace(), t.searchAllWorkerTraces(), t.addHint(), t.addIntent(),
+		t.steerWorkTool(),
+		t.setGoals(),
+		t.setConstraints(),
+		t.recordFact(),
+	}
+}
+
 // AllDomainTools returns the union of all domain tools across all agent types,
 // deduped by name (mainagent order wins). Used by the server to build a registry
 // for injecting domain tools into agents (Auto, custom) that don't own a per-task

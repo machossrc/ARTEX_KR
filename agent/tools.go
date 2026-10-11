@@ -2052,3 +2052,16 @@ func (t *ToolSet) PlannerTools() []actool.CoreTool {
 		t.listUntestedAssets(),
 	}
 }
+
+// GeneralPlannerTools is the "general" task-mode equivalent of PlannerTools: the
+// generic goal/intent-generation/judging tools stay, but the pentest-only nouns
+// (findings, assets, companies, scope) are dropped. Used ONLY when the owning
+// task's mode is "general"; PlannerTools (unchanged) stays the default.
+func (t *ToolSet) GeneralPlannerTools() []actool.CoreTool {
+	return []actool.CoreTool{
+		t.graphOverview(), t.listFacts(), t.nodeDetail(),
+		t.expandDigest(),
+		t.getWorkerOutput(), t.getWorkerTrace(), t.searchAllWorkerTraces(), t.listGoals(), t.addIntent(), t.proveGoal(), t.goalMet(),
+		t.killWorkTool(), t.steerWorkTool(),
+	}
+}
